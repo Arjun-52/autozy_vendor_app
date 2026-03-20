@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:autozy_vendor_app/views/auth/login_screen.dart';
-import 'package:autozy_vendor_app/views/auth/otp_screen.dart';
+import 'package:autozy_vendor_app/views/auth/screens/login_screen.dart';
+import 'package:autozy_vendor_app/views/auth/screens/otp_screen.dart';
 import 'package:autozy_vendor_app/views/role/select_role_screen.dart';
 import 'package:autozy_vendor_app/views/dashboard/detailer_dashboard.dart';
 

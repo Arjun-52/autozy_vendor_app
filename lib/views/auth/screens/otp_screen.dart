@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../viewmodels/auth_viewmodel.dart';
-import '../../../core/constants/app_colors.dart';
+import '../widgets/otp_box.dart';
+import '../widgets/otp_header.dart';
+import '../widgets/otp_logo.dart';
+import '../widgets/otp_verify_button.dart';
 
 class OtpScreen extends StatefulWidget {
   const OtpScreen({super.key});
@@ -17,18 +20,32 @@ class _OtpScreenState extends State<OtpScreen> {
     4,
     (_) => TextEditingController(),
   );
+  final List<FocusNode> focusNodes = List.generate(4, (_) => FocusNode());
+
+  @override
+  void dispose() {
+    for (var c in controllers) {
+      c.dispose();
+    }
+    for (var f in focusNodes) {
+      f.dispose();
+    }
+    super.dispose();
+  }
+
+  String getOtp() => controllers.map((e) => e.text).join();
 
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<AuthViewModel>();
 
-    // Navigate when OTP verified
-    if (vm.isOtpVerified) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+    // Navigate
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (vm.isOtpVerified) {
         vm.reset();
         context.go('/role');
-      });
-    }
+      }
+    });
 
     return Scaffold(
       body: Padding(
@@ -37,44 +54,20 @@ class _OtpScreenState extends State<OtpScreen> {
           children: [
             const SizedBox(height: 60),
 
-            // 🔙 Back Button + Title
-            Row(
-              children: [
-                IconButton(
-                  onPressed: () => context.pop(),
-                  icon: const Icon(Icons.arrow_back),
-                ),
-                const Text(
-                  "OTP Verification",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
+            const OtpHeader(),
 
             const SizedBox(height: 20),
 
-            // 🔹 Logo
-            Container(
-              height: 70,
-              width: 70,
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.asset(
-                  'assets/images/vendor_logo.jpg',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
+            const OtpLogo(),
 
             const SizedBox(height: 20),
 
             const Text(
               "We have sent a verification code to",
-              style: TextStyle(fontSize: 14),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
               textAlign: TextAlign.center,
             ),
 
@@ -82,64 +75,53 @@ class _OtpScreenState extends State<OtpScreen> {
 
             Text(
               "+91 ${vm.phoneNumber}",
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
 
             const SizedBox(height: 20),
 
             const Text(
               "Enter the Code",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 20),
-
-            // 🔢 OTP Boxes
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: List.generate(
-                4,
-                (index) => _otpBox(controllers[index]),
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
               ),
             ),
 
             const SizedBox(height: 20),
 
-            // 🔴 Error
+            // OTP BOXES
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                4,
+                (index) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: OtpBox(
+                    controller: controllers[index],
+                    focusNode: focusNodes[index],
+                    nextFocus: index < 3 ? focusNodes[index + 1] : null,
+                    prevFocus: index > 0 ? focusNodes[index - 1] : null,
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
             if (vm.errorMessage != null)
               Text(vm.errorMessage!, style: const TextStyle(color: Colors.red)),
 
             const SizedBox(height: 20),
 
-            // 🔘 Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: vm.isLoading
-                    ? null
-                    : () {
-                        final otp = controllers.map((e) => e.text).join();
-                        vm.verifyOtp(otp);
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: vm.isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        "Verify & Continue",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-              ),
-            ),
+            OtpVerifyButton(vm: vm, otp: getOtp()),
 
             const SizedBox(height: 20),
 
-            // Resend
             const Text.rich(
               TextSpan(
                 text: "Didn’t receive the OTP? ",
@@ -155,23 +137,6 @@ class _OtpScreenState extends State<OtpScreen> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  // Single OTP Box
-  Widget _otpBox(TextEditingController controller) {
-    return SizedBox(
-      width: 60,
-      child: TextField(
-        controller: controller,
-        keyboardType: TextInputType.number,
-        textAlign: TextAlign.center,
-        maxLength: 1,
-        decoration: InputDecoration(
-          counterText: "",
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
     );
