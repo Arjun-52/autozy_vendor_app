@@ -41,7 +41,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
             const Text(
               "Log in or Sign Up",
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
 
             const SizedBox(height: 65),
@@ -62,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
               },
             ),
 
-            const Spacer(),
+            const SizedBox(height: 280),
 
             const Text(
               "By continuing, you agree to our Terms and Conditions\n& Privacy Policy",

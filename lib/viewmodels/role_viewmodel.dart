@@ -1,11 +1,14 @@
+import 'package:autozy_vendor_app/data/models/role_model.dart';
 import 'package:flutter/foundation.dart';
 
-/// RoleViewModel - Handles role selection logic without navigation
-/// 
-/// MVVM Principle: Exposes state changes but UI handles navigation
 class RoleViewModel extends ChangeNotifier {
   // Available roles
-  static const List<String> availableRoles = ['Detailer', 'Manager', 'Admin'];
+  final List<RoleModel> availableRoles = [
+    RoleModel(title: 'Detailer', subtitle: 'Daily car cleaning route'),
+    RoleModel(title: 'Inspector', subtitle: 'New vehicle inspections'),
+    RoleModel(title: 'Supervisor', subtitle: 'Team & route management'),
+    RoleModel(title: 'Specialist', subtitle: 'Premium add-on services'),
+  ];
 
   // State variables
   String? _selectedRole;
@@ -16,11 +19,11 @@ class RoleViewModel extends ChangeNotifier {
   String? get selectedRole => _selectedRole;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-  List<String> get roles => availableRoles;
+  List<RoleModel> get roles => availableRoles;
 
   /// Select a role
   Future<void> selectRole(String role) async {
-    if (!availableRoles.contains(role)) {
+    if (!availableRoles.any((r) => r.title == role)) {
       _errorMessage = 'Invalid role selected';
       notifyListeners();
       return;
@@ -31,13 +34,9 @@ class RoleViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Simulate API call to save role selection
       await Future.delayed(const Duration(seconds: 1));
-      
+
       _selectedRole = role;
-      
-      // NOTE: No navigation here! The UI will listen to selectedRole changes
-      // and trigger navigation to '/dashboard' when a role is confirmed
     } catch (e) {
       _errorMessage = 'Failed to select role: ${e.toString()}';
     } finally {

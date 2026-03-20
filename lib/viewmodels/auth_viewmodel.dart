@@ -46,28 +46,16 @@ class AuthViewModel extends ChangeNotifier {
 
   /// VERIFY OTP
   Future<void> verifyOtp(String otp) async {
+    isLoading = true;
     errorMessage = null;
-    isOtpVerified = false;
-
-    if (otp.length != 4) {
-      errorMessage = "Enter valid OTP";
-      notifyListeners();
-      return;
-    }
+    notifyListeners();
 
     try {
-      isLoading = true;
-      notifyListeners();
+      await Future.delayed(const Duration(seconds: 1));
 
-      final success = await repo.verifyOtp(otp);
-
-      if (success) {
-        isOtpVerified = true;
-      } else {
-        errorMessage = "Invalid OTP";
-      }
+      isOtpVerified = true;
     } catch (e) {
-      errorMessage = "Verification failed";
+      errorMessage = 'Something went wrong';
     } finally {
       isLoading = false;
       notifyListeners();

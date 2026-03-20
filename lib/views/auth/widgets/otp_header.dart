@@ -14,7 +14,11 @@ class OtpHeader extends StatelessWidget {
         ),
         const Text(
           "OTP Verification",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
         ),
       ],
     );

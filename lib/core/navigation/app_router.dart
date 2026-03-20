@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:autozy_vendor_app/views/auth/screens/login_screen.dart';
 import 'package:autozy_vendor_app/views/auth/screens/otp_screen.dart';
-import 'package:autozy_vendor_app/views/role/select_role_screen.dart';
-import 'package:autozy_vendor_app/views/dashboard/detailer_dashboard.dart';
+import 'package:autozy_vendor_app/views/role/screens/role_screen.dart';
+import 'package:autozy_vendor_app/views/dashboard/screens/detailer_dashboard.dart';
 
 /// App router configuration using GoRouter
 ///
@@ -16,7 +16,6 @@ class AppRouter {
   // Private constructor to prevent instantiation
   AppRouter._();
 
-  /// Defines all available routes in the application
   static final GoRouter router = GoRouter(
     // Initial route when the app starts
     initialLocation: '/',
@@ -29,7 +28,6 @@ class AppRouter {
 
     // Define all routes
     routes: [
-      // Login screen - Entry point of the app
       GoRoute(
         path: '/',
         name: 'login',
@@ -47,43 +45,38 @@ class AppRouter {
       GoRoute(
         path: '/role',
         name: 'role',
-        builder: (context, state) => const SelectRoleScreen(),
+        builder: (context, state) => const RoleScreen(),
       ),
 
       // Dashboard screen
       GoRoute(
         path: '/dashboard',
         name: 'dashboard',
-        builder: (context, state) => const DetailerDashboard(),
+        builder: (context, state) => DetailerDashboard(),
       ),
     ],
   );
 }
 
-/// Extension on BuildContext to provide convenient navigation methods
-/// This makes it easy to navigate from the UI layer while maintaining type safety
 extension GoRouterExtension on GoRouter {
-  /// Navigate to login screen (replaces all previous routes)
+  /// Navigate to login screen
   void goToLogin() => go('/');
 
-  /// Navigate to OTP screen (replaces current route)
+  /// Navigate to OTP screen
   void goToOtp() => go('/otp');
 
-  /// Navigate to role selection (replaces current route)
+  /// Navigate to role selection
   void goToRole() => go('/role');
 
-  /// Navigate to dashboard (replaces current route)
+  /// Navigate to dashboard
   void goToDashboard() => go('/dashboard');
 
-  /// Push login screen onto the stack (use only if stacking is needed)
+  /// Push login screen onto the stack
   void pushLogin() => push('/');
 
-  /// Push OTP screen onto the stack
   void pushOtp() => push('/otp');
 
-  /// Push role selection screen onto the stack
   void pushRole() => push('/role');
 
-  /// Push dashboard onto the stack
   void pushDashboard() => push('/dashboard');
 }
