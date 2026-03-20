@@ -36,6 +36,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => RoleViewModel()),
 
         ///  DASHBOARD
+        ///
         ChangeNotifierProvider(create: (_) => DashboardViewModel()),
       ],
 

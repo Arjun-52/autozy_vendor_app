@@ -23,6 +23,20 @@ class _OtpScreenState extends State<OtpScreen> {
   final List<FocusNode> focusNodes = List.generate(4, (_) => FocusNode());
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final vm = context.read<AuthViewModel>();
+
+    if (vm.isOtpVerified) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        vm.reset();
+        context.go('/role');
+      });
+    }
+  }
+
+  @override
   void dispose() {
     for (var c in controllers) {
       c.dispose();
@@ -38,14 +52,6 @@ class _OtpScreenState extends State<OtpScreen> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<AuthViewModel>();
-
-    // Navigate
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (vm.isOtpVerified) {
-        vm.reset();
-        context.go('/role');
-      }
-    });
 
     return Scaffold(
       body: Padding(
@@ -118,7 +124,7 @@ class _OtpScreenState extends State<OtpScreen> {
 
             const SizedBox(height: 20),
 
-            OtpVerifyButton(vm: vm, otp: getOtp()),
+            OtpVerifyButton(vm: vm, getOtp: getOtp),
 
             const SizedBox(height: 20),
 

@@ -16,6 +16,7 @@ class AppRouter {
   // Private constructor to prevent instantiation
   AppRouter._();
 
+  /// Defines all available routes in the application
   static final GoRouter router = GoRouter(
     // Initial route when the app starts
     initialLocation: '/',
@@ -28,6 +29,7 @@ class AppRouter {
 
     // Define all routes
     routes: [
+      // Login screen - Entry point of the app
       GoRoute(
         path: '/',
         name: 'login',
@@ -58,6 +60,8 @@ class AppRouter {
   );
 }
 
+/// Extension on BuildContext to provide convenient navigation methods
+/// This makes it easy to navigate from the UI layer while maintaining type safety
 extension GoRouterExtension on GoRouter {
   /// Navigate to login screen
   void goToLogin() => go('/');

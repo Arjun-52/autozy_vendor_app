@@ -15,18 +15,12 @@ class RoleScreen extends StatelessWidget {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (vm.selectedRole != null) {
-        final roleRoutes = {
-          "Detailer": "dashboard",
-          "Inspector": "dashboard",
-          "Supervisor": "dashboard",
-          "Specialist": "dashboard",
-        };
-
-        final routeName = roleRoutes[vm.selectedRole];
-
-        if (routeName != null) {
-          context.goNamed(routeName);
+        // Only navigate to dashboard if Detailer is selected
+        if (vm.selectedRole == "Detailer") {
+          context.pushNamed("dashboard");
         }
+        // For other roles, you can add different navigation logic here
+        // For now, they will just stay on role screen after selection
       }
     });
 
