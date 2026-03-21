@@ -8,13 +8,6 @@ class OtpVerifyButton extends StatelessWidget {
 
   const OtpVerifyButton({super.key, required this.vm, required this.getOtp});
 
-  String? validateOtp(String otp) {
-    if (otp.isEmpty) return "Please enter OTP";
-    if (otp.length < 4) return "Enter complete OTP";
-    if (!RegExp(r'^[0-9]+$').hasMatch(otp)) return "OTP must be numeric";
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -23,16 +16,7 @@ class OtpVerifyButton extends StatelessWidget {
         onPressed: vm.isLoading
             ? null
             : () {
-                final otp = getOtp(); // 👈 latest value
-                final error = validateOtp(otp);
-
-                if (error != null) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(error)));
-                  return;
-                }
-
+                final otp = getOtp();
                 vm.verifyOtp(otp);
               },
         style: ElevatedButton.styleFrom(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../viewmodels/auth_viewmodel.dart';
 import '../widgets/otp_box.dart';
@@ -21,20 +20,6 @@ class _OtpScreenState extends State<OtpScreen> {
     (_) => TextEditingController(),
   );
   final List<FocusNode> focusNodes = List.generate(4, (_) => FocusNode());
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    final vm = context.read<AuthViewModel>();
-
-    if (vm.isOtpVerified) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        vm.reset();
-        context.go('/role');
-      });
-    }
-  }
 
   @override
   void dispose() {
@@ -130,7 +115,7 @@ class _OtpScreenState extends State<OtpScreen> {
 
             const Text.rich(
               TextSpan(
-                text: "Didn’t receive the OTP? ",
+                text: "Didn't receive the OTP? ",
                 children: [
                   TextSpan(
                     text: "Resend OTP",

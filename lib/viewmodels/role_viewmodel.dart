@@ -1,5 +1,7 @@
-import 'package:autozy_vendor_app/data/models/role_model.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:autozy_vendor_app/data/models/role_model.dart';
+import '../core/services/navigation_service.dart';
 
 class RoleViewModel extends ChangeNotifier {
   // Available roles
@@ -23,7 +25,7 @@ class RoleViewModel extends ChangeNotifier {
 
   /// Select a role
   Future<void> selectRole(String role) async {
-    if (!availableRoles.any((r) => r.title == role)) {
+    if (!isValidRole(role)) {
       _errorMessage = 'Invalid role selected';
       notifyListeners();
       return;
@@ -35,14 +37,30 @@ class RoleViewModel extends ChangeNotifier {
 
     try {
       await Future.delayed(const Duration(seconds: 1));
-
       _selectedRole = role;
+
+      // Navigate to dashboard if Detailer is selected
+      if (shouldNavigateToDashboard()) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          NavigationService.pushToDashboard();
+        });
+      }
     } catch (e) {
       _errorMessage = 'Failed to select role: ${e.toString()}';
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  /// Validate role
+  bool isValidRole(String role) {
+    return availableRoles.any((r) => r.title == role);
+  }
+
+  /// Check if selected role should navigate to dashboard
+  bool shouldNavigateToDashboard() {
+    return _selectedRole == "Detailer";
   }
 
   /// Reset role selection

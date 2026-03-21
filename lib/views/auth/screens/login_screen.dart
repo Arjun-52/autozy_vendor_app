@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../viewmodels/auth_viewmodel.dart';
@@ -20,13 +19,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<AuthViewModel>();
-
-    if (vm.isOtpSent) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        vm.reset();
-        context.go('/otp');
-      });
-    }
 
     return Scaffold(
       body: Padding(

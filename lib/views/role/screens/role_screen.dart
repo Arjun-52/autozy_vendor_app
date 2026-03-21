@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../viewmodels/role_viewmodel.dart';
 import '../widgets/role_card.dart';
@@ -12,17 +11,6 @@ class RoleScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<RoleViewModel>();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (vm.selectedRole != null) {
-        // Only navigate to dashboard if Detailer is selected
-        if (vm.selectedRole == "Detailer") {
-          context.pushNamed("dashboard");
-        }
-        // For other roles, you can add different navigation logic here
-        // For now, they will just stay on role screen after selection
-      }
-    });
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,

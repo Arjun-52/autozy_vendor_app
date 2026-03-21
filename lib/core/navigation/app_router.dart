@@ -4,6 +4,7 @@ import 'package:autozy_vendor_app/views/auth/screens/login_screen.dart';
 import 'package:autozy_vendor_app/views/auth/screens/otp_screen.dart';
 import 'package:autozy_vendor_app/views/role/screens/role_screen.dart';
 import 'package:autozy_vendor_app/views/dashboard/screens/detailer_dashboard.dart';
+import '../services/navigation_service.dart';
 
 /// App router configuration using GoRouter
 ///
@@ -20,6 +21,9 @@ class AppRouter {
   static final GoRouter router = GoRouter(
     // Initial route when the app starts
     initialLocation: '/',
+
+    // Navigator key for NavigationService
+    navigatorKey: NavigationService.navigatorKey,
 
     // Error handling for unknown routes
     errorBuilder: (context, state) => Scaffold(
