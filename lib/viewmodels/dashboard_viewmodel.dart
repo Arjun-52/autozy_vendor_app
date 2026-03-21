@@ -1,43 +1,28 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../core/services/navigation_service.dart';
+import '../core/base/base_viewmodel.dart';
 
 /// DashboardViewModel - Handles dashboard logic and navigation
 ///
 /// MVVM Principle: Exposes state and handles navigation logic
-class DashboardViewModel extends ChangeNotifier {
+class DashboardViewModel extends BaseViewModel {
   // State variables
-  bool _isLoading = false;
   bool _isLoggedOut = false;
   String? _userRole;
   String? _userName;
-  String? _errorMessage;
 
   // Getters
-  bool get isLoading => _isLoading;
   bool get isLoggedOut => _isLoggedOut;
   String? get userRole => _userRole;
   String? get userName => _userName;
-  String? get errorMessage => _errorMessage;
 
   /// Load dashboard data
   Future<void> loadDashboardData(String userRole) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
-    try {
-      // Simulate API call to load user data
+    await executeOperation(() async {
       await Future.delayed(const Duration(seconds: 1));
-
       _userRole = userRole;
       _userName = 'John Doe'; // In real app, get from API/database
-    } catch (e) {
-      _errorMessage = 'Failed to load dashboard: ${e.toString()}';
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    }, onError: 'Failed to load dashboard');
   }
 
   /// Handle back navigation
@@ -52,32 +37,17 @@ class DashboardViewModel extends ChangeNotifier {
 
   /// Logout user
   Future<void> logout() async {
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      // Simulate logout API call
+    await executeOperation(() async {
       await Future.delayed(const Duration(seconds: 1));
-
       _userRole = null;
       _userName = null;
       _isLoggedOut = true;
-
-      // Navigate to role screen
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        NavigationService.goToRole();
-      });
-    } catch (e) {
-      _errorMessage = 'Failed to logout: ${e.toString()}';
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    }, onError: 'Failed to logout');
   }
 
-  /// Clear error message
-  void clearError() {
-    _errorMessage = null;
+  /// Reset logout state
+  void resetRole() {
+    _isLoggedOut = false;
     notifyListeners();
   }
 }

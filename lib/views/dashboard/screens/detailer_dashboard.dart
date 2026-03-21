@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../viewmodels/dashboard_viewmodel.dart';
 import '../widgets/status_card.dart';
 import '../widgets/job_card.dart';
+import '../../../core/services/navigation_service.dart';
 
 class DetailerDashboard extends StatelessWidget {
   const DetailerDashboard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.watch<DashboardViewModel>();
-
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
 
@@ -20,7 +17,12 @@ class DetailerDashboard extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            vm.handleBackNavigation();
+            if (NavigationService.context != null &&
+                Navigator.canPop(NavigationService.context!)) {
+              NavigationService.pop();
+            } else {
+              NavigationService.goToRole();
+            }
           },
         ),
         title: Column(

@@ -1,9 +1,8 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:autozy_vendor_app/data/models/role_model.dart';
 import '../core/services/navigation_service.dart';
+import '../core/base/base_viewmodel.dart';
 
-class RoleViewModel extends ChangeNotifier {
+class RoleViewModel extends BaseViewModel {
   // Available roles
   final List<RoleModel> availableRoles = [
     RoleModel(title: 'Detailer', subtitle: 'Daily car cleaning route'),
@@ -14,43 +13,27 @@ class RoleViewModel extends ChangeNotifier {
 
   // State variables
   String? _selectedRole;
-  bool _isLoading = false;
-  String? _errorMessage;
 
   // Getters
   String? get selectedRole => _selectedRole;
-  bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
   List<RoleModel> get roles => availableRoles;
 
   /// Select a role
   Future<void> selectRole(String role) async {
     if (!isValidRole(role)) {
-      _errorMessage = 'Invalid role selected';
-      notifyListeners();
+      setError('Invalid role selected');
       return;
     }
 
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
-    try {
+    await executeOperation(() async {
       await Future.delayed(const Duration(seconds: 1));
       _selectedRole = role;
 
       // Navigate to dashboard if Detailer is selected
       if (shouldNavigateToDashboard()) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          NavigationService.pushToDashboard();
-        });
+        NavigationService.pushToDashboard();
       }
-    } catch (e) {
-      _errorMessage = 'Failed to select role: ${e.toString()}';
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    }, onError: 'Failed to select role');
   }
 
   /// Validate role
@@ -66,13 +49,6 @@ class RoleViewModel extends ChangeNotifier {
   /// Reset role selection
   void resetRole() {
     _selectedRole = null;
-    _errorMessage = null;
-    notifyListeners();
-  }
-
-  /// Clear error message
-  void clearError() {
-    _errorMessage = null;
-    notifyListeners();
+    resetBaseState();
   }
 }

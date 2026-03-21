@@ -7,16 +7,15 @@ import 'package:autozy_vendor_app/core/navigation/app_router.dart';
 //  Theme
 import 'package:autozy_vendor_app/core/theme/app_theme.dart';
 
-//  ViewModels
-import 'package:autozy_vendor_app/viewmodels/auth_viewmodel.dart';
-import 'package:autozy_vendor_app/viewmodels/role_viewmodel.dart';
-import 'package:autozy_vendor_app/viewmodels/dashboard_viewmodel.dart';
+//  State Navigation
+import 'package:autozy_vendor_app/widgets/state_driven_navigator.dart';
 
-//  Dependencies
-import 'package:autozy_vendor_app/data/services/auth_service.dart';
-import 'package:autozy_vendor_app/data/repositories/auth_repository.dart';
+//  Dependency Injection
+import 'package:autozy_vendor_app/core/di/dependency_injection.dart';
 
 void main() {
+  // Initialize dependency injection
+  di.initialize();
   runApp(const MyApp());
 }
 
@@ -27,27 +26,27 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ///  AUTH (Service → Repository → ViewModel)
-        ChangeNotifierProvider(
-          create: (_) => AuthViewModel(AuthRepository(AuthService())),
-        ),
+        ///  AUTH (Injected via DI)
+        ChangeNotifierProvider(create: (_) => di.createAuthViewModel()),
 
-        ///  ROLE
-        ChangeNotifierProvider(create: (_) => RoleViewModel()),
+        ///  ROLE (Injected via DI)
+        ChangeNotifierProvider(create: (_) => di.createRoleViewModel()),
 
-        ///  DASHBOARD
-        ChangeNotifierProvider(create: (_) => DashboardViewModel()),
+        ///  DASHBOARD (Injected via DI)
+        ChangeNotifierProvider(create: (_) => di.createDashboardViewModel()),
       ],
 
       ///  GoRouter Integration
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        title: 'Autozy Vendor',
+      child: StateDrivenNavigator(
+        child: MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          title: 'Autozy Vendor',
 
-        // Use custom theme with Poppins font
-        theme: AppTheme.lightTheme,
+          // Use custom theme with Poppins font
+          theme: AppTheme.lightTheme,
 
-        routerConfig: AppRouter.router,
+          routerConfig: AppRouter.router,
+        ),
       ),
     );
   }
