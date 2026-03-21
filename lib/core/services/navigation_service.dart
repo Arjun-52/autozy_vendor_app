@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class NavigationService {
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
 
   static BuildContext? get context => navigatorKey.currentContext;
 
@@ -39,6 +40,16 @@ class NavigationService {
   static void pop() {
     if (context != null && Navigator.canPop(context!)) {
       context!.pop();
+    }
+  }
+
+  static void goBack() {
+    if (context != null) {
+      if (Navigator.canPop(context!)) {
+        context!.pop();
+      } else {
+        goToRole();
+      }
     }
   }
 }

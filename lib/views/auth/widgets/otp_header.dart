@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import '../../../core/services/navigation_service.dart';
 
 class OtpHeader extends StatelessWidget {
   const OtpHeader({super.key});
@@ -9,7 +9,7 @@ class OtpHeader extends StatelessWidget {
     return Row(
       children: [
         IconButton(
-          onPressed: () => context.pop(),
+          onPressed: () => NavigationService.goBack(),
           icon: const Icon(Icons.arrow_back),
         ),
         const Text(

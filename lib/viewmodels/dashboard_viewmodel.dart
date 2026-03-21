@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import '../core/services/navigation_service.dart';
 
-/// DashboardViewModel - Handles dashboard logic without navigation
+/// DashboardViewModel - Handles dashboard logic and navigation
 ///
-/// MVVM Principle: Exposes state but does NOT handle navigation
+/// MVVM Principle: Exposes state and handles navigation logic
 class DashboardViewModel extends ChangeNotifier {
   // State variables
   bool _isLoading = false;
@@ -38,6 +40,16 @@ class DashboardViewModel extends ChangeNotifier {
     }
   }
 
+  /// Handle back navigation
+  void handleBackNavigation() {
+    if (NavigationService.context != null &&
+        Navigator.canPop(NavigationService.context!)) {
+      NavigationService.pop();
+    } else {
+      NavigationService.goToRole();
+    }
+  }
+
   /// Logout user
   Future<void> logout() async {
     _isLoading = true;
@@ -51,8 +63,10 @@ class DashboardViewModel extends ChangeNotifier {
       _userName = null;
       _isLoggedOut = true;
 
-      // NOTE: No navigation here! The UI will listen to logout action
-      // and navigate back to '/login' route
+      // Navigate to role screen
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        NavigationService.goToRole();
+      });
     } catch (e) {
       _errorMessage = 'Failed to logout: ${e.toString()}';
     } finally {

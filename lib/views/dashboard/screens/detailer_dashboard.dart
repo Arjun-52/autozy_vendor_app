@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../viewmodels/dashboard_viewmodel.dart';
 import '../widgets/status_card.dart';
@@ -21,11 +20,7 @@ class DetailerDashboard extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            if (Navigator.canPop(context)) {
-              context.pop();
-            } else {
-              context.go('/role');
-            }
+            vm.handleBackNavigation();
           },
         ),
         title: Column(
@@ -40,7 +35,7 @@ class DetailerDashboard extends StatelessWidget {
               ),
             ),
             Text(
-              "Today’s Route",
+              "Today's Route",
               style: TextStyle(color: Colors.grey, fontSize: 12),
             ),
           ],
@@ -98,7 +93,7 @@ class DetailerDashboard extends StatelessWidget {
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                "Today’s Jobs",
+                "Today's Jobs",
                 style: TextStyle(fontSize: 18, color: Colors.black),
               ),
             ),
