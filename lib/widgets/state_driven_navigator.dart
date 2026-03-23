@@ -36,7 +36,6 @@ class _StateDrivenNavigatorState extends State<StateDrivenNavigator> {
           });
         }
 
-        // Navigate to Role when OTP is verified
         if (!_isNavigating &&
             authViewModel.isOtpVerified &&
             !authViewModel.isLoading) {

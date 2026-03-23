@@ -6,55 +6,43 @@ import 'package:autozy_vendor_app/views/role/screens/role_screen.dart';
 import 'package:autozy_vendor_app/views/dashboard/screens/detailer_dashboard.dart';
 import '../services/navigation_service.dart';
 
-/// App router configuration using GoRouter
-///
-/// This router follows MVVM architecture principles:
-/// - Routes are defined centrally in one place
-/// - Navigation is triggered only from the UI layer
-/// - ViewModels expose state but don't handle navigation
-/// - UI listens to ViewModel state and triggers navigation accordingly
 class AppRouter {
   // Private constructor to prevent instantiation
   AppRouter._();
 
-  /// Defines all available routes in the application
   static final GoRouter router = GoRouter(
-    // Initial route when the app starts
     initialLocation: '/',
 
-    // Navigator key for NavigationService
     navigatorKey: NavigationService.navigatorKey,
 
-    // Error handling for unknown routes
     errorBuilder: (context, state) => Scaffold(
       appBar: AppBar(title: const Text('Error')),
       body: Center(child: Text('Route not found: ${state.uri.path}')),
     ),
 
-    // Define all routes
     routes: [
-      // Login screen - Entry point of the app
+      // Login screen
       GoRoute(
         path: '/',
         name: 'login',
         builder: (context, state) => const LoginScreen(),
       ),
 
-      // OTP verification screen
+      // OTP
       GoRoute(
         path: '/otp',
         name: 'otp',
         builder: (context, state) => const OtpScreen(),
       ),
 
-      // Role selection screen
+      // Role
       GoRoute(
         path: '/role',
         name: 'role',
         builder: (context, state) => const RoleScreen(),
       ),
 
-      // Dashboard screen
+      // Dashboard
       GoRoute(
         path: '/dashboard',
         name: 'dashboard',
@@ -64,22 +52,19 @@ class AppRouter {
   );
 }
 
-/// Extension on BuildContext to provide convenient navigation methods
-/// This makes it easy to navigate from the UI layer while maintaining type safety
 extension GoRouterExtension on GoRouter {
-  /// Navigate to login screen
+  /// Navigate to login s
   void goToLogin() => go('/');
 
   /// Navigate to OTP screen
   void goToOtp() => go('/otp');
 
-  /// Navigate to role selection
+  /// Navigate to role
   void goToRole() => go('/role');
 
   /// Navigate to dashboard
   void goToDashboard() => go('/dashboard');
 
-  /// Push login screen onto the stack
   void pushLogin() => push('/');
 
   void pushOtp() => push('/otp');

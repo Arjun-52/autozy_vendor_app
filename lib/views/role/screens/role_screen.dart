@@ -2,11 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../viewmodels/role_viewmodel.dart';
+import '../../../viewmodels/auth_viewmodel.dart';
 import '../widgets/role_card.dart';
 import '../../../core/constants/app_colors.dart';
 
-class RoleScreen extends StatelessWidget {
+class RoleScreen extends StatefulWidget {
   const RoleScreen({super.key});
+
+  @override
+  State<RoleScreen> createState() => _RoleScreenState();
+}
+
+class _RoleScreenState extends State<RoleScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authVm = context.read<AuthViewModel>();
+      authVm.reset();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -18,7 +18,7 @@ class DependencyInjection {
   late final IAuthService _authService;
   late final IAuthRepository _authRepository;
 
-  // ViewModel instances (can be singletons or factories)
+  // ViewModel instances
   late final AuthViewModel _authViewModel;
   late final RoleViewModel _roleViewModel;
   late final DashboardViewModel _dashboardViewModel;
@@ -29,7 +29,7 @@ class DependencyInjection {
     _authService = AuthService();
     _authRepository = AuthRepository(_authService);
 
-    // Initialize ViewModels (factories for fresh instances)
+    // Initialize ViewModels
     _authViewModel = AuthViewModel(_authRepository);
     _roleViewModel = RoleViewModel();
     _dashboardViewModel = DashboardViewModel();

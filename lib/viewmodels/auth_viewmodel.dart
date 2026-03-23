@@ -1,5 +1,6 @@
 import '../core/base/base_viewmodel.dart';
 import '../core/interfaces/auth_repository_interface.dart';
+import '../core/services/navigation_service.dart';
 
 class AuthViewModel extends BaseViewModel {
   final IAuthRepository repo;
@@ -22,6 +23,8 @@ class AuthViewModel extends BaseViewModel {
       if (success) {
         phoneNumber = phone;
         isOtpSent = true;
+        // Navigate to OTP screen
+        NavigationService.goToOtp();
       } else {
         throw Exception("Failed to send OTP");
       }
@@ -39,6 +42,8 @@ class AuthViewModel extends BaseViewModel {
     await executeOperation(() async {
       await Future.delayed(const Duration(seconds: 1));
       isOtpVerified = true;
+      // Navigate to role screen
+      NavigationService.goToRole();
     }, onError: "Something went wrong while verifying OTP");
   }
 
@@ -61,5 +66,11 @@ class AuthViewModel extends BaseViewModel {
     isOtpVerified = false;
     phoneNumber = "";
     resetBaseState();
+  }
+
+  /// Reset verification state only (for OTP screen)
+  void resetVerificationState() {
+    isOtpVerified = false;
+    clearError();
   }
 }

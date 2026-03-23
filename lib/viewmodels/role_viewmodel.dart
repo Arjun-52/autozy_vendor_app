@@ -41,7 +41,6 @@ class RoleViewModel extends BaseViewModel {
     return availableRoles.any((r) => r.title == role);
   }
 
-  /// Check if selected role should navigate to dashboard
   bool shouldNavigateToDashboard() {
     return _selectedRole == "Detailer";
   }

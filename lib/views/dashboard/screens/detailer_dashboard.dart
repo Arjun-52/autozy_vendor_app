@@ -1,10 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../widgets/status_card.dart';
 import '../widgets/job_card.dart';
 import '../../../core/services/navigation_service.dart';
+import '../../../viewmodels/dashboard_viewmodel.dart';
 
-class DetailerDashboard extends StatelessWidget {
+class DetailerDashboard extends StatefulWidget {
   const DetailerDashboard({super.key});
+
+  @override
+  State<DetailerDashboard> createState() => _DetailerDashboardState();
+}
+
+class _DetailerDashboardState extends State<DetailerDashboard> {
+  @override
+  void initState() {
+    super.initState();
+    // Reset logout state when dashboard is initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final vm = context.read<DashboardViewModel>();
+      vm.resetRole();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

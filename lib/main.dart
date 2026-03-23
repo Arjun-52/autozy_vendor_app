@@ -7,9 +7,6 @@ import 'package:autozy_vendor_app/core/navigation/app_router.dart';
 //  Theme
 import 'package:autozy_vendor_app/core/theme/app_theme.dart';
 
-//  State Navigation
-import 'package:autozy_vendor_app/widgets/state_driven_navigator.dart';
-
 //  Dependency Injection
 import 'package:autozy_vendor_app/core/di/dependency_injection.dart';
 
@@ -37,16 +34,14 @@ class MyApp extends StatelessWidget {
       ],
 
       ///  GoRouter Integration
-      child: StateDrivenNavigator(
-        child: MaterialApp.router(
-          debugShowCheckedModeBanner: false,
-          title: 'Autozy Vendor',
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        title: 'Autozy Vendor',
 
-          // Use custom theme with Poppins font
-          theme: AppTheme.lightTheme,
+        // Use custom theme with Poppins font
+        theme: AppTheme.lightTheme,
 
-          routerConfig: AppRouter.router,
-        ),
+        routerConfig: AppRouter.router,
       ),
     );
   }

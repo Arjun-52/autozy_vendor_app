@@ -22,6 +22,16 @@ class _OtpScreenState extends State<OtpScreen> {
   final List<FocusNode> focusNodes = List.generate(4, (_) => FocusNode());
 
   @override
+  void initState() {
+    super.initState();
+    // Reset AuthViewModel verification state when OTP screen is initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final vm = context.read<AuthViewModel>();
+      vm.resetVerificationState();
+    });
+  }
+
+  @override
   void dispose() {
     for (var c in controllers) {
       c.dispose();

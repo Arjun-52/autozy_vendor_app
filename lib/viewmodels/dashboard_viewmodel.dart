@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import '../core/services/navigation_service.dart';
 import '../core/base/base_viewmodel.dart';
 
-/// DashboardViewModel - Handles dashboard logic and navigation
-///
-/// MVVM Principle: Exposes state and handles navigation logic
 class DashboardViewModel extends BaseViewModel {
   // State variables
   bool _isLoggedOut = false;
@@ -16,12 +13,11 @@ class DashboardViewModel extends BaseViewModel {
   String? get userRole => _userRole;
   String? get userName => _userName;
 
-  /// Load dashboard data
   Future<void> loadDashboardData(String userRole) async {
     await executeOperation(() async {
       await Future.delayed(const Duration(seconds: 1));
       _userRole = userRole;
-      _userName = 'John Doe'; // In real app, get from API/database
+      _userName = 'John Doe';
     }, onError: 'Failed to load dashboard');
   }
 
@@ -42,6 +38,8 @@ class DashboardViewModel extends BaseViewModel {
       _userRole = null;
       _userName = null;
       _isLoggedOut = true;
+      // Navigate to role screen
+      NavigationService.goToRole();
     }, onError: 'Failed to logout');
   }
 
