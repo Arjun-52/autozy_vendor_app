@@ -24,7 +24,7 @@ class _OtpScreenState extends State<OtpScreen> {
   @override
   void initState() {
     super.initState();
-    // Reset AuthViewModel verification state when OTP screen is initialized
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final vm = context.read<AuthViewModel>();
       vm.resetVerificationState();
@@ -49,6 +49,7 @@ class _OtpScreenState extends State<OtpScreen> {
     final vm = context.watch<AuthViewModel>();
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF3F2F0),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(

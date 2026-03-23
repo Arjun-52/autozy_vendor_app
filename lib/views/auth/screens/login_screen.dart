@@ -21,6 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final vm = context.watch<AuthViewModel>();
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF3F2F0),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(

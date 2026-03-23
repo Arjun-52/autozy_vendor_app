@@ -15,7 +15,7 @@ class OtpLogo extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: Image.asset('assets/images/vendor_logo.jpg', fit: BoxFit.cover),
+        child: Image.asset('assets/images/vendor_logo.png', fit: BoxFit.cover),
       ),
     );
   }

@@ -9,8 +9,8 @@ class LoginLogo extends StatelessWidget {
     return Column(
       children: [
         Container(
-          height: 72,
-          width: 72,
+          height: 77,
+          width: 77,
           decoration: BoxDecoration(
             color: AppColors.primary,
             borderRadius: BorderRadius.circular(16),
@@ -18,8 +18,8 @@ class LoginLogo extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: Image.asset(
-              'assets/images/vendor_logo.jpg',
-              fit: BoxFit.cover,
+              'assets/images/vendor_logo.png',
+              fit: BoxFit.contain,
             ),
           ),
         ),
