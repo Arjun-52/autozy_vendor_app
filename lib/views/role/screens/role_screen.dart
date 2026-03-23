@@ -40,8 +40,8 @@ class _RoleScreenState extends State<RoleScreen> {
             Column(
               children: [
                 Container(
-                  height: 60,
-                  width: 60,
+                  height: 70,
+                  width: 70,
                   decoration: BoxDecoration(
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(14),
@@ -49,7 +49,7 @@ class _RoleScreenState extends State<RoleScreen> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(14),
                     child: Image.asset(
-                      'assets/images/vendor_logo.jpg',
+                      'assets/images/vendor_logo.png',
                       fit: BoxFit.cover,
                     ),
                   ),

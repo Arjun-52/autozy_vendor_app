@@ -1,3 +1,4 @@
+import 'package:autozy_vendor_app/views/auth/widgets/resend_otp_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +20,7 @@ class _OtpScreenState extends State<OtpScreen> {
     4,
     (_) => TextEditingController(),
   );
+
   final List<FocusNode> focusNodes = List.generate(4, (_) => FocusNode());
 
   @override
@@ -26,8 +28,7 @@ class _OtpScreenState extends State<OtpScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final vm = context.read<AuthViewModel>();
-      vm.resetVerificationState();
+      context.read<AuthViewModel>().resetVerificationState();
     });
   }
 
@@ -57,11 +58,9 @@ class _OtpScreenState extends State<OtpScreen> {
             const SizedBox(height: 60),
 
             const OtpHeader(),
-
             const SizedBox(height: 20),
 
             const OtpLogo(),
-
             const SizedBox(height: 20),
 
             const Text(
@@ -96,7 +95,7 @@ class _OtpScreenState extends State<OtpScreen> {
 
             const SizedBox(height: 20),
 
-            // OTP BOXES
+            /// OTP BOXES
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
@@ -115,29 +114,18 @@ class _OtpScreenState extends State<OtpScreen> {
 
             const SizedBox(height: 20),
 
+            /// ERROR
             if (vm.errorMessage != null)
               Text(vm.errorMessage!, style: const TextStyle(color: Colors.red)),
 
             const SizedBox(height: 20),
 
+            /// VERIFY BUTTON
             OtpVerifyButton(vm: vm, getOtp: getOtp),
 
             const SizedBox(height: 20),
 
-            const Text.rich(
-              TextSpan(
-                text: "Didn't receive the OTP? ",
-                children: [
-                  TextSpan(
-                    text: "Resend OTP",
-                    style: TextStyle(
-                      color: Colors.orange,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            const ResendOtpText(),
           ],
         ),
       ),

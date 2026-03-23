@@ -9,6 +9,9 @@ import 'package:autozy_vendor_app/core/theme/app_theme.dart';
 
 //  Dependency Injection
 import 'package:autozy_vendor_app/core/di/dependency_injection.dart';
+import 'package:autozy_vendor_app/viewmodels/auth_viewmodel.dart';
+import 'package:autozy_vendor_app/viewmodels/role_viewmodel.dart';
+import 'package:autozy_vendor_app/viewmodels/dashboard_viewmodel.dart';
 
 void main() {
   // Initialize dependency injection
@@ -23,14 +26,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ///  AUTH (Injected via DI)
-        ChangeNotifierProvider(create: (_) => di.createAuthViewModel()),
+        ///  AUTH (Provider-based DI)
+        ChangeNotifierProvider(create: (_) => AuthViewModel(di.authRepository)),
 
-        ///  ROLE (Injected via DI)
-        ChangeNotifierProvider(create: (_) => di.createRoleViewModel()),
+        ///  ROLE (Provider-based DI)
+        ChangeNotifierProvider(create: (_) => RoleViewModel()),
 
-        ///  DASHBOARD (Injected via DI)
-        ChangeNotifierProvider(create: (_) => di.createDashboardViewModel()),
+        ///  DASHBOARD (Provider-based DI)
+        ChangeNotifierProvider(create: (_) => DashboardViewModel()),
       ],
 
       ///  GoRouter Integration
