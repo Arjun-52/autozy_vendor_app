@@ -79,7 +79,6 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
             const SizedBox(height: 10),
 
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
                 Expanded(
                   child: StatusCard(
@@ -88,7 +87,8 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
                     subtitle: "Completed",
                   ),
                 ),
-                SizedBox(width: 10),
+                SizedBox(width: 8),
+
                 Expanded(
                   child: StatusCard(
                     icon: Icons.directions_car,
@@ -96,7 +96,18 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
                     subtitle: "Remaining",
                   ),
                 ),
-                SizedBox(width: 10),
+                SizedBox(width: 8),
+
+                Expanded(
+                  child: StatusCard(
+                    icon: Icons.warning_amber_rounded,
+                    title: "0",
+                    subtitle: "CNA",
+                    iconColor: Colors.orange,
+                  ),
+                ),
+                SizedBox(width: 8),
+
                 Expanded(
                   child: StatusCard(
                     icon: Icons.wifi_off,
@@ -107,13 +118,17 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
               ],
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
 
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 "Today's Jobs",
-                style: TextStyle(fontSize: 18, color: Colors.black),
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
 
@@ -126,7 +141,7 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
                   JobCard(
                     vehicle: "TS 01 AB 1234",
                     name: "Rahul S.",
-                    location: "Nexus Hyderabad, Kukatpally, Hyderabad",
+                    location: "Tower A, Slot 6",
                   ),
                   JobCard(
                     vehicle: "MH 03 CD 5678",

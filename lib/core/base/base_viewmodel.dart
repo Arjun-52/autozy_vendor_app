@@ -1,8 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-/// BaseViewModel - Provides common functionality for all ViewModels
-///
-/// Eliminates duplicated loading, error handling, and state management logic
+
 abstract class BaseViewModel extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;

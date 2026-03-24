@@ -216,10 +216,10 @@ class ReactiveNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Listen to all ViewModels and navigate accordingly
+  
     return Consumer<AuthViewModel>(
       builder: (context, authViewModel, _) {
-        // Handle AuthViewModel state changes
+        
         if (authViewModel.isOtpSent && !authViewModel.isOtpVerified) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (GoRouterState.of(context).uri.path != '/otp') {
@@ -238,7 +238,7 @@ class ReactiveNavigator extends StatelessWidget {
 
         return Consumer<RoleViewModel>(
           builder: (context, roleViewModel, _) {
-            // Handle RoleViewModel state changes
+            
             if (roleViewModel.selectedRole != null) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (GoRouterState.of(context).uri.path != '/dashboard') {
@@ -268,16 +268,3 @@ class ReactiveNavigator extends StatelessWidget {
   }
 }
 
-/// Best Practices Summary:
-///
-/// 1. **NEVER navigate inside ViewModels** - Always trigger navigation from UI
-/// 2. **Use Consumer widgets** to listen to ViewModel state changes
-/// 3. **Use WidgetsBinding.instance.addPostFrameCallback** for navigation
-///    to avoid navigation during widget build
-/// 4. **Always check context.mounted** before navigation after async operations
-/// 5. **Use context.go() for main navigation** (replaces routes)
-/// 6. **Use context.push() only when stacking is needed**
-/// 7. **Handle loading states** - don't navigate while ViewModel is busy
-/// 8. **Handle error states** - show errors to user before navigation
-/// 9. **Use GoRouterState.of(context).uri.path** to check current route
-/// 10. **Keep navigation logic simple** in UI, complex logic in ViewModels

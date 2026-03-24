@@ -114,7 +114,7 @@ class _OtpScreenState extends State<OtpScreen> {
 
             const SizedBox(height: 20),
 
-            /// ERROR
+            /// ERROR MESSAGE
             if (vm.errorMessage != null)
               Text(vm.errorMessage!, style: const TextStyle(color: Colors.red)),
 
