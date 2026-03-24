@@ -1,3 +1,5 @@
+import 'package:autozy_vendor_app/viewmodels/job_details_viewmodel.dart';
+import 'package:autozy_vendor_app/views/dashboard/screens/job_details.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/status_card.dart';
@@ -16,11 +18,25 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
   @override
   void initState() {
     super.initState();
-    // Reset logout state when dashboard is initialized
+    // Load jobs when dashboard is initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final vm = context.read<DashboardViewModel>();
-      vm.resetRole();
+      vm.loadJobs();
     });
+  }
+
+  void openJobDetails(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) {
+        return ChangeNotifierProvider(
+          create: (_) => JobDetailsViewModel(),
+          child: const JobDetailsScreen(),
+        );
+      },
+    );
   }
 
   @override
@@ -135,26 +151,34 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
             const SizedBox(height: 10),
 
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.only(bottom: 30),
-                children: const [
-                  JobCard(
-                    vehicle: "TS 01 AB 1234",
-                    name: "Rahul S.",
-                    location: "Tower A, Slot 6",
-                  ),
-                  JobCard(
-                    vehicle: "MH 03 CD 5678",
-                    name: "Priya M.",
-                    location: "Tower B, Slot 5",
-                  ),
-                  JobCard(
-                    vehicle: "MH 04 EF 9012",
-                    name: "Ravi K.",
-                    location: "Tower B, Slot 8",
-                    isCompleted: true,
-                  ),
-                ],
+              child: Consumer<DashboardViewModel>(
+                builder: (context, viewModel, child) {
+                  if (viewModel.jobs.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        "No jobs available",
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.only(bottom: 30),
+                    itemCount: viewModel.jobs.length,
+                    itemBuilder: (context, index) {
+                      final job = viewModel.jobs[index];
+                      return JobCard(
+                        key: ValueKey(job.vehicle),
+                        vehicle: job.vehicle,
+                        name: job.name,
+                        location: job.location,
+                        isCompleted: job.isCompleted,
+                        index: index,
+                        onTap: () => openJobDetails(context),
+                      );
+                    },
+                  );
+                },
               ),
             ),
           ],

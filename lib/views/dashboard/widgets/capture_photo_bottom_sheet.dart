@@ -1,8 +1,51 @@
+import 'package:autozy_vendor_app/core/utils/snackbar_helper.dart';
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
+import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import '../../../viewmodels/dashboard_viewmodel.dart';
 
-class CapturePhotoBottomSheet extends StatelessWidget {
-  const CapturePhotoBottomSheet({super.key});
+class CapturePhotoBottomSheet extends StatefulWidget {
+  final int jobIndex;
+
+  const CapturePhotoBottomSheet({super.key, required this.jobIndex});
+
+  @override
+  State<CapturePhotoBottomSheet> createState() =>
+      _CapturePhotoBottomSheetState();
+}
+
+class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
+  File? imageFile;
+
+  final ImagePicker picker = ImagePicker();
+
+  Future<void> takePhoto() async {
+    final XFile? photo = await picker.pickImage(source: ImageSource.camera);
+
+    if (photo != null) {
+      setState(() {
+        imageFile = File(photo.path);
+      });
+    }
+  }
+
+  void _handleJobCompletion() {
+    if (!mounted) return;
+
+    // Mark job as completed
+    context.read<DashboardViewModel>().markJobCompleted(widget.jobIndex);
+
+    // Close bottom sheet
+    Navigator.pop(context);
+
+    // Show notification with delay to avoid context issues
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (mounted) {
+        SnackbarHelper.showTopNotification(context);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +58,7 @@ class CapturePhotoBottomSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          /// drag handle
           Container(
             height: 4,
             width: 40,
@@ -25,6 +69,7 @@ class CapturePhotoBottomSheet extends StatelessWidget {
             ),
           ),
 
+          /// title
           Row(
             children: [
               GestureDetector(
@@ -42,24 +87,25 @@ class CapturePhotoBottomSheet extends StatelessWidget {
           const SizedBox(height: 20),
 
           Container(
-            height: 160,
+            height: 180,
             width: double.infinity,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: Colors.grey,
-                style: BorderStyle.solid,
-                width: 1.5,
-              ),
+              border: Border.all(color: Colors.grey),
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(Icons.camera_alt_outlined, size: 30),
-                SizedBox(height: 8),
-                Text("Camera Preview Area"),
-              ],
-            ),
+            child: imageFile == null
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.camera_alt_outlined, size: 30),
+                      SizedBox(height: 8),
+                      Text("Camera Preview Area"),
+                    ],
+                  )
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: Image.file(imageFile!, fit: BoxFit.cover),
+                  ),
           ),
 
           const SizedBox(height: 20),
@@ -67,25 +113,32 @@ class CapturePhotoBottomSheet extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.camera_alt, color: Colors.black),
-                      SizedBox(width: 8),
-                      Text(
-                        "Take Photo",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                child: InkWell(
+                  onTap: () {
+                    takePhoto().then((_) {
+                      if (imageFile != null) {
+                        _handleJobCompletion();
+                      }
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(14),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      color: Colors.amber,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.camera_alt),
+                        SizedBox(width: 8),
+                        Text(
+                          "Take Photo",
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -93,18 +146,22 @@ class CapturePhotoBottomSheet extends StatelessWidget {
               const SizedBox(width: 10),
 
               Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.red),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      "Cancel",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
+                child: InkWell(
+                  onTap: () => Navigator.pop(context),
+                  borderRadius: BorderRadius.circular(14),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.red),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        "Cancel",
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -112,8 +169,6 @@ class CapturePhotoBottomSheet extends StatelessWidget {
               ),
             ],
           ),
-
-          const SizedBox(height: 10),
         ],
       ),
     );

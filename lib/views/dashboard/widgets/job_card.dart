@@ -1,46 +1,48 @@
 import 'package:autozy_vendor_app/views/dashboard/widgets/capture_photo_bottom_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
-import 'job_details_bottom_sheet.dart';
+import '../../../viewmodels/dashboard_viewmodel.dart';
 
 class JobCard extends StatelessWidget {
   final String vehicle;
   final String name;
   final String location;
   final bool isCompleted;
-
+  final int? index;
+  final VoidCallback? onTap;
   const JobCard({
     super.key,
     required this.vehicle,
     required this.name,
     required this.location,
     this.isCompleted = false,
+    this.index,
+    this.onTap,
   });
 
-  void _openBottomSheet(BuildContext context) {
+  void _openCapturePhotoBottomSheet(BuildContext context) {
+    if (index == null) return;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => JobDetailsBottomSheet(
-        vehicle: vehicle,
-        name: name,
-        location: location,
-        phone: "9145679913",
-      ),
+      builder: (_) => CapturePhotoBottomSheet(jobIndex: index!),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _openBottomSheet(context),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
 
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isCompleted ? Colors.grey.shade100 : Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -90,10 +92,17 @@ class JobCard extends StatelessWidget {
                 Row(
                   children: [
                     if (isCompleted)
-                      const Icon(
-                        Icons.check_circle,
-                        color: Colors.green,
-                        size: 20,
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 16,
+                        ),
                       ),
 
                     if (isCompleted) const SizedBox(width: 6),
@@ -129,15 +138,9 @@ class JobCard extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          builder: (_) => const CapturePhotoBottomSheet(),
-                        );
-                      },
+                    child: InkWell(
+                      onTap: () => _openCapturePhotoBottomSheet(context),
+                      borderRadius: BorderRadius.circular(12),
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
@@ -169,30 +172,70 @@ class JobCard extends StatelessWidget {
                   const SizedBox(width: 10),
 
                   Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.primary),
-                        borderRadius: BorderRadius.circular(13),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(
-                            Icons.warning_amber_rounded,
-                            size: 18,
-                            color: Color(0xFFD79306),
-                          ),
-                          SizedBox(width: 6),
-                          Text(
-                            "CNA",
-                            style: TextStyle(color: Color(0xFFD79306)),
-                          ),
-                        ],
+                    child: InkWell(
+                      onTap: () {
+                        // TODO: Implement CNA functionality
+                      },
+                      borderRadius: BorderRadius.circular(13),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: AppColors.primary),
+                          borderRadius: BorderRadius.circular(13),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.warning_amber_rounded,
+                              size: 18,
+                              color: Color(0xFFD79306),
+                            ),
+                            SizedBox(width: 6),
+                            Text(
+                              "CNA",
+                              style: TextStyle(color: Color(0xFFD79306)),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ],
+              ),
+            ] else if (isCompleted) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: InkWell(
+                  onTap: () {
+                    if (index != null) {
+                      context.read<DashboardViewModel>().undoJob(index!);
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade100,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.undo, size: 18, color: Color(0xFFD79306)),
+                        SizedBox(width: 6),
+                        Text(
+                          "Undo",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFFD79306),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ],
           ],
