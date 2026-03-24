@@ -31,6 +31,12 @@ class NavigationService {
     }
   }
 
+  static void goToInspector() {
+    if (context != null) {
+      context!.go('/inspector');
+    }
+  }
+
   static void pushToDashboard() {
     if (context != null) {
       context!.pushNamed('dashboard');

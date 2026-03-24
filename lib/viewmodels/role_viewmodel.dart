@@ -29,9 +29,17 @@ class RoleViewModel extends BaseViewModel {
       await Future.delayed(const Duration(seconds: 1));
       _selectedRole = role;
 
-      // Navigate to dashboard if Detailer is selected
-      if (shouldNavigateToDashboard()) {
-        NavigationService.pushToDashboard();
+      // Navigate to appropriate dashboard based on role
+      if (_selectedRole == "Detailer") {
+        NavigationService.goToDashboard();
+      } else if (_selectedRole == "Inspector") {
+        NavigationService.goToInspector();
+      } else if (_selectedRole == "Supervisor") {
+        // TODO: Navigate to supervisor dashboard
+        NavigationService.goToDashboard(); // Temporarily navigate to regular dashboard
+      } else if (_selectedRole == "Specialist") {
+        // TODO: Navigate to specialist dashboard
+        NavigationService.goToDashboard(); // Temporarily navigate to regular dashboard
       }
     }, onError: 'Failed to select role');
   }

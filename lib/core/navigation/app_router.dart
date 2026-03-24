@@ -4,6 +4,7 @@ import 'package:autozy_vendor_app/views/auth/screens/login_screen.dart';
 import 'package:autozy_vendor_app/views/auth/screens/otp_screen.dart';
 import 'package:autozy_vendor_app/views/role/screens/role_screen.dart';
 import 'package:autozy_vendor_app/views/dashboard/screens/detailer_dashboard.dart';
+import 'package:autozy_vendor_app/views/inspector/screens/inspector_dashboard.dart';
 import '../services/navigation_service.dart';
 
 class AppRouter {
@@ -48,6 +49,13 @@ class AppRouter {
         name: 'dashboard',
         builder: (context, state) => DetailerDashboard(),
       ),
+
+      // Inspector Dashboard
+      GoRoute(
+        path: '/inspector',
+        name: 'inspector',
+        builder: (context, state) => const InspectorDashboard(),
+      ),
     ],
   );
 }
@@ -65,6 +73,9 @@ extension GoRouterExtension on GoRouter {
   /// Navigate to dashboard
   void goToDashboard() => go('/dashboard');
 
+  /// Navigate to inspector dashboard
+  void goToInspector() => go('/inspector');
+
   void pushLogin() => push('/');
 
   void pushOtp() => push('/otp');
@@ -72,4 +83,6 @@ extension GoRouterExtension on GoRouter {
   void pushRole() => push('/role');
 
   void pushDashboard() => push('/dashboard');
+
+  void pushInspector() => push('/inspector');
 }
