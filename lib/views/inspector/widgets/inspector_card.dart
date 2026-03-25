@@ -1,12 +1,23 @@
+import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class InspectorCard extends StatelessWidget {
-  final bool isApproved;
+  final InspectionModel inspection;
+  final int index;
 
-  const InspectorCard({super.key, this.isApproved = false});
+  const InspectorCard({
+    super.key,
+    required this.inspection,
+    required this.index,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final vm = context.read<InspectorViewModel>();
+
+    final isApproved = inspection.status == InspectionStatus.approved;
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(14),
@@ -39,17 +50,17 @@ class InspectorCard extends StatelessWidget {
 
               const SizedBox(width: 10),
 
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "MH 01 KL 9999",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
+                    inspection.vehicle,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  Text("Rohit A • SUV", style: TextStyle(color: Colors.grey)),
+                  Text(
+                    inspection.name,
+                    style: const TextStyle(color: Colors.grey),
+                  ),
                 ],
               ),
 
@@ -62,10 +73,13 @@ class InspectorCard extends StatelessWidget {
           const SizedBox(height: 10),
 
           Row(
-            children: const [
-              Icon(Icons.location_on, size: 16, color: Colors.grey),
-              SizedBox(width: 5),
-              Text("Tower A, Slot 6", style: TextStyle(color: Colors.grey)),
+            children: [
+              const Icon(Icons.location_on, size: 16, color: Colors.grey),
+              const SizedBox(width: 5),
+              Text(
+                inspection.location,
+                style: const TextStyle(color: Colors.grey),
+              ),
             ],
           ),
 
@@ -86,26 +100,24 @@ class InspectorCard extends StatelessWidget {
               ],
             )
           else ...[
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.15),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.camera_alt_outlined),
-                  SizedBox(width: 6),
-                  Text("Take Photo (0)"),
-                ],
+            GestureDetector(
+              onTap: () {
+                vm.addPhoto(index);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.camera_alt_outlined),
+                    const SizedBox(width: 6),
+                    Text("Take Photo (${inspection.photoCount})"),
+                  ],
+                ),
               ),
             ),
 
@@ -115,22 +127,27 @@ class InspectorCard extends StatelessWidget {
               children: [
                 /// APPROVE
                 Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.amber,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.check, color: Colors.black),
-                        SizedBox(width: 6),
-                        Text(
-                          "Approve",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
+                  child: GestureDetector(
+                    onTap: () {
+                      vm.approveInspection(index);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.amber,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.check),
+                          SizedBox(width: 6),
+                          Text(
+                            "Approve",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -139,19 +156,24 @@ class InspectorCard extends StatelessWidget {
 
                 /// FLAG
                 Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.red),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.flag, color: Colors.red),
-                        SizedBox(width: 6),
-                        Text("Flag", style: TextStyle(color: Colors.red)),
-                      ],
+                  child: GestureDetector(
+                    onTap: () {
+                      vm.flagInspection(index);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.red),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.flag, color: Colors.red),
+                          SizedBox(width: 6),
+                          Text("Flag", style: TextStyle(color: Colors.red)),
+                        ],
+                      ),
                     ),
                   ),
                 ),

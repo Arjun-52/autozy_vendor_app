@@ -1,19 +1,42 @@
+import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
 import 'package:autozy_vendor_app/views/inspector/widgets/inspector_card.dart';
 import 'package:autozy_vendor_app/views/dashboard/widgets/status_card.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
-class InspectorDashboard extends StatelessWidget {
+class InspectorDashboard extends StatefulWidget {
   const InspectorDashboard({super.key});
 
   @override
+  State<InspectorDashboard> createState() => _InspectorDashboardState();
+}
+
+class _InspectorDashboardState extends State<InspectorDashboard> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<InspectorViewModel>().loadInspections();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final vm = context.watch<InspectorViewModel>();
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
 
       appBar: AppBar(
         elevation: 2,
         backgroundColor: Colors.white,
-        leading: const Icon(Icons.arrow_back, color: Colors.black),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            context.pop();
+          },
+        ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
@@ -52,11 +75,11 @@ class InspectorDashboard extends StatelessWidget {
         child: Column(
           children: [
             Row(
-              children: const [
+              children: [
                 Expanded(
                   child: StatusCard(
                     icon: Icons.directions_car,
-                    title: "1",
+                    title: "${vm.approvedCount.toString()}",
                     subtitle: "Approved",
                     iconColor: Colors.green,
                   ),
@@ -65,7 +88,7 @@ class InspectorDashboard extends StatelessWidget {
                 Expanded(
                   child: StatusCard(
                     icon: Icons.directions_car,
-                    title: "2",
+                    title: "${vm.pendingCount.toString()}",
                     subtitle: "Pending",
                     iconColor: Colors.orange,
                   ),
@@ -74,7 +97,7 @@ class InspectorDashboard extends StatelessWidget {
                 Expanded(
                   child: StatusCard(
                     icon: Icons.warning,
-                    title: "0",
+                    title: "${vm.flaggedCount.toString()}",
                     subtitle: "Flagged",
                     iconColor: Colors.red,
                   ),
@@ -100,9 +123,13 @@ class InspectorDashboard extends StatelessWidget {
 
             Expanded(
               child: ListView(
-                children: const [
-                  InspectorCard(),
-                  InspectorCard(isApproved: true),
+                children: [
+                  ...vm.inspections.asMap().entries.map(
+                    (entry) => InspectorCard(
+                      inspection: entry.value,
+                      index: entry.key,
+                    ),
+                  ),
                 ],
               ),
             ),

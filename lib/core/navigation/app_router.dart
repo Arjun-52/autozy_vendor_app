@@ -1,3 +1,4 @@
+import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:autozy_vendor_app/views/auth/screens/login_screen.dart';
@@ -5,6 +6,7 @@ import 'package:autozy_vendor_app/views/auth/screens/otp_screen.dart';
 import 'package:autozy_vendor_app/views/role/screens/role_screen.dart';
 import 'package:autozy_vendor_app/views/dashboard/screens/detailer_dashboard.dart';
 import 'package:autozy_vendor_app/views/inspector/screens/inspector_dashboard.dart';
+import 'package:provider/provider.dart';
 import '../services/navigation_service.dart';
 
 class AppRouter {
@@ -53,8 +55,10 @@ class AppRouter {
       // Inspector Dashboard
       GoRoute(
         path: '/inspector',
-        name: 'inspector',
-        builder: (context, state) => const InspectorDashboard(),
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (_) => InspectorViewModel(),
+          child: const InspectorDashboard(),
+        ),
       ),
     ],
   );

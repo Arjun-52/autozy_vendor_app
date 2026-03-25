@@ -50,7 +50,6 @@ class _StateDrivenNavigatorState extends State<StateDrivenNavigator> {
             });
           });
         }
-
         return Consumer<DashboardViewModel>(
           builder: (context, dashboardViewModel, _) {
             // Navigate to Role when logged out
