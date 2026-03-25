@@ -1,4 +1,5 @@
 import 'package:autozy_vendor_app/core/utils/snackbar_helper.dart';
+import 'package:autozy_vendor_app/core/services/navigation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
@@ -41,8 +42,9 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
 
     // Show notification with delay to avoid context issues
     Future.delayed(const Duration(milliseconds: 200), () {
-      if (mounted) {
-        SnackbarHelper.showTopNotification(context);
+      if (NavigationService.context != null &&
+          NavigationService.context!.mounted) {
+        SnackbarHelper.showTopNotification(NavigationService.context!);
       }
     });
   }
