@@ -13,7 +13,7 @@ class MemberCard extends StatelessWidget {
     double progress = member.completed / member.total;
 
     Color statusColor = member.status == "Active"
-        ? Colors.green
+        ? Color(0xff008847)
         : Colors.orange;
 
     return Container(
@@ -23,7 +23,11 @@ class MemberCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.19),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
@@ -46,11 +50,22 @@ class MemberCard extends StatelessWidget {
                 children: [
                   Text(
                     member.name,
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                      fontSize: 14,
+                    ),
                   ),
                   Row(
                     children: [
-                      Text(member.role, style: TextStyle(color: Colors.grey)),
+                      Text(
+                        member.role,
+                        style: TextStyle(
+                          color: Color(0xff7E8392),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                       SizedBox(width: 6),
                       Container(
                         width: 4,
@@ -73,11 +88,16 @@ class MemberCard extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
-                  color: statusColor.withOpacity(0.1),
+                  color: statusColor.withValues(alpha: 0.1),
+                  border: Border.all(color: statusColor.withValues(alpha: 0.8)),
                 ),
                 child: Text(
                   member.status,
-                  style: TextStyle(color: statusColor),
+                  style: TextStyle(
+                    color: statusColor,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],

@@ -1,7 +1,11 @@
+import 'package:autozy_vendor_app/data/models/alert_model.dart';
 import 'package:autozy_vendor_app/data/models/team_member.dart';
 import 'package:flutter/foundation.dart';
 
+enum SupervisorTab { team, alerts }
+
 class SupervisorViewModel extends ChangeNotifier {
+  SupervisorTab currentTab = SupervisorTab.team;
   List<TeamMember> members = [
     TeamMember(
       name: "Raju K.",
@@ -36,6 +40,23 @@ class SupervisorViewModel extends ChangeNotifier {
       status: "Break",
     ),
   ];
+  List<AlertModel> alerts = [
+    AlertModel(
+      title: "Raju K. has been idle for 25 mins",
+      time: "10 min ago",
+      type: "idle",
+    ),
+    AlertModel(
+      title: "Fraud flag raised on MH 01 KL 1111",
+      time: "16 min ago",
+      type: "fraud",
+    ),
+    AlertModel(
+      title: "Sanjay P. completed Tower B route",
+      time: "30 min ago",
+      type: "success",
+    ),
+  ];
 
   int get activeCount => members.where((e) => e.status == "Active").length;
 
@@ -57,6 +78,11 @@ class SupervisorViewModel extends ChangeNotifier {
       );
       notifyListeners();
     }
+  }
+
+  void switchTab(SupervisorTab tab) {
+    currentTab = tab;
+    notifyListeners();
   }
 
   void addMember(TeamMember member) {

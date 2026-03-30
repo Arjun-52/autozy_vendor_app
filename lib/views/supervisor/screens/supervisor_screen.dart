@@ -1,4 +1,5 @@
 import 'package:autozy_vendor_app/viewmodels/supervisor_viewmodel.dart';
+import 'package:autozy_vendor_app/views/supervisor/widgets/alert_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -38,13 +39,18 @@ class SupervisorScreen extends StatelessWidget {
                       Text(
                         "Supervisor Mode",
                         style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
                         ),
                       ),
                       Text(
                         "Team Overview",
-                        style: TextStyle(color: Colors.grey),
+                        style: TextStyle(
+                          color: Color(0xff7E8392),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
@@ -58,12 +64,18 @@ class SupervisorScreen extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.1),
+                      color: Colors.green.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: const Color(0xff008847).withValues(alpha: 0.3),
+                      ),
                     ),
                     child: const Text(
                       "● Online",
-                      style: TextStyle(color: Colors.green),
+                      style: TextStyle(
+                        color: Color(0xff008847),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
@@ -109,10 +121,20 @@ class SupervisorScreen extends StatelessWidget {
 
               // TABS
               Row(
-                children: const [
-                  TabButton(text: "Team", selected: true),
-                  SizedBox(width: 10),
-                  TabButton(text: "Alerts (3)", selected: false),
+                children: [
+                  TabButton(
+                    text: "Team",
+                    icon: Icons.groups,
+                    selected: vm.currentTab == SupervisorTab.team,
+                    onTap: () => vm.switchTab(SupervisorTab.team),
+                  ),
+                  const SizedBox(width: 10),
+                  TabButton(
+                    text: "Alerts (3)",
+                    icon: Icons.notifications_none,
+                    selected: vm.currentTab == SupervisorTab.alerts,
+                    onTap: () => vm.switchTab(SupervisorTab.alerts),
+                  ),
                 ],
               ),
 
@@ -120,13 +142,16 @@ class SupervisorScreen extends StatelessWidget {
 
               //  LIST
               Expanded(
-                child: ListView.builder(
-                  itemCount: vm.members.length,
-                  itemBuilder: (context, index) {
-                    final member = vm.members[index];
-                    return MemberCard(member: member);
-                  },
-                ),
+                child: vm.currentTab == SupervisorTab.team
+                    ? ListView.builder(
+                        itemCount: vm.members.length,
+                        itemBuilder: (_, i) =>
+                            MemberCard(member: vm.members[i]),
+                      )
+                    : ListView.builder(
+                        itemCount: vm.alerts.length,
+                        itemBuilder: (_, i) => AlertCard(alert: vm.alerts[i]),
+                      ),
               ),
             ],
           ),

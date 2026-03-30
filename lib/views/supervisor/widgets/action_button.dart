@@ -17,7 +17,18 @@ class ActionButton extends StatelessWidget {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [Icon(icon, size: 18), SizedBox(width: 6), Text(text)],
+          children: [
+            Icon(icon, size: 18),
+            SizedBox(width: 6),
+            Text(
+              text,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Colors.black,
+              ),
+            ),
+          ],
         ),
       ),
     );
