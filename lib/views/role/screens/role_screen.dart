@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../viewmodels/role_viewmodel.dart';
@@ -89,7 +90,22 @@ class _RoleScreenState extends State<RoleScreen> {
                   return RoleCard(
                     role: role,
                     onTap: () {
+                      print('RoleCard tapped: ${role.title}');
                       vm.selectRole(role.title);
+
+                      final roleName = role.title.trim().toLowerCase();
+                      print('Role name after trim: "$roleName"');
+
+                      if (roleName == "supervisor") {
+                        print('Attempting to navigate to /supervisor');
+                        context.go('/supervisor');
+                      } else if (roleName == "inspector") {
+                        print('Attempting to navigate to /inspector');
+                        context.go('/inspector');
+                      } else {
+                        print('Attempting to navigate to /dashboard');
+                        context.go('/dashboard');
+                      }
                     },
                   );
                 },

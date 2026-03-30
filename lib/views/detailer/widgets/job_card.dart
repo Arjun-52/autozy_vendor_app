@@ -1,4 +1,4 @@
-import 'package:autozy_vendor_app/views/dashboard/widgets/capture_photo_bottom_sheet.dart';
+import 'package:autozy_vendor_app/views/detailer/widgets/capture_photo_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';

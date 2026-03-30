@@ -35,8 +35,8 @@ class _LoginScreenState extends State<LoginScreen> {
             const Text(
               "Log in or Sign Up",
               style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
                 color: Colors.black,
               ),
             ),

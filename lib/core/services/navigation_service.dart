@@ -33,7 +33,13 @@ class NavigationService {
 
   static void goToInspector() {
     if (context != null) {
-      context!.push('/inspector');
+      context!.go('/inspector');
+    }
+  }
+
+  static void goToSupervisor() {
+    if (context != null) {
+      context!.go('/supervisor');
     }
   }
 

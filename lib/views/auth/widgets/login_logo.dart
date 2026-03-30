@@ -9,8 +9,8 @@ class LoginLogo extends StatelessWidget {
     return Column(
       children: [
         Container(
-          height: 77,
-          width: 77,
+          height: 69,
+          width: 72,
           decoration: BoxDecoration(
             color: AppColors.primary,
             borderRadius: BorderRadius.circular(16),
@@ -28,7 +28,7 @@ class LoginLogo extends StatelessWidget {
           "autozy",
           style: TextStyle(
             fontSize: 40,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w600,
             letterSpacing: 1,
             color: AppColors.title,
           ),

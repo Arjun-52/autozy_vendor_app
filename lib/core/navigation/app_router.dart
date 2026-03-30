@@ -1,10 +1,12 @@
 import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
+import 'package:autozy_vendor_app/viewmodels/supervisor_viewmodel.dart';
+import 'package:autozy_vendor_app/views/supervisor/screens/supervisor_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:autozy_vendor_app/views/auth/screens/login_screen.dart';
 import 'package:autozy_vendor_app/views/auth/screens/otp_screen.dart';
 import 'package:autozy_vendor_app/views/role/screens/role_screen.dart';
-import 'package:autozy_vendor_app/views/dashboard/screens/detailer_dashboard.dart';
+import 'package:autozy_vendor_app/views/detailer/screens/detailer_dashboard.dart';
 import 'package:autozy_vendor_app/views/inspector/screens/inspector_dashboard.dart';
 import 'package:provider/provider.dart';
 import '../services/navigation_service.dart';
@@ -18,10 +20,13 @@ class AppRouter {
 
     navigatorKey: NavigationService.navigatorKey,
 
-    errorBuilder: (context, state) => Scaffold(
-      appBar: AppBar(title: const Text('Error')),
-      body: Center(child: Text('Route not found: ${state.uri.path}')),
-    ),
+    errorBuilder: (context, state) {
+      print('Router error: Route not found: ${state.uri.path}');
+      return Scaffold(
+        appBar: AppBar(title: const Text('Error')),
+        body: Center(child: Text('Route not found: ${state.uri.path}')),
+      );
+    },
 
     routes: [
       // Login screen
@@ -51,10 +56,18 @@ class AppRouter {
         name: 'dashboard',
         builder: (context, state) => DetailerDashboard(),
       ),
-
+      GoRoute(
+        path: '/supervisor',
+        name: 'supervisor',
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (_) => SupervisorViewModel(),
+          child: const SupervisorScreen(),
+        ),
+      ),
       // Inspector Dashboard
       GoRoute(
         path: '/inspector',
+        name: 'inspector',
         builder: (context, state) => ChangeNotifierProvider(
           create: (_) => InspectorViewModel(),
           child: const InspectorDashboard(),
@@ -67,6 +80,10 @@ class AppRouter {
 extension GoRouterExtension on GoRouter {
   /// Navigate to login s
   void goToLogin() => go('/');
+
+  /// Navigate to supervisor
+  void goToSupervisor() => go('/supervisor');
+  void pushSupervisor() => push('/supervisor');
 
   /// Navigate to OTP screen
   void goToOtp() => go('/otp');

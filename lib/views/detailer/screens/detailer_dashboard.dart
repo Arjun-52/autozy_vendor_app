@@ -1,5 +1,5 @@
 import 'package:autozy_vendor_app/viewmodels/job_details_viewmodel.dart';
-import 'package:autozy_vendor_app/views/dashboard/screens/job_details.dart';
+import 'package:autozy_vendor_app/views/detailer/screens/job_details.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/status_card.dart';

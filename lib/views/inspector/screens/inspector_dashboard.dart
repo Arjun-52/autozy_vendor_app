@@ -1,6 +1,6 @@
 import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
 import 'package:autozy_vendor_app/views/inspector/widgets/inspector_card.dart';
-import 'package:autozy_vendor_app/views/dashboard/widgets/status_card.dart';
+import 'package:autozy_vendor_app/views/detailer/widgets/status_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
