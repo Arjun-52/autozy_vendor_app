@@ -59,12 +59,19 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.green),
+              color: Color(0xffE4FFF2),
+              border: Border.all(
+                color: Color(0xff008847).withValues(alpha: 0.5),
+              ),
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Text(
               "• Online",
-              style: TextStyle(color: Colors.green),
+              style: TextStyle(
+                color: Color(0xff008847),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -79,25 +86,25 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
                 Expanded(
                   child: StatusCard(
                     icon: Icons.directions_car,
-                    title: "${vm.approvedCount.toString()}",
+                    title: vm.approvedCount.toString(),
                     subtitle: "Approved",
-                    iconColor: Colors.green,
+                    iconColor: Colors.black,
                   ),
                 ),
                 SizedBox(width: 10),
                 Expanded(
                   child: StatusCard(
                     icon: Icons.directions_car,
-                    title: "${vm.pendingCount.toString()}",
+                    title: vm.pendingCount.toString(),
                     subtitle: "Pending",
-                    iconColor: Colors.orange,
+                    iconColor: Colors.black,
                   ),
                 ),
                 SizedBox(width: 10),
                 Expanded(
                   child: StatusCard(
                     icon: Icons.warning,
-                    title: "${vm.flaggedCount.toString()}",
+                    title: vm.flaggedCount.toString(),
                     subtitle: "Flagged",
                     iconColor: Colors.red,
                   ),
@@ -113,7 +120,7 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
                 "Inspection Queue",
                 style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: Colors.black,
                 ),
               ),
