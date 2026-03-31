@@ -135,6 +135,7 @@ class SpecialistModeScreen extends StatelessWidget {
                           final task = vm.tasks[index];
                           return TaskCard(
                             task: task,
+                            taskIndex: index,
                             onStart: () => vm.startJob(index),
                             onComplete: () => vm.completeJob(index),
                             onToggleStep: (stepIndex) =>

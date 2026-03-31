@@ -1,9 +1,12 @@
 import 'package:autozy_vendor_app/views/specialist/widegts/job_details_sheet_.dart';
+import 'package:autozy_vendor_app/views/specialist/widegts/completed_task_card.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../viewmodels/specialist_tasks_viewmodel.dart';
 
 class TaskCard extends StatelessWidget {
   final Task task;
+  final int taskIndex;
   final VoidCallback onStart;
   final VoidCallback onComplete;
   final Function(int)? onToggleStep;
@@ -11,6 +14,7 @@ class TaskCard extends StatelessWidget {
   const TaskCard({
     super.key,
     required this.task,
+    required this.taskIndex,
     required this.onStart,
     required this.onComplete,
     this.onToggleStep,
@@ -28,7 +32,17 @@ class TaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      child: task.isCompleted
+          ? CompletedTaskCard(task: task)
+          : _buildActiveTaskCard(context),
+    );
+  }
+
+  Widget _buildActiveTaskCard(BuildContext context) {
     return Container(
+      key: ValueKey('active_${task.vehicle}'),
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -176,9 +190,19 @@ class TaskCard extends StatelessWidget {
               ),
               onPressed: task.isCompleted
                   ? null
-                  : task.isStarted
-                  ? onComplete
-                  : onStart,
+                  : () {
+                      if (!task.isStarted) {
+                        onStart();
+                      } else {
+                        final viewModel = context
+                            .read<SpecialistTasksViewModel>();
+                        if (!viewModel.areAllStepsCompleted(taskIndex)) {
+                          viewModel.showErrorAlert();
+                        } else {
+                          onComplete();
+                        }
+                      }
+                    },
             ),
           ),
         ],

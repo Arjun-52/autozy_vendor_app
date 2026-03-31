@@ -4,6 +4,7 @@ class Task {
   final String vehicle;
   final String title;
   final List<String> steps;
+  String? completedTime;
   bool isStarted;
   bool isCompleted;
   List<bool> stepCompleted;
@@ -11,6 +12,7 @@ class Task {
   Task({
     required this.vehicle,
     required this.title,
+    required this.completedTime,
     required this.steps,
     this.isStarted = false,
     this.isCompleted = false,
@@ -22,16 +24,19 @@ class SpecialistTasksViewModel extends ChangeNotifier {
     Task(
       vehicle: "TS 01 AB 1234",
       title: "Interior Deep Clean",
+      completedTime: null,
       steps: ["Vacuum interior", "Shampoo seats", "Dashboard polish"],
     ),
     Task(
       vehicle: "MH 01 QR 4444",
       title: "Engine Bay Wash",
+      completedTime: null,
       steps: ["Degrease engine", "Pressure wash", "Detail hoses"],
     ),
     Task(
       vehicle: "MH 03 UV 4001",
       title: "Ceramic Coating",
+      completedTime: null,
       steps: [
         "Surface prep",
         "Apply base coat",
@@ -55,13 +60,9 @@ class SpecialistTasksViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void completeJob(int index) {
-    if (!areAllStepsCompleted(index)) {
-      _showErrorAlert();
-      return;
-    }
-
-    tasks[index].isCompleted = true;
+  void completeJob(int i) {
+    tasks[i].isCompleted = true;
+    tasks[i].completedTime = "01:15:10";
     notifyListeners();
   }
 
@@ -76,6 +77,10 @@ class SpecialistTasksViewModel extends ChangeNotifier {
   bool areAllStepsCompleted(int taskIndex) {
     if (taskIndex >= tasks.length) return false;
     return tasks[taskIndex].stepCompleted.every((completed) => completed);
+  }
+
+  void showErrorAlert() {
+    _showErrorAlert();
   }
 
   void _showErrorAlert() {
