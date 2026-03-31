@@ -13,6 +13,7 @@ class PhoneInputField extends StatelessWidget {
       width: 335,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
+        color: Colors.white,
         border: Border.all(color: Color(0xffC6C6C6)),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
@@ -48,6 +49,11 @@ class PhoneInputField extends StatelessWidget {
               decoration: const InputDecoration(
                 counterText: "",
                 hintText: "Enter Mobile number",
+                hintStyle: TextStyle(
+                  color: Color(0xff9796A1),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
                 border: InputBorder.none,
               ),
             ),

@@ -49,13 +49,17 @@ class RoleCard extends StatelessWidget {
                   role.title,
                   style: const TextStyle(
                     color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
                   ),
                 ),
                 Text(
                   role.subtitle,
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  style: const TextStyle(
+                    color: Color(0xff7E8392),
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),

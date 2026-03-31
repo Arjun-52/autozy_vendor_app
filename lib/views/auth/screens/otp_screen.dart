@@ -49,86 +49,93 @@ class _OtpScreenState extends State<OtpScreen> {
   Widget build(BuildContext context) {
     final vm = context.watch<AuthViewModel>();
 
-    return Scaffold(
+    var scaffold = Scaffold(
       backgroundColor: const Color(0xFFF3F2F0),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          children: [
-            const SizedBox(height: 60),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
 
-            const OtpHeader(),
-            const SizedBox(height: 20),
+              const OtpHeader(),
+              const SizedBox(height: 20),
 
-            const OtpLogo(),
-            const SizedBox(height: 20),
+              const OtpLogo(),
+              const SizedBox(height: 20),
 
-            const Text(
-              "We have sent a verification code to",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+              const Text(
+                "We have sent a verification code to",
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
 
-            const SizedBox(height: 5),
+              const SizedBox(height: 5),
 
-            Text(
-              "+91 ${vm.phoneNumber}",
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+              Text(
+                "+91 ${vm.phoneNumber}",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
               ),
-            ),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            const Text(
-              "Enter the Code",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+              const Text(
+                "Enter the Code",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
               ),
-            ),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            /// OTP BOXES
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                4,
-                (index) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: OtpBox(
-                    controller: controllers[index],
-                    focusNode: focusNodes[index],
-                    nextFocus: index < 3 ? focusNodes[index + 1] : null,
-                    prevFocus: index > 0 ? focusNodes[index - 1] : null,
+              /// OTP BOXES
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  4,
+                  (index) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: OtpBox(
+                      controller: controllers[index],
+                      focusNode: focusNodes[index],
+                      nextFocus: index < 3 ? focusNodes[index + 1] : null,
+                      prevFocus: index > 0 ? focusNodes[index - 1] : null,
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            /// ERROR MESSAGE
-            if (vm.errorMessage != null)
-              Text(vm.errorMessage!, style: const TextStyle(color: Colors.red)),
+              /// ERROR MESSAGE
+              if (vm.errorMessage != null)
+                Text(
+                  vm.errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                ),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            /// VERIFY BUTTON
-            OtpVerifyButton(vm: vm, getOtp: getOtp),
+              /// VERIFY BUTTON
+              OtpVerifyButton(vm: vm, getOtp: getOtp),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            const ResendOtpText(),
-          ],
+              const ResendOtpText(),
+            ],
+          ),
         ),
       ),
     );
+    return scaffold;
   }
 }

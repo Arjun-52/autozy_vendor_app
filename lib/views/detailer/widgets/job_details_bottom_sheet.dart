@@ -53,7 +53,11 @@ class JobDetailsBottomSheet extends StatelessWidget {
                   const SizedBox(width: 10),
                   const Text(
                     "Job Details",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xff000E08),
+                    ),
                   ),
                 ],
               ),
@@ -78,9 +82,18 @@ class JobDetailsBottomSheet extends StatelessWidget {
                     children: [
                       Text(
                         vehicle,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
                       ),
-                      Text(name),
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -109,7 +122,14 @@ class JobDetailsBottomSheet extends StatelessWidget {
                       children: [
                         Icon(Icons.location_pin, size: 16),
                         SizedBox(width: 6),
-                        Text("GPS Tracked • Live"),
+                        Text(
+                          "GPS Tracked • Live",
+                          style: TextStyle(
+                            color: Color(0xff7E8392),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -117,7 +137,14 @@ class JobDetailsBottomSheet extends StatelessWidget {
                       children: [
                         const Icon(Icons.phone, size: 16),
                         const SizedBox(width: 6),
-                        Text(phone),
+                        Text(
+                          phone,
+                          style: TextStyle(
+                            color: Color(0xff7E8392),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -155,7 +182,8 @@ class JobDetailsBottomSheet extends StatelessWidget {
                     Text(
                       "Call Owner",
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
                         color: Color(0xFF000000),
                       ),
                     ),

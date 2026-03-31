@@ -7,8 +7,8 @@ class OtpLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 77,
-      width: 77,
+      height: 69,
+      width: 72,
       decoration: BoxDecoration(
         color: AppColors.primary,
         borderRadius: BorderRadius.circular(16),

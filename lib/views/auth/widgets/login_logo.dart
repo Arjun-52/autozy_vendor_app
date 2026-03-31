@@ -10,7 +10,7 @@ class LoginLogo extends StatelessWidget {
       children: [
         Container(
           height: 69,
-          width: 72,
+          width: 69,
           decoration: BoxDecoration(
             color: AppColors.primary,
             borderRadius: BorderRadius.circular(16),

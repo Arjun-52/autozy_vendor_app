@@ -41,8 +41,8 @@ class _RoleScreenState extends State<RoleScreen> {
             Column(
               children: [
                 Container(
-                  height: 70,
-                  width: 70,
+                  height: 69,
+                  width: 72,
                   decoration: BoxDecoration(
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(14),
@@ -59,8 +59,8 @@ class _RoleScreenState extends State<RoleScreen> {
                 const Text(
                   "autozy",
                   style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 24.46,
+                    fontWeight: FontWeight.w600,
                     color: Colors.black,
                   ),
                 ),

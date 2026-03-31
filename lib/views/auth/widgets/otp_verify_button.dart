@@ -36,7 +36,8 @@ class OtpVerifyButton extends StatelessWidget {
                 "Verify & Continue",
                 style: TextStyle(
                   color: Colors.black,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
                 ),
               ),
       ),

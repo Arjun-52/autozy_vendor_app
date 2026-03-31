@@ -42,7 +42,11 @@ class _ResendOtpTextState extends State<ResendOtpText> {
     return RichText(
       text: TextSpan(
         text: "Didn't receive the OTP? ",
-        style: const TextStyle(color: Colors.black),
+        style: const TextStyle(
+          color: Color(0xff5B5B5E),
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
         children: [
           TextSpan(
             text: seconds > 0 ? "Resend in $seconds s" : "Resend OTP",

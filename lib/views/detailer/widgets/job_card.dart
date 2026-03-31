@@ -79,11 +79,19 @@ class JobCard extends StatelessWidget {
                     Text(
                       vehicle,
                       style: const TextStyle(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
                         color: Colors.black,
                       ),
                     ),
-                    Text(name, style: const TextStyle(color: Colors.black)),
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        color: Color(0xff7E8392),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ],
                 ),
 
@@ -110,7 +118,7 @@ class JobCard extends StatelessWidget {
                     const Icon(
                       Icons.arrow_forward_ios,
                       size: 14,
-                      color: Colors.grey,
+                      color: Colors.black,
                     ),
                   ],
                 ),
@@ -159,7 +167,8 @@ class JobCard extends StatelessWidget {
                             Text(
                               "Cleaned",
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
                                 color: Colors.black,
                               ),
                             ),
@@ -194,7 +203,11 @@ class JobCard extends StatelessWidget {
                             SizedBox(width: 6),
                             Text(
                               "CNA",
-                              style: TextStyle(color: Color(0xFFD79306)),
+                              style: TextStyle(
+                                color: Color(0xFFD79306),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ],
                         ),
@@ -217,19 +230,26 @@ class JobCard extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
-                      color: Colors.orange.shade100,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.undo, size: 18, color: Color(0xFFD79306)),
+                        Icon(Icons.undo, size: 18, color: Color(0xFF000000)),
                         SizedBox(width: 6),
                         Text(
                           "Undo",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFFD79306),
+                            color: Color(0xFF000000),
                           ),
                         ),
                       ],

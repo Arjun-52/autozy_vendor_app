@@ -65,13 +65,17 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
               "Detailer Mode",
               style: TextStyle(
                 color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
               ),
             ),
             Text(
               "Today's Route",
-              style: TextStyle(color: Colors.grey, fontSize: 12),
+              style: TextStyle(
+                color: Color(0xff7E8392),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
@@ -80,10 +84,18 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
+              color: const Color(0xffE4FFF2).withValues(alpha: 0.50),
               border: Border.all(color: Colors.green),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Text("Online", style: TextStyle(color: Colors.green)),
+            child: const Text(
+              "● Online",
+              style: TextStyle(
+                color: Color(0xff008847),
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),
@@ -143,7 +155,7 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
                 style: TextStyle(
                   fontSize: 18,
                   color: Colors.black,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
