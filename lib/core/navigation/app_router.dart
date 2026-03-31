@@ -1,5 +1,7 @@
 import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/supervisor_viewmodel.dart';
+import 'package:autozy_vendor_app/viewmodels/specialist_tasks_viewmodel.dart';
+import 'package:autozy_vendor_app/views/specialist/screens/specialist_mode_screen.dart';
 import 'package:autozy_vendor_app/views/supervisor/screens/supervisor_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -20,13 +22,10 @@ class AppRouter {
 
     navigatorKey: NavigationService.navigatorKey,
 
-    errorBuilder: (context, state) {
-      print('Router error: Route not found: ${state.uri.path}');
-      return Scaffold(
-        appBar: AppBar(title: const Text('Error')),
-        body: Center(child: Text('Route not found: ${state.uri.path}')),
-      );
-    },
+    errorBuilder: (context, state) => Scaffold(
+      appBar: AppBar(title: const Text('Error')),
+      body: Center(child: Text('Route not found: ${state.uri.path}')),
+    ),
 
     routes: [
       // Login screen
@@ -73,6 +72,14 @@ class AppRouter {
           child: const InspectorDashboard(),
         ),
       ),
+      GoRoute(
+        path: '/specialist',
+        name: 'specialist',
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (_) => SpecialistTasksViewModel(),
+          child: const SpecialistModeScreen(),
+        ),
+      ),
     ],
   );
 }
@@ -97,6 +104,9 @@ extension GoRouterExtension on GoRouter {
   /// Navigate to inspector dashboard
   void goToInspector() => go('/inspector');
 
+  /// Navigate to specialist dashboard
+  void goToSpecialist() => go('/specialist');
+
   void pushLogin() => push('/');
 
   void pushOtp() => push('/otp');
@@ -106,4 +116,6 @@ extension GoRouterExtension on GoRouter {
   void pushDashboard() => push('/dashboard');
 
   void pushInspector() => push('/inspector');
+
+  void pushSpecialist() => push('/specialist');
 }

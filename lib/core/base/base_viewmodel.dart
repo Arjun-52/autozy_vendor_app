@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 
-
 abstract class BaseViewModel extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
@@ -9,8 +8,6 @@ abstract class BaseViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  /// Execute an async operation with common loading and error handling
-  ///
   /// [operation] - The async operation to execute
   /// [onSuccess] - Optional callback when operation succeeds
   /// [onError] - Optional custom error message, defaults to exception message
@@ -32,11 +29,9 @@ abstract class BaseViewModel extends ChangeNotifier {
     }
   }
 
-  /// Execute an async operation with return value and common error handling
-  ///
   /// [operation] - The async operation to execute
   /// [onError] - Optional custom error message, defaults to exception message
-  /// Returns the result of the operation or null if failed
+
   Future<T?> executeOperationWithResult<T>(
     Future<T> Function() operation, {
     String? onError,

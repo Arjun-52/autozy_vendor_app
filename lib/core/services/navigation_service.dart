@@ -43,6 +43,12 @@ class NavigationService {
     }
   }
 
+  static void goToSpecialist() {
+    if (context != null) {
+      context!.go('/specialist');
+    }
+  }
+
   static void pushToDashboard() {
     if (context != null) {
       context!.pushNamed('dashboard');
