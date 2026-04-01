@@ -1,5 +1,6 @@
 import 'package:autozy_vendor_app/viewmodels/specialist_tasks_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'detail_row.dart';
 
 class JobDetailsSheet extends StatelessWidget {
@@ -60,7 +61,14 @@ class JobDetailsSheet extends StatelessWidget {
                     color: const Color(0xFFFFC107),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.directions_car),
+                  child: SvgPicture.asset(
+                    "assets/images/car2.svg",
+                    fit: BoxFit.contain,
+                    colorFilter: const ColorFilter.mode(
+                      Colors.black,
+                      BlendMode.srcIn,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 12),
 

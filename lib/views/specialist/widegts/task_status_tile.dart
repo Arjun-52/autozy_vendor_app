@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class TaskStatusTile extends StatelessWidget {
   final String count;
@@ -25,9 +26,14 @@ class TaskStatusTile extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(
-            Icons.person,
-            color: highlight ? Color(0xffF6A925) : Color(0xff292D32),
+          SvgPicture.asset(
+            "assets/images/user.svg",
+            height: 20,
+            width: 20,
+            colorFilter: ColorFilter.mode(
+              highlight ? Color(0xffF6A925) : Color(0xff292D32),
+              BlendMode.srcIn,
+            ),
           ),
           const SizedBox(height: 6),
           Text(

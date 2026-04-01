@@ -1,7 +1,9 @@
 import 'package:autozy_vendor_app/core/utils/capture_photo_sheet.dart';
 import 'package:autozy_vendor_app/core/utils/job_details_sheet.dart';
+import 'package:autozy_vendor_app/core/utils/top_banner.dart';
 import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class InspectorCard extends StatelessWidget {
@@ -58,12 +60,22 @@ class InspectorCard extends StatelessWidget {
                   ),
 
                   /// EYE icon
-                  child: Icon(
-                    isFlagged
-                        ? Icons.remove_red_eye_outlined
-                        : Icons.directions_car,
-                    color: isFlagged ? Colors.grey : Colors.black,
-                  ),
+                  child: isFlagged
+                      ? const Icon(
+                          Icons.remove_red_eye_outlined,
+                          color: Colors.grey,
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: SvgPicture.asset(
+                            "assets/images/car2.svg",
+                            fit: BoxFit.contain,
+                            colorFilter: const ColorFilter.mode(
+                              Colors.black,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
                 ),
 
                 const SizedBox(width: 10),
@@ -76,7 +88,7 @@ class InspectorCard extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
-                        color: isFlagged ? Colors.grey : Colors.black, // faded
+                        color: isFlagged ? Colors.grey : Colors.black,
                       ),
                     ),
 
@@ -128,10 +140,17 @@ class InspectorCard extends StatelessWidget {
 
             if (isFlagged)
               Row(
-                children: const [
-                  Icon(Icons.flag, color: Colors.red, size: 18),
-                  SizedBox(width: 6),
-                  Text(
+                children: [
+                  SvgPicture.asset(
+                    "assets/images/flag.svg",
+                    fit: BoxFit.contain,
+                    colorFilter: const ColorFilter.mode(
+                      Colors.red,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  const Text(
                     "Fraud Flagged",
                     style: TextStyle(
                       color: Colors.red,
@@ -184,7 +203,14 @@ class InspectorCard extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.camera_alt_outlined),
+                      SvgPicture.asset(
+                        "assets/images/camera.svg",
+                        fit: BoxFit.contain,
+                        colorFilter: const ColorFilter.mode(
+                          Colors.black,
+                          BlendMode.srcIn,
+                        ),
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         "Take Photo (${inspection.photoCount})",
@@ -207,7 +233,14 @@ class InspectorCard extends StatelessWidget {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        vm.approveInspection(index);
+                        if (inspection.photoCount == 0) {
+                          TopBanner(
+                            context,
+                            "Take at least 1 photo before approving",
+                          );
+                        } else {
+                          vm.approveInspection(index);
+                        }
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -219,7 +252,6 @@ class InspectorCard extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              /// ✅ BLACK CIRCLE + WHITE TICK
                               Container(
                                 padding: const EdgeInsets.all(3),
                                 decoration: const BoxDecoration(
@@ -265,13 +297,20 @@ class InspectorCard extends StatelessWidget {
                           border: Border.all(color: Colors.red),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Center(
+                        child: Center(
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.flag, size: 16, color: Colors.red),
-                              SizedBox(width: 6),
-                              Text(
+                              SvgPicture.asset(
+                                "assets/images/flag.svg",
+                                fit: BoxFit.contain,
+                                colorFilter: const ColorFilter.mode(
+                                  Colors.red,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              const Text(
                                 "Flag",
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,

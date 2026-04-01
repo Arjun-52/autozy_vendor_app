@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class TeamStatusCard extends StatelessWidget {
-  final IconData icon;
+  final Widget icon;
   final String title;
   final String subtitle;
   final Color color;
@@ -35,7 +35,7 @@ class TeamStatusCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(icon, color: color),
+          icon,
           SizedBox(height: 6),
           Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
           Text(subtitle, style: TextStyle(color: Colors.grey)),

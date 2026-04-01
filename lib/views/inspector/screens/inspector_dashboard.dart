@@ -2,6 +2,7 @@ import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
 import 'package:autozy_vendor_app/views/inspector/widgets/inspector_card.dart';
 import 'package:autozy_vendor_app/views/detailer/widgets/status_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -85,7 +86,15 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
               children: [
                 Expanded(
                   child: StatusCard(
-                    icon: Icon(Icons.directions_car),
+                    icon: SvgPicture.asset(
+                      "assets/images/Car.svg",
+                      height: 24,
+                      width: 24,
+                      colorFilter: ColorFilter.mode(
+                        Colors.black,
+                        BlendMode.srcIn,
+                      ),
+                    ),
                     title: vm.approvedCount.toString(),
                     subtitle: "Approved",
                     iconColor: Colors.black,
@@ -94,7 +103,15 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
                 SizedBox(width: 10),
                 Expanded(
                   child: StatusCard(
-                    icon: Icon(Icons.directions_car),
+                    icon: SvgPicture.asset(
+                      "assets/images/Car.svg",
+                      height: 24,
+                      width: 24,
+                      colorFilter: ColorFilter.mode(
+                        Colors.black,
+                        BlendMode.srcIn,
+                      ),
+                    ),
                     title: vm.pendingCount.toString(),
                     subtitle: "Pending",
                     iconColor: Colors.black,

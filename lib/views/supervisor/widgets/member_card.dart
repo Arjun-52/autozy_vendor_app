@@ -2,6 +2,7 @@ import "package:autozy_vendor_app/data/models/team_member.dart";
 import "package:autozy_vendor_app/views/supervisor/widgets/action_button.dart";
 import "package:autozy_vendor_app/views/supervisor/widgets/progress_bar.dart";
 import "package:flutter/material.dart";
+import "package:flutter_svg/svg.dart";
 
 class MemberCard extends StatelessWidget {
   final TeamMember member;
@@ -38,10 +39,16 @@ class MemberCard extends StatelessWidget {
                 height: 45,
                 width: 45,
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.2),
+                  color: statusColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(Icons.person, color: statusColor),
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: SvgPicture.asset(
+                    "assets/images/profile-tick.svg",
+                    fit: BoxFit.contain,
+                  ),
+                ),
               ),
               SizedBox(width: 10),
 
@@ -119,10 +126,32 @@ class MemberCard extends StatelessWidget {
           SizedBox(height: 12),
 
           Row(
-            children: const [
-              ActionButton(icon: Icons.call, text: "Call"),
-              SizedBox(width: 10),
-              ActionButton(icon: Icons.share, text: "Reassign"),
+            children: [
+              ActionButton(
+                icon: Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: SvgPicture.asset(
+                    "assets/images/call.svg",
+                    height: 18,
+                    width: 18,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                text: "Call",
+              ),
+              const SizedBox(width: 10),
+              ActionButton(
+                icon: Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: SvgPicture.asset(
+                    "assets/images/workFlow.svg",
+                    height: 18,
+                    width: 18,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                text: "Reassign",
+              ),
             ],
           ),
         ],

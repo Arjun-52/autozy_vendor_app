@@ -95,13 +95,13 @@ class _RoleScreenState extends State<RoleScreen> {
                       final roleName = role.title.trim().toLowerCase();
 
                       if (roleName == "supervisor") {
-                        context.go('/supervisor');
+                        context.push('/supervisor');
                       } else if (roleName == "inspector") {
-                        context.go('/inspector');
+                        context.push('/inspector');
                       } else if (roleName == "specialist") {
-                        context.go('/specialist');
+                        context.push('/specialist');
                       } else {
-                        context.go('/dashboard');
+                        context.push('/dashboard');
                       }
                     },
                   );

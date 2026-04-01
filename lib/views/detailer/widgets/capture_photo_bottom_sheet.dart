@@ -103,10 +103,17 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
             child: imageFile == null
                 ? Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.camera_alt_outlined, size: 30),
-                      SizedBox(height: 8),
-                      Text(
+                    children: [
+                      SvgPicture.asset(
+                        "assets/images/camera.svg",
+                        fit: BoxFit.contain,
+                        colorFilter: const ColorFilter.mode(
+                          Colors.black,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
                         "Camera Preview Area",
                         style: TextStyle(
                           fontSize: 12,

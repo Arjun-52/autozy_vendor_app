@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
+import 'package:flutter_svg/svg.dart';
 
 void showJobDetailsSheet(BuildContext context, InspectionModel inspection) {
   final isFlagged = inspection.status == InspectionStatus.flagged;
@@ -86,13 +87,22 @@ void showJobDetailsSheet(BuildContext context, InspectionModel inspection) {
                                     : const Color(0xFFFFC107),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Icon(
-                                isFlagged
-                                    ? Icons
-                                          .remove_red_eye_outlined // 👁
-                                    : Icons.directions_car,
-                                color: isFlagged ? Colors.grey : Colors.black,
-                              ),
+                              child: isFlagged
+                                  ? const Icon(
+                                      Icons.remove_red_eye_outlined,
+                                      color: Colors.grey,
+                                    )
+                                  : Padding(
+                                      padding: const EdgeInsets.all(10),
+                                      child: SvgPicture.asset(
+                                        "assets/images/car2.svg",
+                                        fit: BoxFit.contain,
+                                        colorFilter: const ColorFilter.mode(
+                                          Colors.black,
+                                          BlendMode.srcIn,
+                                        ),
+                                      ),
+                                    ),
                             ),
 
                             const SizedBox(width: 10),

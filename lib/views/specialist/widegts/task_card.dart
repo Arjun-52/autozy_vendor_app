@@ -1,6 +1,7 @@
 import 'package:autozy_vendor_app/views/specialist/widegts/job_details_sheet_.dart';
 import 'package:autozy_vendor_app/views/specialist/widegts/completed_task_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import '../../../viewmodels/specialist_tasks_viewmodel.dart';
 
@@ -62,7 +63,14 @@ class TaskCard extends StatelessWidget {
                   color: const Color(0xFFF6E3B4),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.directions_car),
+                child: SvgPicture.asset(
+                  "assets/images/car2.svg",
+                  fit: BoxFit.contain,
+                  colorFilter: const ColorFilter.mode(
+                    Colors.black,
+                    BlendMode.srcIn,
+                  ),
+                ),
               ),
               const SizedBox(width: 10),
 

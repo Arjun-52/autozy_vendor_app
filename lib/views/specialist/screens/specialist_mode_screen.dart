@@ -14,7 +14,7 @@ class SpecialistModeScreen extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => SpecialistTasksViewModel(),
       child: Scaffold(
-        backgroundColor: const Color(0xFFF5F5F5),
+        backgroundColor: const Color(0xFFFFFFFF),
         body: SafeArea(
           child: Consumer<SpecialistTasksViewModel>(
             builder: (context, vm, _) {

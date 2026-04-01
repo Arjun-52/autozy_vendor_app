@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 
 class ActionButton extends StatelessWidget {
-  final IconData icon;
+  final Widget icon;
   final String text;
 
   const ActionButton({super.key, required this.icon, required this.text});
@@ -18,7 +18,7 @@ class ActionButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 18),
+            icon,
             SizedBox(width: 6),
             Text(
               text,

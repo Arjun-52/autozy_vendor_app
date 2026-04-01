@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 void showCapturePhotoSheet({
   required BuildContext context,
@@ -53,12 +54,19 @@ void showCapturePhotoSheet({
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: Colors.grey.shade400, width: 1.5),
             ),
-            child: const Column(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.camera_alt_outlined, color: Colors.grey, size: 28),
-                SizedBox(height: 8),
-                Text(
+                SvgPicture.asset(
+                  "assets/images/camera.svg",
+                  fit: BoxFit.contain,
+                  colorFilter: const ColorFilter.mode(
+                    Colors.black,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
                   "Camera Preview Area",
                   style: TextStyle(
                     color: Color(0xff313131),
@@ -86,12 +94,19 @@ void showCapturePhotoSheet({
                       color: const Color(0xFFFFC107),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.camera_alt, color: Colors.black),
-                        SizedBox(width: 8),
-                        Text(
+                        SvgPicture.asset(
+                          "assets/images/camera.svg",
+                          fit: BoxFit.contain,
+                          colorFilter: const ColorFilter.mode(
+                            Colors.black,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
                           "Take Photo",
                           style: TextStyle(
                             fontWeight: FontWeight.w600,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import '../../../viewmodels/specialist_tasks_viewmodel.dart';
 
 class CompletedTaskCard extends StatelessWidget {
@@ -32,7 +33,14 @@ class CompletedTaskCard extends StatelessWidget {
               color: const Color(0xFFF6E3B4),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.directions_car),
+            child: SvgPicture.asset(
+              "assets/images/car2.svg",
+              fit: BoxFit.contain,
+              colorFilter: const ColorFilter.mode(
+                Colors.black,
+                BlendMode.srcIn,
+              ),
+            ),
           ),
           const SizedBox(width: 10),
 
