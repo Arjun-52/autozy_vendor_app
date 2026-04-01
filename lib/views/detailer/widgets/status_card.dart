@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class StatusCard extends StatelessWidget {
-  final IconData icon;
+  final Widget icon;
   final String title;
   final String subtitle;
   final Color? iconColor;
@@ -34,7 +34,12 @@ class StatusCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 22, color: iconColor ?? Colors.black),
+          iconColor != null
+              ? IconTheme(
+                  data: IconThemeData(color: iconColor),
+                  child: icon,
+                )
+              : icon,
           const SizedBox(height: 6),
 
           Text(

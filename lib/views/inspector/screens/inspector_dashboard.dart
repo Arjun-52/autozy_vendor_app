@@ -85,7 +85,7 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
               children: [
                 Expanded(
                   child: StatusCard(
-                    icon: Icons.directions_car,
+                    icon: Icon(Icons.directions_car),
                     title: vm.approvedCount.toString(),
                     subtitle: "Approved",
                     iconColor: Colors.black,
@@ -94,7 +94,7 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
                 SizedBox(width: 10),
                 Expanded(
                   child: StatusCard(
-                    icon: Icons.directions_car,
+                    icon: Icon(Icons.directions_car),
                     title: vm.pendingCount.toString(),
                     subtitle: "Pending",
                     iconColor: Colors.black,
@@ -103,7 +103,7 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
                 SizedBox(width: 10),
                 Expanded(
                   child: StatusCard(
-                    icon: Icons.warning,
+                    icon: Icon(Icons.warning),
                     title: vm.flaggedCount.toString(),
                     subtitle: "Flagged",
                     iconColor: Colors.red,

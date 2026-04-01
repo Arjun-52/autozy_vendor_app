@@ -1,5 +1,6 @@
 import 'package:autozy_vendor_app/data/models/job_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import '../../../viewmodels/dashboard_viewmodel.dart';
 
@@ -96,13 +97,22 @@ class JobDetailsBottomSheet extends StatelessWidget {
                     Row(
                       children: [
                         Container(
-                          height: 50,
-                          width: 50,
+                          height: 44,
+                          width: 44,
                           decoration: BoxDecoration(
                             color: Colors.amber,
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(Icons.directions_car),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.29),
+                            child: SvgPicture.asset(
+                              "assets/images/car2.svg",
+                              height: 20,
+                              width: 20,
+                              fit: BoxFit.contain,
+                              color: isCNA ? Colors.red : Colors.black,
+                            ),
+                          ),
                         ),
                         const SizedBox(width: 10),
                         Column(
@@ -179,10 +189,14 @@ class JobDetailsBottomSheet extends StatelessWidget {
                           const SizedBox(height: 8),
                           Row(
                             children: [
-                              const Icon(
-                                Icons.phone,
-                                size: 16,
-                                color: Colors.grey,
+                              SvgPicture.asset(
+                                "assets/images/call.svg",
+                                height: 16,
+                                width: 16,
+                                colorFilter: ColorFilter.mode(
+                                  Colors.grey,
+                                  BlendMode.srcIn,
+                                ),
                               ),
                               const SizedBox(width: 6),
                               Text(
@@ -230,12 +244,20 @@ class JobDetailsBottomSheet extends StatelessWidget {
                   color: Colors.amber,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.call),
-                    SizedBox(width: 8),
-                    Text(
+                    SvgPicture.asset(
+                      "assets/images/call.svg",
+                      height: 24,
+                      width: 24,
+                      colorFilter: const ColorFilter.mode(
+                        Colors.black,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
                       "Call Owner",
                       style: TextStyle(
                         color: Colors.black,

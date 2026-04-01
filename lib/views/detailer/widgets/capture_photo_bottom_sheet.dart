@@ -1,6 +1,7 @@
 import 'package:autozy_vendor_app/core/utils/snackbar_helper.dart';
 import 'package:autozy_vendor_app/core/services/navigation_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -141,12 +142,20 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
                       color: Colors.amber,
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.camera_alt),
-                        SizedBox(width: 8),
-                        Text(
+                        SvgPicture.asset(
+                          "assets/images/camera.svg",
+                          height: 24,
+                          width: 24,
+                          colorFilter: const ColorFilter.mode(
+                            Colors.black,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
                           "Take Photo",
                           style: TextStyle(
                             fontWeight: FontWeight.w500,

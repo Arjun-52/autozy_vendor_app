@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import '../widgets/status_card.dart';
 import '../widgets/job_card.dart';
@@ -119,10 +120,14 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
             const SizedBox(height: 10),
 
             Row(
-              children: const [
+              children: [
                 Expanded(
                   child: StatusCard(
-                    icon: Icons.directions_car,
+                    icon: SvgPicture.asset(
+                      "assets/images/Car.svg",
+                      height: 24,
+                      width: 24,
+                    ),
                     title: "3/40",
                     subtitle: "Completed",
                   ),
@@ -131,7 +136,11 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
 
                 Expanded(
                   child: StatusCard(
-                    icon: Icons.directions_car,
+                    icon: SvgPicture.asset(
+                      "assets/images/Car.svg",
+                      height: 24,
+                      width: 24,
+                    ),
                     title: "37",
                     subtitle: "Remaining",
                   ),
@@ -140,7 +149,11 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
 
                 Expanded(
                   child: StatusCard(
-                    icon: Icons.warning_amber_rounded,
+                    icon: SvgPicture.asset(
+                      "assets/images/disclaimer.svg",
+                      height: 24,
+                      width: 24,
+                    ),
                     title: "0",
                     subtitle: "CNA",
                     iconColor: Colors.orange,
@@ -150,7 +163,11 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
 
                 Expanded(
                   child: StatusCard(
-                    icon: Icons.wifi_off,
+                    icon: SvgPicture.asset(
+                      "assets/images/wifi_off.svg",
+                      height: 24,
+                      width: 24,
+                    ),
                     title: "",
                     subtitle: "Offline Ready",
                   ),

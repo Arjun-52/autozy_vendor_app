@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:autozy_vendor_app/views/detailer/widgets/capture_photo_bottom_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../viewmodels/dashboard_viewmodel.dart';
@@ -80,10 +81,25 @@ class JobCard extends StatelessWidget {
                         : AppColors.primary,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(
-                    isCNA ? Icons.directions_car : Icons.directions_car,
-                    color: isCNA ? Colors.red.shade500 : Colors.black,
-                    size: 24,
+                  child: Container(
+                    height: 44,
+                    width: 44,
+                    padding: const EdgeInsets.all(10.29),
+                    decoration: BoxDecoration(
+                      color: isCNA
+                          ? Colors.red.shade100
+                          : isCompleted
+                          ? Colors.grey.shade400
+                          : AppColors.primary,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: SvgPicture.asset(
+                      "assets/images/car2.svg",
+                      height: 20,
+                      width: 20,
+                      fit: BoxFit.contain,
+                      color: isCNA ? Colors.red.shade500 : Colors.black,
+                    ),
                   ),
                 ),
 
@@ -171,14 +187,22 @@ class JobCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
                           color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(14),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.camera_alt, size: 18),
-                            SizedBox(width: 6),
-                            Text(
+                            SvgPicture.asset(
+                              "assets/images/camera.svg",
+                              height: 18,
+                              width: 18,
+                              colorFilter: const ColorFilter.mode(
+                                Colors.black,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            const Text(
                               "Cleaned",
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
@@ -208,17 +232,25 @@ class JobCard extends StatelessWidget {
                           border: Border.all(color: AppColors.primary),
                           borderRadius: BorderRadius.circular(13),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.warning_amber_rounded, size: 18),
-                            SizedBox(width: 6),
-                            Text(
+                            SvgPicture.asset(
+                              "assets/images/disclaimer.svg",
+                              height: 18,
+                              width: 18,
+                              colorFilter: const ColorFilter.mode(
+                                Color(0xffD79306),
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            const Text(
                               "CNA",
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.black,
+                                color: Color(0xffD79306),
                               ),
                             ),
                           ],
@@ -253,11 +285,19 @@ class JobCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.undo, size: 18),
-                        SizedBox(width: 6),
+                        SvgPicture.asset(
+                          "assets/images/undo.svg",
+                          height: 18,
+                          width: 18,
+                          colorFilter: const ColorFilter.mode(
+                            Colors.black,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
                         Text(
                           "Undo",
                           style: TextStyle(
@@ -294,7 +334,15 @@ class JobCard extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.undo, size: 18, color: Colors.black),
+                        SvgPicture.asset(
+                          "assets/images/undo.svg",
+                          height: 18,
+                          width: 18,
+                          colorFilter: const ColorFilter.mode(
+                            Colors.black,
+                            BlendMode.srcIn,
+                          ),
+                        ),
                         const SizedBox(width: 6),
                         Text(
                           "Undo",
