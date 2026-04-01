@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../viewmodels/specialist_tasks_viewmodel.dart';
 import '../../../core/services/alert_service.dart';
+import '../../../core/constants/app_colors.dart'; // ✅ added
 
 class SpecialistModeScreen extends StatelessWidget {
   const SpecialistModeScreen({super.key});
@@ -14,7 +15,7 @@ class SpecialistModeScreen extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => SpecialistTasksViewModel(),
       child: Scaffold(
-        backgroundColor: const Color(0xFFFFFFFF),
+        backgroundColor: AppColors.background, // ✅ changed
         body: SafeArea(
           child: Consumer<SpecialistTasksViewModel>(
             builder: (context, vm, _) {
@@ -37,7 +38,10 @@ class SpecialistModeScreen extends StatelessWidget {
                       children: [
                         GestureDetector(
                           onTap: () => context.go('/role'),
-                          child: const Icon(Icons.arrow_back),
+                          child: const Icon(
+                            Icons.arrow_back,
+                            color: AppColors.textPrimary, // ✅ changed
+                          ),
                         ),
                         const SizedBox(width: 10),
                         Column(
@@ -48,13 +52,13 @@ class SpecialistModeScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.black,
+                                color: AppColors.textPrimary, // ✅ changed
                               ),
                             ),
                             Text(
                               "Add-on Tasks",
                               style: TextStyle(
-                                color: Color(0xff7E8392),
+                                color: AppColors.textMuted, // ✅ changed
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -70,21 +74,26 @@ class SpecialistModeScreen extends StatelessWidget {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Color(0xffE4FFF2).withValues(alpha: 0.19),
+                            color: AppColors.successLight.withValues(
+                              alpha: 0.19,
+                            ), // ✅ changed
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Color(0xff008847)),
+                            border: Border.all(
+                              color: AppColors.successDark, // ✅ changed
+                            ),
                           ),
                           child: const Row(
                             children: [
                               CircleAvatar(
                                 radius: 4,
-                                backgroundColor: Color(0xff008847),
+                                backgroundColor:
+                                    AppColors.successDark, // ✅ changed
                               ),
                               SizedBox(width: 6),
                               Text(
                                 "Online",
                                 style: TextStyle(
-                                  color: Color(0xff008847),
+                                  color: AppColors.successDark, // ✅ changed
                                   fontWeight: FontWeight.w600,
                                   fontSize: 12,
                                 ),
@@ -126,7 +135,7 @@ class SpecialistModeScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
-                            color: Colors.black,
+                            color: AppColors.textPrimary, // ✅ changed
                           ),
                         ),
                         const SizedBox(height: 16),

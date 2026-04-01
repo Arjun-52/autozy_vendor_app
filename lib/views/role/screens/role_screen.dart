@@ -30,7 +30,7 @@ class _RoleScreenState extends State<RoleScreen> {
     final vm = context.watch<RoleViewModel>();
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: AppColors.backgroundLight,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
@@ -61,7 +61,7 @@ class _RoleScreenState extends State<RoleScreen> {
                   style: TextStyle(
                     fontSize: 24.46,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black,
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ],
@@ -75,7 +75,7 @@ class _RoleScreenState extends State<RoleScreen> {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
-                color: Colors.black,
+                color: AppColors.textPrimary,
               ),
             ),
 
@@ -111,7 +111,10 @@ class _RoleScreenState extends State<RoleScreen> {
 
             // Error
             if (vm.errorMessage != null)
-              Text(vm.errorMessage!, style: const TextStyle(color: Colors.red)),
+              Text(
+                vm.errorMessage!,
+                style: const TextStyle(color: AppColors.error),
+              ),
 
             if (vm.isLoading)
               const Padding(

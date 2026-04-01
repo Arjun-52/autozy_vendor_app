@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/constants/app_colors.dart';
 import '../../../../viewmodels/auth_viewmodel.dart';
 import '../widgets/login_logo.dart';
 import '../widgets/phone_input_field.dart';
@@ -21,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final vm = context.watch<AuthViewModel>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F2F0),
+      backgroundColor: AppColors.background,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
@@ -37,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
-                color: Colors.black,
+                color: AppColors.textPrimary,
               ),
             ),
 
@@ -48,7 +49,10 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 16),
 
             if (vm.errorMessage != null)
-              Text(vm.errorMessage!, style: const TextStyle(color: Colors.red)),
+              Text(
+                vm.errorMessage!,
+                style: const TextStyle(color: AppColors.error),
+              ),
 
             const SizedBox(height: 30),
 

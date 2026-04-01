@@ -40,9 +40,12 @@ class RoleCard extends StatelessWidget {
               child: SizedBox(
                 height: 14,
                 width: 14,
-                child: SvgPicture.asset(
-                  "assets/images/profile.svg",
-                  fit: BoxFit.contain,
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: SvgPicture.asset(
+                    "assets/images/profile.svg",
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),

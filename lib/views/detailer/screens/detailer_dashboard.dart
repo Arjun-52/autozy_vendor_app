@@ -1,8 +1,9 @@
+import 'package:autozy_vendor_app/views/detailer/widgets/dashboard_status_row.dart';
+import 'package:autozy_vendor_app/views/detailer/widgets/jobs_list_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+
 import 'package:provider/provider.dart';
-import '../widgets/status_card.dart';
-import '../widgets/job_card.dart';
+
 import '../widgets/job_details_bottom_sheet.dart';
 import '../../../core/services/navigation_service.dart';
 import '../../../viewmodels/dashboard_viewmodel.dart';
@@ -18,7 +19,7 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
   @override
   void initState() {
     super.initState();
-    // Load jobs when dashboard is initialized
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final vm = context.read<DashboardViewModel>();
       vm.loadJobs();
@@ -119,61 +120,7 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
           children: [
             const SizedBox(height: 10),
 
-            Row(
-              children: [
-                Expanded(
-                  child: StatusCard(
-                    icon: SvgPicture.asset(
-                      "assets/images/Car.svg",
-                      height: 24,
-                      width: 24,
-                    ),
-                    title: "3/40",
-                    subtitle: "Completed",
-                  ),
-                ),
-                SizedBox(width: 8),
-
-                Expanded(
-                  child: StatusCard(
-                    icon: SvgPicture.asset(
-                      "assets/images/Car.svg",
-                      height: 24,
-                      width: 24,
-                    ),
-                    title: "37",
-                    subtitle: "Remaining",
-                  ),
-                ),
-                SizedBox(width: 8),
-
-                Expanded(
-                  child: StatusCard(
-                    icon: SvgPicture.asset(
-                      "assets/images/disclaimer.svg",
-                      height: 24,
-                      width: 24,
-                    ),
-                    title: "0",
-                    subtitle: "CNA",
-                    iconColor: Colors.orange,
-                  ),
-                ),
-                SizedBox(width: 8),
-
-                Expanded(
-                  child: StatusCard(
-                    icon: SvgPicture.asset(
-                      "assets/images/wifi_off.svg",
-                      height: 24,
-                      width: 24,
-                    ),
-                    title: "",
-                    subtitle: "Offline Ready",
-                  ),
-                ),
-              ],
-            ),
+            const DashboardStatusRow(),
 
             const SizedBox(height: 40),
 
@@ -192,35 +139,8 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
             const SizedBox(height: 10),
 
             Expanded(
-              child: Consumer<DashboardViewModel>(
-                builder: (context, viewModel, child) {
-                  if (viewModel.jobs.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        "No jobs available",
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
-                      ),
-                    );
-                  }
-
-                  return ListView.builder(
-                    padding: const EdgeInsets.only(bottom: 30),
-                    itemCount: viewModel.jobs.length,
-                    itemBuilder: (context, index) {
-                      final job = viewModel.jobs[index];
-                      return JobCard(
-                        key: ValueKey(job.vehicle),
-                        vehicle: job.vehicle,
-                        name: job.name,
-                        location: job.location,
-                        isCompleted: job.isCompleted,
-                        isCNA: job.isCNA,
-                        index: index,
-                        onTap: () => openJobDetails(context, index),
-                      );
-                    },
-                  );
-                },
+              child: JobsListView(
+                onTap: (index) => openJobDetails(context, index),
               ),
             ),
           ],

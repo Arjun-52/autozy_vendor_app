@@ -2,6 +2,7 @@ import 'package:autozy_vendor_app/views/auth/widgets/resend_otp_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/constants/app_colors.dart'; // ✅ added
 import '../../../viewmodels/auth_viewmodel.dart';
 import '../widgets/otp_box.dart';
 import '../widgets/otp_header.dart';
@@ -50,7 +51,7 @@ class _OtpScreenState extends State<OtpScreen> {
     final vm = context.watch<AuthViewModel>();
 
     var scaffold = Scaffold(
-      backgroundColor: const Color(0xFFF3F2F0),
+      backgroundColor: AppColors.background, // ✅ changed
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -69,7 +70,7 @@ class _OtpScreenState extends State<OtpScreen> {
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 16,
-                  color: Colors.black,
+                  color: AppColors.textPrimary, // ✅ changed
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -80,7 +81,7 @@ class _OtpScreenState extends State<OtpScreen> {
                 "+91 ${vm.phoneNumber}",
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: AppColors.textPrimary, // ✅ changed
                 ),
               ),
 
@@ -91,7 +92,7 @@ class _OtpScreenState extends State<OtpScreen> {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black,
+                  color: AppColors.textPrimary, // ✅ changed
                 ),
               ),
 
@@ -120,7 +121,7 @@ class _OtpScreenState extends State<OtpScreen> {
               if (vm.errorMessage != null)
                 Text(
                   vm.errorMessage!,
-                  style: const TextStyle(color: Colors.red),
+                  style: const TextStyle(color: AppColors.error), // ✅ changed
                 ),
 
               const SizedBox(height: 20),

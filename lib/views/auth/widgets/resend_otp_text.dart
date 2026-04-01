@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import '../../../core/constants/app_colors.dart'; // ✅ added
 
 class ResendOtpText extends StatefulWidget {
   const ResendOtpText({super.key});
@@ -43,7 +44,7 @@ class _ResendOtpTextState extends State<ResendOtpText> {
       text: TextSpan(
         text: "Didn't receive the OTP? ",
         style: const TextStyle(
-          color: Color(0xff5B5B5E),
+          color: AppColors.textSecondary, // ✅ changed
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
@@ -51,7 +52,7 @@ class _ResendOtpTextState extends State<ResendOtpText> {
           TextSpan(
             text: seconds > 0 ? "Resend in $seconds s" : "Resend OTP",
             style: TextStyle(
-              color: seconds > 0 ? Colors.grey : Colors.orange,
+              color: seconds > 0 ? AppColors.textSecondary : AppColors.primary,
               fontWeight: FontWeight.bold,
             ),
             recognizer: TapGestureRecognizer()
