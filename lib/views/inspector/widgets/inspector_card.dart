@@ -22,12 +22,14 @@ class InspectorCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () => showJobDetailsSheet(context, inspection),
+
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: isFlagged ? Colors.grey.shade100 : Colors.white,
+          color: isFlagged ? Colors.grey.shade200 : Colors.white,
           borderRadius: BorderRadius.circular(16),
+          border: isFlagged ? Border.all(color: Colors.red.shade200) : null,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.08),
@@ -40,16 +42,28 @@ class InspectorCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            /// TOP ROW
             Row(
               children: [
                 Container(
                   height: 45,
                   width: 45,
                   decoration: BoxDecoration(
-                    color: isApproved ? Colors.grey.shade300 : Colors.amber,
+                    color: isFlagged
+                        ? Colors.grey.shade300
+                        : isApproved
+                        ? Colors.grey.shade300
+                        : Colors.amber,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.directions_car),
+
+                  /// EYE icon
+                  child: Icon(
+                    isFlagged
+                        ? Icons.remove_red_eye_outlined
+                        : Icons.directions_car,
+                    color: isFlagged ? Colors.grey : Colors.black,
+                  ),
                 ),
 
                 const SizedBox(width: 10),
@@ -59,10 +73,10 @@ class InspectorCard extends StatelessWidget {
                   children: [
                     Text(
                       inspection.vehicle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
-                        color: Colors.black,
+                        color: isFlagged ? Colors.grey : Colors.black, // faded
                       ),
                     ),
 
@@ -72,7 +86,9 @@ class InspectorCard extends StatelessWidget {
                       children: [
                         Text(
                           inspection.name,
-                          style: const TextStyle(color: Colors.grey),
+                          style: TextStyle(
+                            color: isFlagged ? Colors.grey : Colors.grey,
+                          ),
                         ),
                         const SizedBox(width: 6),
                         const Text(
@@ -90,12 +106,13 @@ class InspectorCard extends StatelessWidget {
 
                 const Spacer(),
 
-                const Icon(Icons.arrow_forward_ios, size: 16),
+                if (!isFlagged) const Icon(Icons.arrow_forward_ios, size: 16),
               ],
             ),
 
             const SizedBox(height: 10),
 
+            /// LOCATION
             Row(
               children: [
                 const Icon(Icons.location_on, size: 16, color: Colors.grey),
@@ -111,14 +128,14 @@ class InspectorCard extends StatelessWidget {
 
             if (isFlagged)
               Row(
-                children: [
-                  const Icon(Icons.flag, color: Colors.red, size: 18),
-                  const SizedBox(width: 6),
+                children: const [
+                  Icon(Icons.flag, color: Colors.red, size: 18),
+                  SizedBox(width: 6),
                   Text(
-                    "Flagged",
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w500,
+                    "Fraud Flagged",
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -126,6 +143,7 @@ class InspectorCard extends StatelessWidget {
 
             const SizedBox(height: 12),
 
+            /// APPROVED STATE
             if (isApproved)
               const Row(
                 children: [
@@ -140,7 +158,7 @@ class InspectorCard extends StatelessWidget {
                   ),
                 ],
               )
-            else ...[
+            else if (!isFlagged) ...[
               GestureDetector(
                 onTap: () {
                   showCapturePhotoSheet(
@@ -168,7 +186,14 @@ class InspectorCard extends StatelessWidget {
                     children: [
                       const Icon(Icons.camera_alt_outlined),
                       const SizedBox(width: 6),
-                      Text("Take Photo (${inspection.photoCount})"),
+                      Text(
+                        "Take Photo (${inspection.photoCount})",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -190,31 +215,37 @@ class InspectorCard extends StatelessWidget {
                           color: Colors.amber,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 24,
-                              height: 24,
-                              decoration: const BoxDecoration(
-                                color: Colors.black,
-                                shape: BoxShape.circle,
+                        child: Center(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              /// ✅ BLACK CIRCLE + WHITE TICK
+                              Container(
+                                padding: const EdgeInsets.all(3),
+                                decoration: const BoxDecoration(
+                                  color: Colors.black,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.check,
+                                  size: 12,
+                                  color: Colors.white,
+                                ),
                               ),
-                              child: const Icon(
-                                Icons.check,
-                                color: Colors.white,
-                                size: 16,
+
+                              const SizedBox(width: 6),
+
+                              /// TEXT
+                              const Text(
+                                "Approve",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                  color: Colors.black,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 6),
-                            const Text(
-                              "Approve",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -225,32 +256,31 @@ class InspectorCard extends StatelessWidget {
                   /// FLAG
                   Expanded(
                     child: GestureDetector(
-                      onTap: inspection.status == InspectionStatus.flagged
-                          ? null
-                          : () {
-                              vm.flagInspection(index);
-                            },
+                      onTap: () {
+                        vm.flagInspection(index);
+                      },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.red),
                           borderRadius: BorderRadius.circular(12),
-                          color: inspection.status == InspectionStatus.flagged
-                              ? Colors.red.shade50
-                              : Colors.transparent,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.flag, color: Colors.red),
-                            const SizedBox(width: 6),
-                            Text(
-                              inspection.status == InspectionStatus.flagged
-                                  ? "Flagged"
-                                  : "Flag",
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          ],
+                        child: const Center(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.flag, size: 16, color: Colors.red),
+                              SizedBox(width: 6),
+                              Text(
+                                "Flag",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

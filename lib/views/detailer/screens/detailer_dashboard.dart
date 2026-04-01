@@ -1,9 +1,8 @@
-import 'package:autozy_vendor_app/viewmodels/job_details_viewmodel.dart';
-import 'package:autozy_vendor_app/views/detailer/screens/job_details.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/status_card.dart';
 import '../widgets/job_card.dart';
+import '../widgets/job_details_bottom_sheet.dart';
 import '../../../core/services/navigation_service.dart';
 import '../../../viewmodels/dashboard_viewmodel.dart';
 
@@ -25,17 +24,30 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
     });
   }
 
-  void openJobDetails(BuildContext context) {
+  void openJobDetails(BuildContext context, int jobIndex) {
+    final vm = context.read<DashboardViewModel>();
+    final job = vm.getJob(jobIndex);
+
+    if (job == null) {
+      print('Job not found at index $jobIndex');
+      return;
+    }
+
+    print('Job Phone: ${job.phone}');
+    print('Job Vehicle: ${job.vehicle}');
+    print('Job Name: ${job.name}');
+    print('Job Location: ${job.location}');
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) {
-        return ChangeNotifierProvider(
-          create: (_) => JobDetailsViewModel(),
-          child: const JobDetailsScreen(),
-        );
-      },
+      builder: (_) => JobDetailsBottomSheet(
+        job: job,
+        vehicle: job.vehicle,
+        name: job.name,
+        location: job.location,
+        phone: job.phone,
+        isCNA: job.isCNA,
+        index: jobIndex,
+      ),
     );
   }
 
@@ -185,8 +197,9 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
                         name: job.name,
                         location: job.location,
                         isCompleted: job.isCompleted,
+                        isCNA: job.isCNA,
                         index: index,
-                        onTap: () => openJobDetails(context),
+                        onTap: () => openJobDetails(context, index),
                       );
                     },
                   );

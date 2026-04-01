@@ -81,7 +81,11 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
               const SizedBox(width: 10),
               const Text(
                 "Capture Photo",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black,
+                ),
               ),
             ],
           ),
@@ -101,7 +105,14 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
                     children: const [
                       Icon(Icons.camera_alt_outlined, size: 30),
                       SizedBox(height: 8),
-                      Text("Camera Preview Area"),
+                      Text(
+                        "Camera Preview Area",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xff313131),
+                        ),
+                      ),
                     ],
                   )
                 : ClipRRect(
@@ -137,7 +148,11 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
                         SizedBox(width: 8),
                         Text(
                           "Take Photo",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                            color: Colors.black,
+                          ),
                         ),
                       ],
                     ),
@@ -161,8 +176,9 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
                       child: Text(
                         "Cancel",
                         style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
+                          color: Color(0xffFF383C),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
                         ),
                       ),
                     ),

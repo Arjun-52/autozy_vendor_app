@@ -34,7 +34,7 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            context.pop();
+            context.go('/role');
           },
         ),
         title: Column(

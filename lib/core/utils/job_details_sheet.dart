@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
 
 void showJobDetailsSheet(BuildContext context, InspectionModel inspection) {
+  final isFlagged = inspection.status == InspectionStatus.flagged;
+
   String statusText;
   Color statusColor;
 
   if (inspection.status == InspectionStatus.approved) {
     statusText = "Completed";
     statusColor = Colors.green;
-  } else if (inspection.status == InspectionStatus.flagged) {
-    statusText = "Flagged";
+  } else if (isFlagged) {
+    statusText = "Car Not Available";
     statusColor = Colors.red;
   } else {
     statusText = "Pending";
@@ -79,12 +81,17 @@ void showJobDetailsSheet(BuildContext context, InspectionModel inspection) {
                               height: 45,
                               width: 45,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFFFC107),
+                                color: isFlagged
+                                    ? Colors.grey.shade300
+                                    : const Color(0xFFFFC107),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Icon(
-                                Icons.directions_car,
-                                color: Colors.black,
+                              child: Icon(
+                                isFlagged
+                                    ? Icons
+                                          .remove_red_eye_outlined // 👁
+                                    : Icons.directions_car,
+                                color: isFlagged ? Colors.grey : Colors.black,
                               ),
                             ),
 
@@ -95,9 +102,12 @@ void showJobDetailsSheet(BuildContext context, InspectionModel inspection) {
                               children: [
                                 Text(
                                   inspection.vehicle,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 14,
+                                    color: isFlagged
+                                        ? Colors.grey
+                                        : Colors.black,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
@@ -105,8 +115,10 @@ void showJobDetailsSheet(BuildContext context, InspectionModel inspection) {
                                   children: [
                                     Text(
                                       inspection.name,
-                                      style: const TextStyle(
-                                        color: Colors.grey,
+                                      style: TextStyle(
+                                        color: isFlagged
+                                            ? Colors.grey
+                                            : Colors.grey,
                                         fontSize: 12,
                                       ),
                                     ),
@@ -174,7 +186,6 @@ void showJobDetailsSheet(BuildContext context, InspectionModel inspection) {
 
                         const SizedBox(height: 16),
 
-                        /// STATUS
                         Row(
                           children: [
                             const Text(
@@ -185,15 +196,34 @@ void showJobDetailsSheet(BuildContext context, InspectionModel inspection) {
                               "• ",
                               style: TextStyle(color: Colors.grey),
                             ),
-                            Text(
-                              statusText,
-                              style: TextStyle(
-                                color: statusColor,
-                                fontWeight: FontWeight.w600,
+
+                            /// STATUS CHIP
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isFlagged
+                                    ? Colors.red.shade50
+                                    : inspection.status ==
+                                          InspectionStatus.approved
+                                    ? Colors.green.shade50
+                                    : Colors.orange.shade50,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                statusText,
+                                style: TextStyle(
+                                  color: statusColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ],
                         ),
+
+                        if (isFlagged) ...[const SizedBox(height: 12)],
                       ],
                     ),
                   ),

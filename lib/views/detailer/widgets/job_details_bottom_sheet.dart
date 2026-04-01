@@ -1,10 +1,16 @@
+import 'package:autozy_vendor_app/data/models/job_model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../viewmodels/dashboard_viewmodel.dart';
 
 class JobDetailsBottomSheet extends StatelessWidget {
   final String vehicle;
   final String name;
   final String location;
   final String phone;
+  final bool isCNA;
+  final int? index;
+  final JobModel job;
 
   const JobDetailsBottomSheet({
     super.key,
@@ -12,163 +18,213 @@ class JobDetailsBottomSheet extends StatelessWidget {
     required this.name,
     required this.location,
     required this.phone,
+    this.isCNA = false,
+    this.index,
+    required this.job,
   });
 
   @override
   Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      initialChildSize: 0.55,
-      minChildSize: 0.4,
-      maxChildSize: 0.9,
-      builder: (_, controller) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: ListView(
-            controller: controller,
-            children: [
-              // drag handle
-              Center(
-                child: Container(
-                  height: 4,
-                  width: 40,
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
+    String statusText;
+    Color statusColor;
+
+    switch (job.status) {
+      case JobStatus.completed:
+        statusText = "Completed";
+        statusColor = Colors.green;
+        break;
+      case JobStatus.cna:
+        statusText = "Car Not Available";
+        statusColor = Colors.red;
+        break;
+      default:
+        statusText = "Pending";
+        statusColor = Colors.orange;
+    }
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 10),
+
+            // drag handle
+            Container(
+              height: 4,
+              width: 40,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(10),
               ),
+            ),
 
-              // header
-              Row(
+            const SizedBox(height: 12),
+
+            Flexible(
+              child: ListView(
+                shrinkWrap: true,
+                padding: const EdgeInsets.all(16),
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.close),
-                  ),
-                  const SizedBox(width: 10),
-                  const Text(
-                    "Job Details",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xff000E08),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              // vehicle info
-              Row(
-                children: [
-                  Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.amber,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.directions_car),
-                  ),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  // HEADER
+                  Row(
                     children: [
-                      Text(
-                        vehicle,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: const Icon(Icons.close),
                       ),
+                      const SizedBox(width: 10),
                       Text(
-                        name,
+                        isCNA ? "Job Details" : "Job Details",
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 16,
                           fontWeight: FontWeight.w500,
+                          color: Colors.black,
                         ),
                       ),
                     ],
                   ),
+
+                  const SizedBox(height: 16),
+
+                  //  NORMAL UI
+                  ...[
+                    Row(
+                      children: [
+                        Container(
+                          height: 50,
+                          width: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.amber,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.directions_car),
+                        ),
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              vehicle,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              name,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xff7E8392),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.location_on,
+                                size: 16,
+                                color: Color(0xff7E8392),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                location,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: Color(0xff7E8392),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          const Row(
+                            children: [
+                              Icon(
+                                Icons.location_pin,
+                                size: 16,
+                                color: Color(0xff7E8392),
+                              ),
+                              SizedBox(width: 6),
+                              Text(
+                                "GPS Tracked • Live",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: Color(0xff7E8392),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.phone,
+                                size: 16,
+                                color: Colors.grey,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                phone.isEmpty ? "No phone available" : phone,
+                                style: const TextStyle(
+                                  color: Color(0xff7E8392),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          const TextSpan(text: "Status • "),
+                          TextSpan(
+                            text: statusText,
+                            style: TextStyle(
+                              color: statusColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
+            ),
 
-              const SizedBox(height: 16),
-
-              // info box
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.location_on, size: 16),
-                        const SizedBox(width: 6),
-                        Text(location),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    const Row(
-                      children: [
-                        Icon(Icons.location_pin, size: 16),
-                        SizedBox(width: 6),
-                        Text(
-                          "GPS Tracked • Live",
-                          style: TextStyle(
-                            color: Color(0xff7E8392),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.phone, size: 16),
-                        const SizedBox(width: 6),
-                        Text(
-                          phone,
-                          style: TextStyle(
-                            color: Color(0xff7E8392),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 26),
-
-              const Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(text: "Status • "),
-                    TextSpan(
-                      text: "Pending",
-                      style: TextStyle(color: Colors.orange),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 100),
-
-              // call button
-              Container(
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Container(
+                width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: BoxDecoration(
                   color: Colors.amber,
@@ -182,18 +238,18 @@ class JobDetailsBottomSheet extends StatelessWidget {
                     Text(
                       "Call Owner",
                       style: TextStyle(
-                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
                         fontSize: 16,
-                        color: Color(0xFF000000),
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-        );
-      },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

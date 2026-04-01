@@ -43,6 +43,7 @@ dependencies:
   dotted_border: ^3.1.0
   image_picker: ^1.2.1
   another_flushbar: ^1.12.32
+  flutter_svg: ^2.0.10
 
 dev_dependencies:
   flutter_test:

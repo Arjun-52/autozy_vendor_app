@@ -1,5 +1,6 @@
 import 'package:autozy_vendor_app/data/models/role_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../core/constants/app_colors.dart';
 
 class RoleCard extends StatelessWidget {
@@ -30,13 +31,20 @@ class RoleCard extends StatelessWidget {
           children: [
             // Icon box
             Container(
-              height: 45,
-              width: 45,
+              height: 46,
+              width: 46,
               decoration: BoxDecoration(
                 color: AppColors.primary,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(14),
               ),
-              child: const Icon(Icons.person, color: Colors.black),
+              child: SizedBox(
+                height: 14,
+                width: 14,
+                child: SvgPicture.asset(
+                  "assets/images/profile.svg",
+                  fit: BoxFit.contain,
+                ),
+              ),
             ),
 
             const SizedBox(width: 12),
