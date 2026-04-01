@@ -28,6 +28,13 @@ class InspectorActionButtons extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.surface,
               borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.textMuted.withValues(alpha: 0.5),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -66,15 +73,31 @@ class InspectorActionButtons extends StatelessWidget {
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Center(
-                    child: Text(
-                      "Approve",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                        color: AppColors.textPrimary,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.black,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 12,
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 6),
+                      const Text(
+                        "Approve",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -91,15 +114,28 @@ class InspectorActionButtons extends StatelessWidget {
                     border: Border.all(color: AppColors.error),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Center(
-                    child: Text(
-                      "Flag",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                        color: AppColors.error,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        "assets/images/flag.svg",
+                        height: 16,
+                        width: 16,
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.error,
+                          BlendMode.srcIn,
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 6),
+                      const Text(
+                        "Flag",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                          color: AppColors.error,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

@@ -9,14 +9,14 @@ class LoginLogo extends StatelessWidget {
     return Column(
       children: [
         Container(
-          height: 69,
-          width: 69,
+          height: 72,
+          width: 72,
           decoration: BoxDecoration(
             color: AppColors.primary,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(15),
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(15),
             child: Image.asset(
               'assets/images/vendor_logo.png',
               fit: BoxFit.contain,

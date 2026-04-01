@@ -1,11 +1,11 @@
-import 'dart:core';
-
 import 'package:autozy_vendor_app/views/detailer/widgets/capture_photo_bottom_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../viewmodels/dashboard_viewmodel.dart';
+
+// ✅ extracted widgets
+import 'job_card_header.dart';
+import 'job_card_location.dart';
+import 'job_card_actions.dart';
 
 class JobCard extends StatelessWidget {
   final String vehicle;
@@ -18,12 +18,12 @@ class JobCard extends StatelessWidget {
 
   const JobCard({
     super.key,
-    this.isCNA = false,
     required this.vehicle,
     required this.name,
     required this.location,
     this.isCompleted = false,
     this.index,
+    this.isCNA = false,
     this.onTap,
   });
 
@@ -49,18 +49,16 @@ class JobCard extends StatelessWidget {
         padding: const EdgeInsets.all(14),
 
         decoration: BoxDecoration(
-          color: isCNA
-              ? Colors.white
-              : isCompleted
-              ? Colors.white
-              : Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
-          border: isCNA ? Border.all(color: Colors.red.shade100) : null,
-          boxShadow: [
+          border: isCNA
+              ? Border.all(color: AppColors.error.withValues(alpha: 0.2))
+              : null,
+          boxShadow: const [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
+              color: Colors.black12,
               blurRadius: 10,
-              offset: const Offset(0, 5),
+              offset: Offset(0, 4),
             ),
           ],
         ),
@@ -68,296 +66,28 @@ class JobCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Container(
-                  height: 45,
-                  width: 45,
-                  decoration: BoxDecoration(
-                    color: isCNA
-                        ? Color(0xffD1D1D1CC)
-                        : isCompleted
-                        ? Color(0xffD1D1D1CC)
-                        : AppColors.primary,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Container(
-                    height: 44,
-                    width: 44,
-                    padding: const EdgeInsets.all(10.29),
-                    decoration: BoxDecoration(
-                      color: isCNA
-                          ? Colors.red.shade100
-                          : isCompleted
-                          ? Colors.grey.shade400
-                          : AppColors.primary,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: SvgPicture.asset(
-                      "assets/images/car2.svg",
-                      height: 20,
-                      width: 20,
-                      fit: BoxFit.contain,
-                      color: isCNA ? Colors.red.shade500 : Colors.black,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(width: 10),
-
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      vehicle,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: isCNA ? Colors.grey.shade600 : Colors.black,
-                      ),
-                    ),
-                    Text(
-                      name,
-                      style: TextStyle(
-                        color: isCNA
-                            ? Colors.grey.shade500
-                            : const Color(0xff7E8392),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const Spacer(),
-                Row(
-                  children: [
-                    if (isCompleted)
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: Colors.green,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.check,
-                          color: Colors.white,
-                          size: 14,
-                        ),
-                      ),
-
-                    if (isCompleted) const SizedBox(width: 6),
-
-                    isCNA
-                        ? const Icon(
-                            Icons.warning_amber_rounded,
-                            color: Colors.red,
-                          )
-                        : const Icon(Icons.arrow_forward_ios, size: 14),
-                  ],
-                ),
-              ],
+            /// 🔹 HEADER
+            JobCardHeader(
+              vehicle: vehicle,
+              name: name,
+              isCompleted: isCompleted,
+              isCNA: isCNA,
             ),
 
             const SizedBox(height: 10),
 
-            Row(
-              children: [
-                const Icon(Icons.location_on, size: 16, color: Colors.grey),
-                const SizedBox(width: 5),
-                Expanded(
-                  child: Text(
-                    location,
-                    style: const TextStyle(color: Color(0xFF7E8392)),
-                  ),
-                ),
-              ],
+            /// 🔹 LOCATION
+            JobCardLocation(location: location),
+
+            const SizedBox(height: 12),
+
+            /// 🔹 ACTIONS
+            JobCardActions(
+              isCompleted: isCompleted,
+              isCNA: isCNA,
+              index: index,
+              onClean: () => _openCapturePhotoBottomSheet(context),
             ),
-
-            if (!isCompleted && !isCNA) ...[
-              const SizedBox(height: 12),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: () => _openCapturePhotoBottomSheet(context),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(
-                              "assets/images/camera.svg",
-                              height: 18,
-                              width: 18,
-                              colorFilter: const ColorFilter.mode(
-                                Colors.black,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            const Text(
-                              "Cleaned",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 10),
-
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        if (index != null) {
-                          context.read<DashboardViewModel>().markCNA(index!);
-                        }
-                      },
-                      borderRadius: BorderRadius.circular(13),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.primary),
-                          borderRadius: BorderRadius.circular(13),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(
-                              "assets/images/disclaimer.svg",
-                              height: 18,
-                              width: 18,
-                              colorFilter: const ColorFilter.mode(
-                                Color(0xffD79306),
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            const Text(
-                              "CNA",
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xffD79306),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ] else if (isCompleted) ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: InkWell(
-                  onTap: () {
-                    if (index != null) {
-                      context.read<DashboardViewModel>().undoJob(index!);
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade300),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SvgPicture.asset(
-                          "assets/images/undo.svg",
-                          height: 18,
-                          width: 18,
-                          colorFilter: const ColorFilter.mode(
-                            Colors.black,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          "Undo",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-
-            if (isCNA) ...[
-              const SizedBox(height: 12),
-
-              SizedBox(
-                width: double.infinity,
-                child: InkWell(
-                  onTap: () {
-                    if (index != null) {
-                      context.read<DashboardViewModel>().undoCNA(index!);
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.amber.shade200,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SvgPicture.asset(
-                          "assets/images/undo.svg",
-                          height: 18,
-                          width: 18,
-                          colorFilter: const ColorFilter.mode(
-                            Colors.black,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          "Undo",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
           ],
         ),
       ),

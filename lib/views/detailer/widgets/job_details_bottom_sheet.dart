@@ -100,7 +100,9 @@ class JobDetailsBottomSheet extends StatelessWidget {
                           height: 44,
                           width: 44,
                           decoration: BoxDecoration(
-                            color: Colors.amber,
+                            color: isCNA
+                                ? const Color(0xCCD1D1D1)
+                                : Colors.amber,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Padding(

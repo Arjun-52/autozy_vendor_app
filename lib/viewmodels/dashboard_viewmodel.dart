@@ -1,101 +1,84 @@
-import 'package:flutter/material.dart';
 import '../../data/models/job_model.dart';
+import '../../data/repositories/dashboard_repository.dart';
+import '../../core/base/base_viewmodel.dart';
 
-class DashboardViewModel extends ChangeNotifier {
+class DashboardViewModel extends BaseViewModel {
+  final DashboardRepository _repository;
+
+  DashboardViewModel(this._repository);
+
   List<JobModel> _jobs = [];
-  void undoCNA(int index) {
-    _jobs[index] = JobModel(
-      vehicle: _jobs[index].vehicle,
-      name: _jobs[index].name,
-      location: _jobs[index].location,
-      phone: _jobs[index].phone,
-      status: JobStatus.pending,
-    );
 
-    notifyListeners();
+  void undoCNA(int index) {
+    if (_isValidIndex(index)) {
+      _updateJobStatus(index, JobStatus.pending);
+    }
   }
 
   List<JobModel> get jobs => List.unmodifiable(_jobs);
 
-  void loadJobs() {
-    _jobs = [
-      JobModel(
-        vehicle: "TS 01 AB 1234",
-        name: "Rahul S.",
-        location: "Tower A, Slot 6",
-        phone: "+91 98765 43210",
-        status: JobStatus.pending,
-      ),
-      JobModel(
-        vehicle: "MH 03 CD 5678",
-        name: "Priya N.",
-        location: "Tower B, Slot 5",
-        phone: "+91 87654 32109",
-        status: JobStatus.pending,
-      ),
-      JobModel(
-        vehicle: "MH 04 EF 9012",
-        name: "Amit K.",
-        location: "Tower B, Slot 8",
-        phone: "+91 76543 21098",
-        status: JobStatus.pending,
-      ),
-    ];
-    notifyListeners();
+  Future<void> loadJobs() async {
+    await executeOperation(() async {
+      _jobs = await _repository.getJobs();
+    }, onError: 'Failed to load jobs');
   }
 
-  bool markJobCompleted(int index) {
-    if (index < 0 || index >= _jobs.length) {
-      return false;
+  Future<bool> markJobCompleted(int index) async {
+    if (!_isValidIndex(index)) return false;
+
+    final vehicleId = _jobs[index].vehicle;
+    final success = await _repository.markJobCompleted(vehicleId);
+
+    if (success) {
+      _updateJobStatus(index, JobStatus.completed);
     }
 
-    _jobs[index] = JobModel(
-      vehicle: _jobs[index].vehicle,
-      name: _jobs[index].name,
-      location: _jobs[index].location,
-      phone: _jobs[index].phone,
-      status: JobStatus.completed,
-    );
-    notifyListeners();
-    return true;
+    return success;
   }
 
-  bool markCNA(int index) {
-    if (index < 0 || index >= _jobs.length) {
-      return false;
+  Future<bool> markCNA(int index) async {
+    if (!_isValidIndex(index)) return false;
+
+    final vehicleId = _jobs[index].vehicle;
+    final success = await _repository.markJobCNA(vehicleId);
+
+    if (success) {
+      _updateJobStatus(index, JobStatus.cna);
     }
 
-    _jobs[index] = JobModel(
-      vehicle: _jobs[index].vehicle,
-      name: _jobs[index].name,
-      location: _jobs[index].location,
-      phone: _jobs[index].phone,
-      status: JobStatus.cna,
-    );
-    notifyListeners();
-    return true;
+    return success;
   }
 
-  bool undoJob(int index) {
-    if (index < 0 || index >= _jobs.length) {
-      return false;
+  Future<bool> undoJob(int index) async {
+    if (!_isValidIndex(index)) return false;
+
+    final vehicleId = _jobs[index].vehicle;
+    final success = await _repository.undoJobStatus(vehicleId);
+
+    if (success) {
+      _updateJobStatus(index, JobStatus.pending);
     }
 
-    _jobs[index] = JobModel(
-      vehicle: _jobs[index].vehicle,
-      name: _jobs[index].name,
-      location: _jobs[index].location,
-      phone: _jobs[index].phone,
-      status: JobStatus.pending,
-    );
-    notifyListeners();
-    return true;
+    return success;
   }
 
   JobModel? getJob(int index) {
-    if (index < 0 || index >= _jobs.length) {
-      return null;
-    }
-    return _jobs[index];
+    return _isValidIndex(index) ? _jobs[index] : null;
+  }
+
+  // Helper methods
+  bool _isValidIndex(int index) {
+    return index >= 0 && index < _jobs.length;
+  }
+
+  void _updateJobStatus(int index, JobStatus status) {
+    _jobs[index] = JobModel(
+      vehicle: _jobs[index].vehicle,
+      name: _jobs[index].name,
+      location: _jobs[index].location,
+      phone: _jobs[index].phone,
+      status: status,
+    );
+    notifyListeners();
   }
 }

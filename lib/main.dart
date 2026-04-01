@@ -33,7 +33,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => RoleViewModel()),
 
         ///  DASHBOARD (Provider-based DI)
-        ChangeNotifierProvider(create: (_) => DashboardViewModel()),
+        ChangeNotifierProvider(
+          create: (_) => DashboardViewModel(di.dashboardRepository),
+        ),
       ],
 
       ///  GoRouter Integration
