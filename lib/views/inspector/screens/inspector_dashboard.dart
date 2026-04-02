@@ -6,6 +6,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_styles.dart';
+
 class InspectorDashboard extends StatefulWidget {
   const InspectorDashboard({super.key});
 
@@ -26,14 +30,15 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<InspectorViewModel>();
+
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: AppColors.backgroundLight,
 
       appBar: AppBar(
         elevation: 2,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: AppColors.black),
           onPressed: () {
             context.go('/role');
           },
@@ -41,45 +46,26 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
-            Text(
-              "Inspector Mode",
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            Text(
-              "Inspection Queue",
-              style: TextStyle(color: Colors.grey, fontSize: 12),
-            ),
+            Text("Inspector Mode", style: AppStyles.subHeading),
+            Text("Inspection Queue", style: AppStyles.caption),
           ],
         ),
         actions: [
           Container(
-            margin: const EdgeInsets.only(right: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            margin: AppSpacing.right16,
+            padding: AppSpacing.horizontal12Vertical6,
             decoration: BoxDecoration(
-              color: Color(0xffE4FFF2),
-              border: Border.all(
-                color: Color(0xff008847).withValues(alpha: 0.5),
-              ),
-              borderRadius: BorderRadius.circular(20),
+              color: AppColors.successLight,
+              border: Border.all(color: AppColors.successDark.withOpacity(0.5)),
+              borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
             ),
-            child: const Text(
-              "• Online",
-              style: TextStyle(
-                color: Color(0xff008847),
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            child: const Text("• Online", style: AppStyles.smallMedium),
           ),
         ],
       ),
 
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.all16,
         child: Column(
           children: [
             Row(
@@ -88,62 +74,55 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
                   child: StatusCard(
                     icon: SvgPicture.asset(
                       "assets/images/Car.svg",
-                      height: 24,
-                      width: 24,
-                      colorFilter: ColorFilter.mode(
-                        Colors.black,
+                      height: AppSpacing.iconMd,
+                      width: AppSpacing.iconMd,
+                      colorFilter: const ColorFilter.mode(
+                        AppColors.black,
                         BlendMode.srcIn,
                       ),
                     ),
                     title: vm.approvedCount.toString(),
                     subtitle: "Approved",
-                    iconColor: Colors.black,
+                    iconColor: AppColors.black,
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: StatusCard(
                     icon: SvgPicture.asset(
                       "assets/images/Car.svg",
-                      height: 24,
-                      width: 24,
-                      colorFilter: ColorFilter.mode(
-                        Colors.black,
+                      height: AppSpacing.iconMd,
+                      width: AppSpacing.iconMd,
+                      colorFilter: const ColorFilter.mode(
+                        AppColors.black,
                         BlendMode.srcIn,
                       ),
                     ),
                     title: vm.pendingCount.toString(),
                     subtitle: "Pending",
-                    iconColor: Colors.black,
+                    iconColor: AppColors.black,
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: StatusCard(
-                    icon: Icon(Icons.warning),
+                    icon: const Icon(Icons.warning),
                     title: vm.flaggedCount.toString(),
                     subtitle: "Flagged",
-                    iconColor: Colors.red,
+                    iconColor: AppColors.error,
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: AppSpacing.lg),
 
             const Align(
               alignment: Alignment.centerLeft,
-              child: Text(
-                "Inspection Queue",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
-                ),
-              ),
+              child: Text("Inspection Queue", style: AppStyles.sectionTitle),
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: AppSpacing.sm),
 
             Expanded(
               child: ListView(

@@ -2,6 +2,10 @@ import 'package:autozy_vendor_app/data/models/job_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_styles.dart';
 import '../../../viewmodels/dashboard_viewmodel.dart';
 
 class JobDetailsBottomSheet extends StatelessWidget {
@@ -32,241 +36,166 @@ class JobDetailsBottomSheet extends StatelessWidget {
     switch (job.status) {
       case JobStatus.completed:
         statusText = "Completed";
-        statusColor = Colors.green;
+        statusColor = AppColors.success;
         break;
       case JobStatus.cna:
         statusText = "Car Not Available";
-        statusColor = Colors.red;
+        statusColor = AppColors.error;
         break;
       default:
         statusText = "Pending";
-        statusColor = Colors.orange;
+        statusColor = AppColors.warning;
     }
+
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppSpacing.radiusLg),
+        ),
       ),
       child: SafeArea(
         top: false,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 10),
+            const SizedBox(height: AppSpacing.sm),
 
-            // drag handle
+            /// drag handle
             Container(
-              height: 4,
-              width: 40,
+              height: AppSpacing.xs,
+              width: AppSpacing.xl,
               decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(10),
+                color: AppColors.border,
+                borderRadius: BorderRadius.circular(AppSpacing.sm),
               ),
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.sm),
 
             Flexible(
               child: ListView(
                 shrinkWrap: true,
-                padding: const EdgeInsets.all(16),
+                padding: AppSpacing.all16,
                 children: [
-                  // HEADER
+                  /// HEADER
                   Row(
                     children: [
                       GestureDetector(
                         onTap: () => Navigator.pop(context),
-                        child: const Icon(Icons.close),
+                        child: const Icon(Icons.close, color: AppColors.black),
                       ),
-                      const SizedBox(width: 10),
-                      Text(
-                        isCNA ? "Job Details" : "Job Details",
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
+                      const SizedBox(width: AppSpacing.sm),
+                      const Text("Job Details", style: AppStyles.subHeading),
+                    ],
+                  ),
+
+                  const SizedBox(height: AppSpacing.lg),
+
+                  /// vehicle row
+                  Row(
+                    children: [
+                      Container(
+                        height: 44,
+                        width: 44,
+                        decoration: BoxDecoration(
+                          color: isCNA ? AppColors.border : AppColors.primary,
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.radiusMd,
+                          ),
                         ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(
+                            10,
+                          ), // ✅ acceptable small inline
+                          child: SvgPicture.asset(
+                            "assets/images/car2.svg",
+                            fit: BoxFit.contain,
+                            colorFilter: ColorFilter.mode(
+                              isCNA ? AppColors.error : AppColors.black,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(vehicle, style: AppStyles.bodyMedium),
+                          Text(name, style: AppStyles.caption),
+                        ],
                       ),
                     ],
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.lg),
 
-                  //  NORMAL UI
-                  ...[
-                    Row(
+                  /// info card
+                  Container(
+                    padding: AppSpacing.cardPadding,
+                    decoration: BoxDecoration(
+                      color: AppColors.backgroundLight,
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                    ),
+                    child: Column(
                       children: [
-                        Container(
-                          height: 44,
-                          width: 44,
-                          decoration: BoxDecoration(
-                            color: isCNA
-                                ? const Color(0xCCD1D1D1)
-                                : Colors.amber,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.29),
-                            child: SvgPicture.asset(
-                              "assets/images/car2.svg",
-                              height: 20,
-                              width: 20,
-                              fit: BoxFit.contain,
-                              color: isCNA ? Colors.red : Colors.black,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              vehicle,
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Text(
-                              name,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xff7E8392),
-                              ),
-                            ),
-                          ],
+                        _row(Icons.location_on, location),
+                        const SizedBox(height: AppSpacing.sm),
+                        _row(Icons.location_pin, "GPS Tracked • Live"),
+                        const SizedBox(height: AppSpacing.sm),
+                        _row(
+                          Icons.call,
+                          phone.isEmpty ? "No phone available" : phone,
                         ),
                       ],
                     ),
+                  ),
 
-                    const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.md),
 
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.location_on,
-                                size: 16,
-                                color: Color(0xff7E8392),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                location,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: Color(0xff7E8392),
-                                ),
-                              ),
-                            ],
+                  /// status
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        const TextSpan(text: "Status • "),
+                        TextSpan(
+                          text: statusText,
+                          style: TextStyle(
+                            color: statusColor,
+                            fontWeight: FontWeight.w500,
                           ),
-                          const SizedBox(height: 8),
-                          const Row(
-                            children: [
-                              Icon(
-                                Icons.location_pin,
-                                size: 16,
-                                color: Color(0xff7E8392),
-                              ),
-                              SizedBox(width: 6),
-                              Text(
-                                "GPS Tracked • Live",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: Color(0xff7E8392),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              SvgPicture.asset(
-                                "assets/images/call.svg",
-                                height: 16,
-                                width: 16,
-                                colorFilter: ColorFilter.mode(
-                                  Colors.grey,
-                                  BlendMode.srcIn,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                phone.isEmpty ? "No phone available" : phone,
-                                style: const TextStyle(
-                                  color: Color(0xff7E8392),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-
-                    const SizedBox(height: 12),
-
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          const TextSpan(text: "Status • "),
-                          TextSpan(
-                            text: statusText,
-                            style: TextStyle(
-                              color: statusColor,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ],
               ),
             ),
 
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: AppSpacing.all16,
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                padding: AppSpacing.vertical16,
                 decoration: BoxDecoration(
-                  color: Colors.amber,
-                  borderRadius: BorderRadius.circular(14),
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SvgPicture.asset(
                       "assets/images/call.svg",
-                      height: 24,
-                      width: 24,
+                      height: AppSpacing.lg,
+                      width: AppSpacing.lg,
                       colorFilter: const ColorFilter.mode(
-                        Colors.black,
+                        AppColors.black,
                         BlendMode.srcIn,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      "Call Owner",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    const Text("Call Owner", style: AppStyles.buttonText),
                   ],
                 ),
               ),
@@ -274,6 +203,16 @@ class JobDetailsBottomSheet extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _row(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: AppColors.textSecondary),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(child: Text(text, style: AppStyles.body)),
+      ],
     );
   }
 }

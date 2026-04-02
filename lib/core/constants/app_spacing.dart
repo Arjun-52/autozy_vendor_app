@@ -28,11 +28,41 @@ class AppSpacing {
   static const EdgeInsets horizontal10 = EdgeInsets.symmetric(horizontal: 10);
 
   static const EdgeInsets horizontal24 = EdgeInsets.symmetric(horizontal: 24);
+  static const double radiusLg = 20.0;
 
+  static const EdgeInsets all16 = EdgeInsets.all(16);
+  static const EdgeInsets right16 = EdgeInsets.only(right: 16);
+  static const EdgeInsets horizontal12Vertical6 = EdgeInsets.symmetric(
+    horizontal: 12,
+    vertical: 6,
+  );
+  static const double custom14 = 14.0;
+  static const double radiusSm = 10.0;
+  static const double radius14 = 14.0;
+
+  static const EdgeInsets horizontal20Vertical16 = EdgeInsets.symmetric(
+    horizontal: 20,
+    vertical: 16,
+  );
+
+  static const EdgeInsets all14 = EdgeInsets.all(14);
+  static const EdgeInsets bottom16 = EdgeInsets.only(bottom: 16);
   static const EdgeInsets screenPadding = EdgeInsets.symmetric(
     horizontal: lg,
     vertical: md,
   );
 
   static const EdgeInsets cardPadding = EdgeInsets.all(md);
+  static const double custom8 = 8.0;
+  static const double custom12 = 12.0;
+
+  static const double custom180 = 180.0;
+
+  static const EdgeInsets vertical14 = EdgeInsets.symmetric(vertical: 14);
+
+  static const EdgeInsets bottom12 = EdgeInsets.only(bottom: 12);
+  static const double iconMd = 24.0;
+  static const double custom6 = 6.0;
+
+  static const EdgeInsets vertical10 = EdgeInsets.symmetric(vertical: 10);
 }

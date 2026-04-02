@@ -3,9 +3,12 @@ import 'package:autozy_vendor_app/views/specialist/widegts/task_status_tile.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
 import '../../../viewmodels/specialist_tasks_viewmodel.dart';
 import '../../../core/services/alert_service.dart';
-import '../../../core/constants/app_colors.dart'; // ✅ added
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_styles.dart';
 
 class SpecialistModeScreen extends StatelessWidget {
   const SpecialistModeScreen({super.key});
@@ -15,7 +18,7 @@ class SpecialistModeScreen extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => SpecialistTasksViewModel(),
       child: Scaffold(
-        backgroundColor: AppColors.background, // ✅ changed
+        backgroundColor: AppColors.background,
         body: SafeArea(
           child: Consumer<SpecialistTasksViewModel>(
             builder: (context, vm, _) {
@@ -31,73 +34,57 @@ class SpecialistModeScreen extends StatelessWidget {
 
               return Column(
                 children: [
-                  ///  HEADER
+                  /// HEADER
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg, // 16
+                    ),
                     child: Row(
                       children: [
                         GestureDetector(
                           onTap: () => context.go('/role'),
                           child: const Icon(
                             Icons.arrow_back,
-                            color: AppColors.textPrimary, // ✅ changed
+                            color: AppColors.textPrimary,
                           ),
                         ),
-                        const SizedBox(width: 10),
+
+                        const SizedBox(width: AppSpacing.sm),
+
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: const [
                             Text(
                               "Specialist Mode",
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary, // ✅ changed
-                              ),
+                              style: AppStyles.titleMedium,
                             ),
-                            Text(
-                              "Add-on Tasks",
-                              style: TextStyle(
-                                color: AppColors.textMuted, // ✅ changed
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
+                            Text("Add-on Tasks", style: AppStyles.smallMedium),
                           ],
                         ),
+
                         const Spacer(),
 
                         /// ONLINE BADGE
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
+                            horizontal: AppSpacing.md,
+                            vertical: AppSpacing.xs,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.successLight.withValues(
-                              alpha: 0.19,
-                            ), // ✅ changed
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: AppColors.successDark, // ✅ changed
+                            color: AppColors.successLight.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(
+                              AppSpacing.radiusLg,
                             ),
+                            border: Border.all(color: AppColors.successDark),
                           ),
                           child: const Row(
                             children: [
                               CircleAvatar(
-                                radius: 4,
-                                backgroundColor:
-                                    AppColors.successDark, // ✅ changed
+                                radius: AppSpacing.xs,
+                                backgroundColor: AppColors.successDark,
                               ),
-                              SizedBox(width: 6),
-                              Text(
-                                "Online",
-                                style: TextStyle(
-                                  color: AppColors.successDark, // ✅ changed
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 12,
-                                ),
-                              ),
+                              SizedBox(width: AppSpacing.xs),
+                              Text("Online", style: AppStyles.smallSemiBold),
                             ],
                           ),
                         ),
@@ -105,10 +92,13 @@ class SpecialistModeScreen extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.lg),
 
+                  /// STATUS TILES
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: const [
@@ -123,25 +113,25 @@ class SpecialistModeScreen extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.lg),
 
                   /// LIST
                   Expanded(
                     child: ListView(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.lg,
+                      ),
                       children: [
                         const Text(
                           "Add-on Tasks",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textPrimary, // ✅ changed
-                          ),
+                          style: AppStyles.sectionTitle,
                         ),
-                        const SizedBox(height: 16),
+
+                        const SizedBox(height: AppSpacing.lg),
 
                         ...List.generate(vm.tasks.length, (index) {
                           final task = vm.tasks[index];
+
                           return TaskCard(
                             task: task,
                             taskIndex: index,

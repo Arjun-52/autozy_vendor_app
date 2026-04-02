@@ -8,6 +8,10 @@ import '../widgets/team_status_card.dart';
 import '../widgets/tab_button.dart';
 import '../widgets/member_card.dart';
 
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_styles.dart';
+
 class SupervisorScreen extends StatelessWidget {
   const SupervisorScreen({super.key});
 
@@ -22,127 +26,114 @@ class SupervisorScreen extends StatelessWidget {
         Navigator.pop(context);
       },
       child: Scaffold(
-        backgroundColor: const Color(0xfff5f5f5),
+        backgroundColor: AppColors.backgroundLight,
 
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(16),
-
+            padding: AppSpacing.all16,
             child: Column(
               children: [
-                //  HEADER
+                /// HEADER
                 Row(
                   children: [
                     IconButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.arrow_back),
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
 
-                    const SizedBox(width: 4),
+                    const SizedBox(width: AppSpacing.xs),
 
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
-                        Text(
-                          "Supervisor Mode",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Text(
-                          "Team Overview",
-                          style: TextStyle(
-                            color: Color(0xff7E8392),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                        Text("Supervisor Mode", style: AppStyles.titleMedium),
+                        Text("Team Overview", style: AppStyles.smallMedium),
                       ],
                     ),
 
                     const Spacer(),
 
-                    // Online badge
+                    /// ONLINE BADGE
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
+                        horizontal: AppSpacing.md,
+                        vertical: AppSpacing.xs,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.green.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(20),
+                        color: AppColors.successLight.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusLg,
+                        ),
                         border: Border.all(
-                          color: const Color(0xff008847).withValues(alpha: 0.3),
+                          color: AppColors.successDark.withOpacity(0.3),
                         ),
                       ),
                       child: const Text(
                         "● Online",
-                        style: TextStyle(
-                          color: Color(0xff008847),
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: AppStyles.smallSemiBold,
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.md),
 
-                // STATUS CARDS
+                /// STATUS CARDS
                 Row(
                   children: [
                     Expanded(
                       child: TeamStatusCard(
                         icon: SvgPicture.asset(
                           "assets/images/user.svg",
-                          height: 20,
-                          width: 20,
+                          height: AppSpacing.lg,
+                          width: AppSpacing.lg,
                         ),
                         title: vm.activeCount.toString(),
                         subtitle: "Active",
-                        color: Colors.black,
+                        color: AppColors.textPrimary,
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: AppSpacing.sm),
 
                     Expanded(
                       child: TeamStatusCard(
                         icon: SvgPicture.asset(
                           "assets/images/user.svg",
-                          height: 20,
-                          width: 20,
+                          height: AppSpacing.lg,
+                          width: AppSpacing.lg,
                         ),
                         title: vm.breakCount.toString(),
                         subtitle: "On Break",
-                        color: Colors.black,
+                        color: AppColors.textPrimary,
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: AppSpacing.sm),
 
                     Expanded(
                       child: TeamStatusCard(
                         icon: SvgPicture.asset(
                           "assets/images/user.svg",
-                          height: 20,
-                          width: 20,
+                          height: AppSpacing.lg,
+                          width: AppSpacing.lg,
                           colorFilter: const ColorFilter.mode(
-                            Colors.red,
+                            AppColors.error,
                             BlendMode.srcIn,
                           ),
                         ),
                         title: vm.offlineCount.toString(),
                         subtitle: "Offline",
-                        color: Colors.red,
+                        color: AppColors.error,
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.md),
 
-                // TABS
+                /// TABS
                 Row(
                   children: [
                     TabButton(
@@ -151,7 +142,7 @@ class SupervisorScreen extends StatelessWidget {
                       selected: vm.currentTab == SupervisorTab.team,
                       onTap: () => vm.switchTab(SupervisorTab.team),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: AppSpacing.sm),
                     TabButton(
                       text: "Alerts (3)",
                       icon: Icons.notifications_none,
@@ -161,9 +152,9 @@ class SupervisorScreen extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.md),
 
-                //  LIST
+                /// LIST
                 Expanded(
                   child: vm.currentTab == SupervisorTab.team
                       ? ListView.builder(

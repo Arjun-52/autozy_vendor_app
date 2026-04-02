@@ -5,6 +5,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_styles.dart';
 import '../../../viewmodels/dashboard_viewmodel.dart';
 
 class CapturePhotoBottomSheet extends StatefulWidget {
@@ -19,7 +23,6 @@ class CapturePhotoBottomSheet extends StatefulWidget {
 
 class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
   File? imageFile;
-
   final ImagePicker picker = ImagePicker();
 
   Future<void> takePhoto() async {
@@ -35,13 +38,10 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
   void _handleJobCompletion() {
     if (!mounted) return;
 
-    // Mark job as completed
     context.read<DashboardViewModel>().markJobCompleted(widget.jobIndex);
 
-    // Close bottom sheet
     Navigator.pop(context);
 
-    // Show notification with delay to avoid context issues
     Future.delayed(const Duration(milliseconds: 200), () {
       if (NavigationService.context != null &&
           NavigationService.context!.mounted) {
@@ -53,22 +53,24 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      padding: AppSpacing.all16,
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppSpacing.radiusLg),
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           /// drag handle
           Container(
-            height: 4,
-            width: 40,
-            margin: const EdgeInsets.only(bottom: 12),
+            height: AppSpacing.xs,
+            width: AppSpacing.custom40,
+            margin: AppSpacing.bottom12,
             decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(10),
+              color: AppColors.grey300,
+              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
             ),
           ),
 
@@ -77,28 +79,22 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
             children: [
               GestureDetector(
                 onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.close),
+                child: const Icon(Icons.close, color: AppColors.black),
               ),
-              const SizedBox(width: 10),
-              const Text(
-                "Capture Photo",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
-                ),
-              ),
+              const SizedBox(width: AppSpacing.custom10),
+              const Text("Capture Photo", style: AppStyles.title16Medium),
             ],
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.custom20),
 
+          /// preview box
           Container(
-            height: 180,
+            height: AppSpacing.custom180,
             width: double.infinity,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(AppSpacing.radius14),
+              border: Border.all(color: AppColors.grey),
             ),
             child: imageFile == null
                 ? Column(
@@ -108,29 +104,26 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
                         "assets/images/camera.svg",
                         fit: BoxFit.contain,
                         colorFilter: const ColorFilter.mode(
-                          Colors.black,
+                          AppColors.black,
                           BlendMode.srcIn,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppSpacing.custom8),
                       const Text(
                         "Camera Preview Area",
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xff313131),
-                        ),
+                        style: AppStyles.smallDark,
                       ),
                     ],
                   )
                 : ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(AppSpacing.radius14),
                     child: Image.file(imageFile!, fit: BoxFit.cover),
                   ),
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.custom20),
 
+          /// buttons
           Row(
             children: [
               Expanded(
@@ -142,33 +135,29 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
                       }
                     });
                   },
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(AppSpacing.radius14),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: AppSpacing.vertical14,
                     decoration: BoxDecoration(
-                      color: Colors.amber,
-                      borderRadius: BorderRadius.circular(14),
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(AppSpacing.radius14),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SvgPicture.asset(
                           "assets/images/camera.svg",
-                          height: 24,
-                          width: 24,
+                          height: AppSpacing.xl,
+                          width: AppSpacing.xl,
                           colorFilter: const ColorFilter.mode(
-                            Colors.black,
+                            AppColors.black,
                             BlendMode.srcIn,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: AppSpacing.custom8),
                         const Text(
                           "Take Photo",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                            color: Colors.black,
-                          ),
+                          style: AppStyles.button16Medium,
                         ),
                       ],
                     ),
@@ -176,27 +165,20 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
                 ),
               ),
 
-              const SizedBox(width: 10),
+              const SizedBox(width: AppSpacing.custom10),
 
               Expanded(
                 child: InkWell(
                   onTap: () => Navigator.pop(context),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(AppSpacing.radius14),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: AppSpacing.vertical14,
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.red),
-                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.error),
+                      borderRadius: BorderRadius.circular(AppSpacing.radius14),
                     ),
                     child: const Center(
-                      child: Text(
-                        "Cancel",
-                        style: TextStyle(
-                          color: Color(0xffFF383C),
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
-                        ),
-                      ),
+                      child: Text("Cancel", style: AppStyles.dangerButton),
                     ),
                   ),
                 ),

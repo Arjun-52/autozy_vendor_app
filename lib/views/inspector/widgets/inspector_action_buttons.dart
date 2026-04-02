@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_styles.dart';
 import '../../../core/utils/top_banner.dart';
 
 class InspectorActionButtons extends StatelessWidget {
@@ -21,16 +24,19 @@ class InspectorActionButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        /// TAKE PHOTO
         GestureDetector(
           onTap: onTakePhoto,
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.symmetric(
+              vertical: AppSpacing.md, // 12
+            ),
             decoration: BoxDecoration(
               color: AppColors.surface,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.textMuted.withValues(alpha: 0.5),
+                  color: AppColors.textMuted.withOpacity(0.5),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -46,95 +52,75 @@ class InspectorActionButtons extends StatelessWidget {
                     BlendMode.srcIn,
                   ),
                 ),
-                const SizedBox(width: 6),
-                Text(
-                  "Take Photo ($photoCount)",
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                const SizedBox(width: AppSpacing.xs), // 4/6 mapped
+                Text("Take Photo ($photoCount)", style: AppStyles.bodyMedium),
               ],
             ),
           ),
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.md),
 
+        /// APPROVE + FLAG
         Row(
           children: [
             Expanded(
               child: GestureDetector(
                 onTap: onApprove,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                   decoration: BoxDecoration(
                     color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.all(AppSpacing.xs),
                         decoration: const BoxDecoration(
-                          color: Colors.black,
+                          color: AppColors.black,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
                           Icons.check,
-                          color: Colors.white,
+                          color: AppColors.white,
                           size: 12,
                         ),
                       ),
-                      const SizedBox(width: 6),
-                      const Text(
-                        "Approve",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
+                      const SizedBox(width: AppSpacing.xs),
+                      const Text("Approve", style: AppStyles.buttonSmall),
                     ],
                   ),
                 ),
               ),
             ),
 
-            const SizedBox(width: 10),
+            const SizedBox(width: AppSpacing.sm),
 
             Expanded(
               child: GestureDetector(
                 onTap: onFlag,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                   decoration: BoxDecoration(
                     border: Border.all(color: AppColors.error),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SvgPicture.asset(
                         "assets/images/flag.svg",
-                        height: 16,
-                        width: 16,
+                        height: AppSpacing.md,
+                        width: AppSpacing.md,
                         colorFilter: const ColorFilter.mode(
                           AppColors.error,
                           BlendMode.srcIn,
                         ),
                       ),
-                      const SizedBox(width: 6),
-                      const Text(
-                        "Flag",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12,
-                          color: AppColors.error,
-                        ),
-                      ),
+                      const SizedBox(width: AppSpacing.xs),
+                      const Text("Flag", style: AppStyles.warningButton),
                     ],
                   ),
                 ),

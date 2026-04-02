@@ -37,4 +37,17 @@ class AppColors {
 
   // Disabled state
   static const Color disabled = Color(0xFFBDBDBD);
+  static const Color greyLight = Color(0xFFF5F5F5);
+  static const Color onlineBg = Color(0xFFE4FFF2);
+  static const Color grey300 = Color(0xFFE0E0E0);
+  static const Color grey600 = Color(0xFF757575);
+  static const Color borderLight = Color(0xFFEEEEEE);
+
+  static const Color accentYellow = Color(0xFFF4C430);
+  static const Color statusPending = Color(0xFFC68A00);
+  static const Color grey = Color(0xFF9E9E9E);
+  static const Color greyDark = Color(0xFF313131);
+  static const Color danger = Color(0xFFFF383C);
+  static const Color amber = Color(0xFFFFC107);
+  static const Color warningLight = Color(0xFFFFE082); // amber.shade200 approx
 }

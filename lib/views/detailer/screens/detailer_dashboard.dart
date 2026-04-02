@@ -1,11 +1,13 @@
 import 'package:autozy_vendor_app/views/detailer/widgets/dashboard_status_row.dart';
 import 'package:autozy_vendor_app/views/detailer/widgets/jobs_list_view.dart';
 import 'package:flutter/material.dart';
-
 import 'package:provider/provider.dart';
 
 import '../widgets/job_details_bottom_sheet.dart';
 import '../../../core/services/navigation_service.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_styles.dart';
 import '../../../viewmodels/dashboard_viewmodel.dart';
 
 class DetailerDashboard extends StatefulWidget {
@@ -30,15 +32,8 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
     final vm = context.read<DashboardViewModel>();
     final job = vm.getJob(jobIndex);
 
-    if (job == null) {
-      print('Job not found at index $jobIndex');
-      return;
-    }
+    if (job == null) return;
 
-    print('Job Phone: ${job.phone}');
-    print('Job Vehicle: ${job.vehicle}');
-    print('Job Name: ${job.name}');
-    print('Job Location: ${job.location}');
     showModalBottomSheet(
       context: context,
       builder: (_) => JobDetailsBottomSheet(
@@ -56,13 +51,13 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: AppColors.greyLight,
 
       appBar: AppBar(
         elevation: 5,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: AppColors.black),
           onPressed: () {
             if (NavigationService.context != null &&
                 Navigator.canPop(NavigationService.context!)) {
@@ -75,68 +70,40 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
-            Text(
-              "Detailer Mode",
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-              ),
-            ),
-            Text(
-              "Today's Route",
-              style: TextStyle(
-                color: Color(0xff7E8392),
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            Text("Detailer Mode", style: AppStyles.titleMedium),
+            Text("Today's Route", style: AppStyles.smallMedium),
           ],
         ),
         actions: [
           Container(
-            margin: const EdgeInsets.only(right: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            margin: AppSpacing.right16,
+            padding: AppSpacing.horizontal12Vertical6,
             decoration: BoxDecoration(
-              color: const Color(0xffE4FFF2).withValues(alpha: 0.50),
-              border: Border.all(color: Colors.green),
-              borderRadius: BorderRadius.circular(20),
+              color: AppColors.onlineBg.withOpacity(0.5),
+              border: Border.all(color: AppColors.success),
+              borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
             ),
-            child: const Text(
-              "● Online",
-              style: TextStyle(
-                color: Color(0xff008847),
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            child: const Text("● Online", style: AppStyles.online),
           ),
         ],
       ),
 
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.all16,
         child: Column(
           children: [
-            const SizedBox(height: 10),
+            const SizedBox(height: AppSpacing.custom10),
 
             const DashboardStatusRow(),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: AppSpacing.custom40),
 
             const Align(
               alignment: Alignment.centerLeft,
-              child: Text(
-                "Today's Jobs",
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.black,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+              child: Text("Today's Jobs", style: AppStyles.sectionTitle),
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: AppSpacing.custom10),
 
             Expanded(
               child: JobsListView(

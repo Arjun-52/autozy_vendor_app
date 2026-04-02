@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_styles.dart';
 import '../../../viewmodels/dashboard_viewmodel.dart';
 
 class JobCardActions extends StatelessWidget {
@@ -32,7 +35,7 @@ class JobCardActions extends StatelessWidget {
               onTap: onClean,
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: AppSpacing.custom10),
           Expanded(
             child: _OutlineButton(
               text: "CNA",
@@ -82,12 +85,12 @@ class _PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(AppSpacing.radius14),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: AppSpacing.vertical10,
         decoration: BoxDecoration(
           color: AppColors.primary,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppSpacing.radius14),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -99,15 +102,8 @@ class _PrimaryButton extends StatelessWidget {
                 BlendMode.srcIn,
               ),
             ),
-            const SizedBox(width: 6),
-            const Text(
-              "Cleaned",
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
-                fontSize: 12,
-              ),
-            ),
+            const SizedBox(width: AppSpacing.custom6),
+            Text(text, style: AppStyles.buttonSmall),
           ],
         ),
       ),
@@ -130,12 +126,12 @@ class _OutlineButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(13),
+      borderRadius: BorderRadius.circular(AppSpacing.radius14),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: AppSpacing.vertical10,
         decoration: BoxDecoration(
           border: Border.all(color: AppColors.primary),
-          borderRadius: BorderRadius.circular(13),
+          borderRadius: BorderRadius.circular(AppSpacing.radius14),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -147,15 +143,8 @@ class _OutlineButton extends StatelessWidget {
                 BlendMode.srcIn,
               ),
             ),
-            const SizedBox(width: 6),
-            const Text(
-              "CNA",
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppColors.warning,
-              ),
-            ),
+            const SizedBox(width: AppSpacing.custom6),
+            Text(text, style: AppStyles.warningButton),
           ],
         ),
       ),
@@ -173,12 +162,12 @@ class _UndoButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: AppSpacing.vertical10,
         decoration: BoxDecoration(
-          color: isWarning ? Colors.amber.shade200 : AppColors.surface,
-          borderRadius: BorderRadius.circular(12),
+          color: isWarning ? AppColors.warningLight : AppColors.surface,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
           border: Border.all(color: AppColors.border),
         ),
         child: Row(
@@ -186,22 +175,15 @@ class _UndoButton extends StatelessWidget {
           children: [
             SvgPicture.asset(
               "assets/images/undo.svg",
-              height: 16,
-              width: 16,
+              height: AppSpacing.md,
+              width: AppSpacing.md,
               colorFilter: const ColorFilter.mode(
                 AppColors.textPrimary,
                 BlendMode.srcIn,
               ),
             ),
-            const SizedBox(width: 6),
-            const Text(
-              "Undo",
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
-                fontSize: 12,
-              ),
-            ),
+            const SizedBox(width: AppSpacing.custom6),
+            const Text("Undo", style: AppStyles.buttonSmall),
           ],
         ),
       ),

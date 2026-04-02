@@ -6,6 +6,8 @@ import '../../../viewmodels/role_viewmodel.dart';
 import '../../../viewmodels/auth_viewmodel.dart';
 import '../widgets/role_card.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_styles.dart';
 
 class RoleScreen extends StatefulWidget {
   const RoleScreen({super.key});
@@ -20,8 +22,7 @@ class _RoleScreenState extends State<RoleScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authVm = context.read<AuthViewModel>();
-      authVm.reset();
+      context.read<AuthViewModel>().reset();
     });
   }
 
@@ -32,54 +33,48 @@ class _RoleScreenState extends State<RoleScreen> {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.xl, // 20
+        ),
         child: Column(
           children: [
-            const SizedBox(height: 60),
-
-            // Logo
+            const SizedBox(
+              height: AppSpacing.xxl,
+            ), // ~24 instead of 60 (better scale)
+            /// LOGO
             Column(
               children: [
                 Container(
-                  height: 69,
+                  height: 70, // ✅ allowed (logo-specific)
                   width: 72,
                   decoration: BoxDecoration(
                     color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                     child: Image.asset(
                       'assets/images/vendor_logo.png',
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
-                const SizedBox(height: 2),
-                const Text(
-                  "autozy",
-                  style: TextStyle(
-                    fontSize: 24.46,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
+
+                const SizedBox(height: AppSpacing.xs),
+
+                const Text("autozy", style: AppStyles.heading),
               ],
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: AppSpacing.lg),
 
             const Text(
               "Select your role to\ncontinue",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
-              ),
+              style: AppStyles.heading,
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: AppSpacing.lg),
 
             Expanded(
               child: ListView.builder(
@@ -94,31 +89,31 @@ class _RoleScreenState extends State<RoleScreen> {
 
                       final roleName = role.title.trim().toLowerCase();
 
-                      if (roleName == "supervisor") {
-                        context.push('/supervisor');
-                      } else if (roleName == "inspector") {
-                        context.push('/inspector');
-                      } else if (roleName == "specialist") {
-                        context.push('/specialist');
-                      } else {
-                        context.push('/dashboard');
-                      }
+                      // ⚡ Better approach (still simple)
+                      final routes = {
+                        "supervisor": "/supervisor",
+                        "inspector": "/inspector",
+                        "specialist": "/specialist",
+                      };
+
+                      context.push(routes[roleName] ?? "/dashboard");
                     },
                   );
                 },
               ),
             ),
 
-            // Error
+            /// ERROR
             if (vm.errorMessage != null)
               Text(
                 vm.errorMessage!,
                 style: const TextStyle(color: AppColors.error),
               ),
 
+            /// LOADING
             if (vm.isLoading)
               const Padding(
-                padding: EdgeInsets.all(10),
+                padding: EdgeInsets.all(AppSpacing.sm),
                 child: CircularProgressIndicator(),
               ),
           ],

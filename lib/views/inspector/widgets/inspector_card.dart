@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
 
 import 'inspector_card_header.dart';
 import 'inspector_location_row.dart';
@@ -33,17 +34,21 @@ class InspectorCard extends StatelessWidget {
       onTap: () => showJobDetailsSheet(context, inspection),
 
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        padding: const EdgeInsets.all(14),
+        margin: const EdgeInsets.symmetric(
+          vertical: AppSpacing.sm, // 8
+        ),
+        padding: const EdgeInsets.all(
+          AppSpacing.md, // 12 (mapped from 14)
+        ),
         decoration: BoxDecoration(
           color: isFlagged ? AppColors.border : AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppSpacing.lg), // 16
           border: isFlagged
-              ? Border.all(color: AppColors.error.withValues(alpha: 0.3))
+              ? Border.all(color: AppColors.error.withOpacity(0.3))
               : null,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
+              color: AppColors.black.withOpacity(0.08),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -60,18 +65,18 @@ class InspectorCard extends StatelessWidget {
               name: inspection.name,
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: AppSpacing.sm), // 10 → 8
 
             InspectorLocationRow(location: inspection.location),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.md), // 12
 
             InspectorStatusSection(
               isFlagged: isFlagged,
               isApproved: isApproved,
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.md),
 
             if (!isFlagged && !isApproved)
               InspectorActionButtons(
