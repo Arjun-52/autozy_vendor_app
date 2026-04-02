@@ -63,7 +63,6 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
           ),
         ],
       ),
-
       body: Padding(
         padding: AppSpacing.all16,
         child: Column(
@@ -123,7 +122,6 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
             ),
 
             const SizedBox(height: AppSpacing.sm),
-
             Expanded(
               child: ListView(
                 children: [
