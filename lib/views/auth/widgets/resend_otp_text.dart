@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import '../../../core/constants/app_colors.dart'; // ✅ added
+
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_styles.dart';
 
 class ResendOtpText extends StatefulWidget {
   const ResendOtpText({super.key});
@@ -40,23 +42,18 @@ class _ResendOtpTextState extends State<ResendOtpText> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDisabled = seconds > 0;
+
     return RichText(
       text: TextSpan(
         text: "Didn't receive the OTP? ",
-        style: const TextStyle(
-          color: AppColors.textSecondary, // ✅ changed
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-        ),
+        style: AppStyles.bodyMedium,
         children: [
           TextSpan(
-            text: seconds > 0 ? "Resend in $seconds s" : "Resend OTP",
-            style: TextStyle(
-              color: seconds > 0 ? AppColors.textSecondary : AppColors.primary,
-              fontWeight: FontWeight.bold,
-            ),
+            text: isDisabled ? "Resend in $seconds s" : "Resend OTP",
+            style: isDisabled ? AppStyles.linkDisabled : AppStyles.linkActive,
             recognizer: TapGestureRecognizer()
-              ..onTap = seconds > 0
+              ..onTap = isDisabled
                   ? null
                   : () {
                       startTimer();

@@ -2,7 +2,9 @@ import 'package:autozy_vendor_app/views/auth/widgets/resend_otp_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/constants/app_colors.dart'; // ✅ added
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_styles.dart';
 import '../../../viewmodels/auth_viewmodel.dart';
 import '../widgets/otp_box.dart';
 import '../widgets/otp_header.dart';
@@ -50,53 +52,36 @@ class _OtpScreenState extends State<OtpScreen> {
   Widget build(BuildContext context) {
     final vm = context.watch<AuthViewModel>();
 
-    var scaffold = Scaffold(
-      backgroundColor: AppColors.background, // ✅ changed
+    return Scaffold(
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: AppSpacing.horizontal20,
           child: Column(
             children: [
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.custom20),
 
               const OtpHeader(),
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.custom20),
 
               const OtpLogo(),
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.custom20),
 
               const Text(
                 "We have sent a verification code to",
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 16,
-                  color: AppColors.textPrimary, // ✅ changed
-                ),
+                style: AppStyles.body16Medium,
                 textAlign: TextAlign.center,
               ),
 
-              const SizedBox(height: 5),
+              const SizedBox(height: AppSpacing.custom5),
 
-              Text(
-                "+91 ${vm.phoneNumber}",
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary, // ✅ changed
-                ),
-              ),
+              Text("+91 ${vm.phoneNumber}", style: AppStyles.bold),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.custom20),
 
-              const Text(
-                "Enter the Code",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary, // ✅ changed
-                ),
-              ),
+              const Text("Enter the Code", style: AppStyles.heading),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.custom20),
 
               /// OTP BOXES
               Row(
@@ -104,7 +89,7 @@ class _OtpScreenState extends State<OtpScreen> {
                 children: List.generate(
                   4,
                   (index) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    padding: AppSpacing.horizontal10,
                     child: OtpBox(
                       controller: controllers[index],
                       focusNode: focusNodes[index],
@@ -115,21 +100,18 @@ class _OtpScreenState extends State<OtpScreen> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.custom20),
 
               /// ERROR MESSAGE
               if (vm.errorMessage != null)
-                Text(
-                  vm.errorMessage!,
-                  style: const TextStyle(color: AppColors.error), // ✅ changed
-                ),
+                Text(vm.errorMessage!, style: AppStyles.error),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.custom20),
 
               /// VERIFY BUTTON
               OtpVerifyButton(vm: vm, getOtp: getOtp),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.custom20),
 
               const ResendOtpText(),
             ],
@@ -137,6 +119,5 @@ class _OtpScreenState extends State<OtpScreen> {
         ),
       ),
     );
-    return scaffold;
   }
 }

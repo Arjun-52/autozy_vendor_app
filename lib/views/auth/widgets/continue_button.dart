@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_styles.dart';
 
 class ContinueButton extends StatelessWidget {
   final bool isLoading;
@@ -19,21 +21,16 @@ class ContinueButton extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: AppSpacing.vertical16,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
           ),
         ),
         child: isLoading
-            ? const CircularProgressIndicator(color: AppColors.primary)
-            : const Text(
-                "Continue",
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 18,
-                ),
-              ),
+            ? const CircularProgressIndicator(
+                color: AppColors.white, // ✅ fixed (visible now)
+              )
+            : const Text("Continue", style: AppStyles.buttonLarge),
       ),
     );
   }

@@ -29,4 +29,12 @@ class AppColors {
   static const Color successDark = Color(0xFF008847);
   static const Color successLight = Color(0xFFE4FFF2);
   static const Color textMuted = Color(0xff7E8392);
+
+  static const Color white = Colors.white;
+  static const Color black = Colors.black;
+  static const Color transparent = Colors.transparent;
+  static const Color divider = Color(0xFFEEEEEE);
+
+  // Disabled state
+  static const Color disabled = Color(0xFFBDBDBD);
 }
