@@ -19,6 +19,37 @@ class SpecialistModeScreen extends StatelessWidget {
       create: (_) => SpecialistTasksViewModel(),
       child: Scaffold(
         backgroundColor: AppColors.background,
+        appBar: AppBar(
+          elevation: 2,
+          backgroundColor: AppColors.white,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: AppColors.black),
+            onPressed: () {
+              context.go('/role');
+            },
+          ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text("Specialist Mode", style: AppStyles.subHeading),
+              Text("Add-on Tasks", style: AppStyles.caption),
+            ],
+          ),
+          actions: [
+            Container(
+              margin: AppSpacing.right16,
+              padding: AppSpacing.horizontal12Vertical6,
+              decoration: BoxDecoration(
+                color: AppColors.successLight,
+                border: Border.all(
+                  color: AppColors.successDark.withOpacity(0.5),
+                ),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+              ),
+              child: const Text("• Online", style: AppStyles.smallMedium),
+            ),
+          ],
+        ),
         body: SafeArea(
           child: Consumer<SpecialistTasksViewModel>(
             builder: (context, vm, _) {
@@ -34,64 +65,6 @@ class SpecialistModeScreen extends StatelessWidget {
 
               return Column(
                 children: [
-                  /// HEADER
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.lg, // 16
-                    ),
-                    child: Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () => context.go('/role'),
-                          child: const Icon(
-                            Icons.arrow_back,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-
-                        const SizedBox(width: AppSpacing.sm),
-
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text(
-                              "Specialist Mode",
-                              style: AppStyles.titleMedium,
-                            ),
-                            Text("Add-on Tasks", style: AppStyles.smallMedium),
-                          ],
-                        ),
-
-                        const Spacer(),
-
-                        /// ONLINE BADGE
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.md,
-                            vertical: AppSpacing.xs,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.successLight.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(
-                              AppSpacing.radiusLg,
-                            ),
-                            border: Border.all(color: AppColors.successDark),
-                          ),
-                          child: const Row(
-                            children: [
-                              CircleAvatar(
-                                radius: AppSpacing.xs,
-                                backgroundColor: AppColors.successDark,
-                              ),
-                              SizedBox(width: AppSpacing.xs),
-                              Text("Online", style: AppStyles.smallSemiBold),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
                   const SizedBox(height: AppSpacing.lg),
 
                   /// STATUS TILES

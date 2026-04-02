@@ -9,7 +9,7 @@ class AppStyles {
   );
 
   static const TextStyle subHeading = TextStyle(
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
   );
@@ -22,7 +22,7 @@ class AppStyles {
 
   static const TextStyle caption = TextStyle(
     fontSize: 12,
-    fontWeight: FontWeight.normal,
+    fontWeight: FontWeight.w500,
     color: AppColors.textSecondary,
   );
 
@@ -85,7 +85,7 @@ class AppStyles {
   );
   static const TextStyle smallMedium = TextStyle(
     fontSize: 12,
-    fontWeight: FontWeight.w500,
+    fontWeight: FontWeight.w600,
     color: AppColors.textMuted,
   );
 

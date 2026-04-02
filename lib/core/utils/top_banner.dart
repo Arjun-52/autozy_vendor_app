@@ -35,8 +35,8 @@ void TopBanner(BuildContext context, String message) {
             child: Stack(
               children: [
                 Positioned(
-                  top: 1,
-                  right: 1,
+                  top: 0.2,
+                  right: 0.2,
                   child: GestureDetector(
                     onTap: () {
                       entry.remove();
@@ -44,17 +44,15 @@ void TopBanner(BuildContext context, String message) {
                     child: Container(
                       height: 20,
                       width: 20,
-                      padding: const EdgeInsets.all(6),
                       decoration: const BoxDecoration(
                         color: Colors.red,
                         shape: BoxShape.circle,
                       ),
-                      child: Center(
-                        child: const Icon(
-                          Icons.close,
-                          size: 10,
-                          color: Colors.white,
-                        ),
+                      alignment: Alignment.center,
+                      child: const Icon(
+                        Icons.close,
+                        size: 12,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -81,7 +79,7 @@ void TopBanner(BuildContext context, String message) {
                       child: Text(
                         "Take at least 1 photo before approving",
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: Colors.black,
                         ),

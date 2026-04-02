@@ -2,7 +2,6 @@ import 'package:autozy_vendor_app/views/detailer/widgets/capture_photo_bottom_sh
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 
-// ✅ extracted widgets
 import 'job_card_header.dart';
 import 'job_card_location.dart';
 import 'job_card_actions.dart';
@@ -66,7 +65,6 @@ class JobCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// 🔹 HEADER
             JobCardHeader(
               vehicle: vehicle,
               name: name,
@@ -76,12 +74,10 @@ class JobCard extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            /// 🔹 LOCATION
             JobCardLocation(location: location),
 
             const SizedBox(height: 12),
 
-            /// 🔹 ACTIONS
             JobCardActions(
               isCompleted: isCompleted,
               isCNA: isCNA,

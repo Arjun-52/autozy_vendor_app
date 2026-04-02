@@ -17,19 +17,18 @@ class TeamStatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 100,
+      width: 106.33,
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-          ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: const Color(0xFF161616).withValues(alpha: 0.12),
+            blurRadius: 13,
+            spreadRadius: 0,
+            offset: const Offset(0, 4),
           ),
         ],
       ),

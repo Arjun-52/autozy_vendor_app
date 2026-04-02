@@ -2,6 +2,7 @@ import 'package:autozy_vendor_app/viewmodels/supervisor_viewmodel.dart';
 import 'package:autozy_vendor_app/views/supervisor/widgets/alert_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/team_status_card.dart';
@@ -26,59 +27,44 @@ class SupervisorScreen extends StatelessWidget {
         Navigator.pop(context);
       },
       child: Scaffold(
-        backgroundColor: AppColors.backgroundLight,
-
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          elevation: 2,
+          backgroundColor: AppColors.white,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: AppColors.black),
+            onPressed: () {
+              context.go('/role');
+            },
+          ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text("Supervisor Mode", style: AppStyles.subHeading),
+              Text("Team Overview", style: AppStyles.caption),
+            ],
+          ),
+          actions: [
+            Container(
+              margin: AppSpacing.right16,
+              padding: AppSpacing.horizontal12Vertical6,
+              decoration: BoxDecoration(
+                color: AppColors.successLight,
+                border: Border.all(
+                  color: AppColors.successDark.withOpacity(0.5),
+                ),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+              ),
+              child: const Text("• Online", style: AppStyles.smallMedium),
+            ),
+          ],
+        ),
         body: SafeArea(
           child: Padding(
             padding: AppSpacing.all16,
             child: Column(
               children: [
                 /// HEADER
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-
-                    const SizedBox(width: AppSpacing.xs),
-
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text("Supervisor Mode", style: AppStyles.titleMedium),
-                        Text("Team Overview", style: AppStyles.smallMedium),
-                      ],
-                    ),
-
-                    const Spacer(),
-
-                    /// ONLINE BADGE
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md,
-                        vertical: AppSpacing.xs,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.successLight.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(
-                          AppSpacing.radiusLg,
-                        ),
-                        border: Border.all(
-                          color: AppColors.successDark.withOpacity(0.3),
-                        ),
-                      ),
-                      child: const Text(
-                        "● Online",
-                        style: AppStyles.smallSemiBold,
-                      ),
-                    ),
-                  ],
-                ),
-
                 const SizedBox(height: AppSpacing.md),
 
                 /// STATUS CARDS

@@ -49,5 +49,5 @@ class AppColors {
   static const Color greyDark = Color(0xFF313131);
   static const Color danger = Color(0xFFFF383C);
   static const Color amber = Color(0xFFFFC107);
-  static const Color warningLight = Color(0xFFFFE082); // amber.shade200 approx
+  static const Color warningLight = Color(0xFFFFE082);
 }
