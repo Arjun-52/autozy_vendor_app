@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "395577988925",
+    "project_id": "autozyvendor",
+    "storage_bucket": "autozyvendor.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:395577988925:android:d7603c9260347f936d9754",
+        "android_client_info": {
+          "package_name": "com.example.autozy_vendor_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCY_kPD_1iUUWUaWXlbT1fZPc0X0-yHxxU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

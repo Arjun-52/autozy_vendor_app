@@ -1,4 +1,5 @@
 class TeamMember {
+  final String id;
   final String name;
   final String role;
   final String tower;
@@ -7,6 +8,7 @@ class TeamMember {
   final String status; // Active / Break / Offline
 
   TeamMember({
+    required this.id,
     required this.name,
     required this.role,
     required this.tower,

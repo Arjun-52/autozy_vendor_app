@@ -1,21 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-//  Router
+// Router
 import 'package:autozy_vendor_app/core/navigation/app_router.dart';
 
-//  Theme
+// Theme
 import 'package:autozy_vendor_app/core/theme/app_theme.dart';
 
-//  Dependency Injection
+// Services
+import 'package:autozy_vendor_app/core/services/notification_service.dart';
+
+// Dependency Injection
 import 'package:autozy_vendor_app/core/di/dependency_injection.dart';
 import 'package:autozy_vendor_app/viewmodels/auth_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/role_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/dashboard_viewmodel.dart';
 
-void main() {
-  // Initialize dependency injection
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
+  await Firebase.initializeApp();
+
+  // Initialize Notifications (FCM)
+  final notificationService = NotificationService();
+  await notificationService.initialize();
+
+  // Generate & print FCM token
+  await NotificationService.generateAndPrintFCMToken();
+
+  //  Dependency Injection
   di.initialize();
+
   runApp(const MyApp());
 }
 
@@ -26,26 +43,26 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ///  AUTH (Provider-based DI)
+        /// AUTH
         ChangeNotifierProvider(create: (_) => AuthViewModel(di.authRepository)),
 
-        ///  ROLE (Provider-based DI)
+        /// ROLE
         ChangeNotifierProvider(create: (_) => RoleViewModel()),
 
-        ///  DASHBOARD (Provider-based DI)
+        /// DASHBOARD
         ChangeNotifierProvider(
           create: (_) => DashboardViewModel(di.dashboardRepository),
         ),
       ],
 
-      ///  GoRouter Integration
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
         title: 'Autozy Vendor',
 
-        // Use custom theme with Poppins font
+        /// Theme
         theme: AppTheme.lightTheme,
 
+        /// Routing
         routerConfig: AppRouter.router,
       ),
     );

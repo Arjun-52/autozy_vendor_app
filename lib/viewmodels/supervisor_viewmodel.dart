@@ -8,6 +8,7 @@ class SupervisorViewModel extends ChangeNotifier {
   SupervisorTab currentTab = SupervisorTab.team;
   List<TeamMember> members = [
     TeamMember(
+      id: "1",
       name: "Raju K.",
       role: "Detailer",
       tower: "Tower A",
@@ -16,6 +17,7 @@ class SupervisorViewModel extends ChangeNotifier {
       status: "Active",
     ),
     TeamMember(
+      id: "2",
       name: "Sanjay P",
       role: "Detailer",
       tower: "Tower B",
@@ -24,6 +26,7 @@ class SupervisorViewModel extends ChangeNotifier {
       status: "Active",
     ),
     TeamMember(
+      id: "3",
       name: "Deepak S.",
       role: "Inspector",
       tower: "Tower D",
@@ -32,6 +35,7 @@ class SupervisorViewModel extends ChangeNotifier {
       status: "Active",
     ),
     TeamMember(
+      id: "4",
       name: "Anil M",
       role: "Detailer",
       tower: "Tower B",
@@ -69,6 +73,7 @@ class SupervisorViewModel extends ChangeNotifier {
     if (index != -1) {
       final member = members[index];
       members[index] = TeamMember(
+        id: member.id,
         name: member.name,
         role: member.role,
         tower: member.tower,

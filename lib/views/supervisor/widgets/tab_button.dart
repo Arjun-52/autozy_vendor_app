@@ -40,8 +40,8 @@ class TabButton extends StatelessWidget {
                 Text(
                   text,
                   style: TextStyle(
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                    color: selected ? Colors.black : Colors.grey,
+                    fontWeight: selected ? FontWeight.w500 : FontWeight.w500,
+                    color: selected ? Colors.black : Colors.black,
                   ),
                 ),
               ],

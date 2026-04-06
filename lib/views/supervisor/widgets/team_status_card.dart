@@ -36,8 +36,18 @@ class TeamStatusCard extends StatelessWidget {
         children: [
           icon,
           SizedBox(height: 6),
-          Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
-          Text(subtitle, style: TextStyle(color: Colors.grey)),
+          Text(
+            title,
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+          ),
+          Text(
+            subtitle,
+            style: TextStyle(
+              color: Color(0xff7E8392),
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );

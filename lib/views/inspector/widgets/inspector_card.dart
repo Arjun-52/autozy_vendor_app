@@ -34,15 +34,11 @@ class InspectorCard extends StatelessWidget {
       onTap: () => showJobDetailsSheet(context, inspection),
 
       child: Container(
-        margin: const EdgeInsets.symmetric(
-          vertical: AppSpacing.sm, // 8
-        ),
-        padding: const EdgeInsets.all(
-          AppSpacing.md, // 12 (mapped from 14)
-        ),
+        margin: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+        padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           color: isFlagged ? AppColors.border : AppColors.surface,
-          borderRadius: BorderRadius.circular(AppSpacing.lg), // 16
+          borderRadius: BorderRadius.circular(AppSpacing.lg),
           border: isFlagged
               ? Border.all(color: AppColors.error.withOpacity(0.3))
               : null,

@@ -1,6 +1,7 @@
 import "package:autozy_vendor_app/data/models/team_member.dart";
 import "package:autozy_vendor_app/views/supervisor/widgets/action_button.dart";
 import "package:autozy_vendor_app/views/supervisor/widgets/progress_bar.dart";
+import "package:autozy_vendor_app/views/supervisor/widgets/reassign_bottom_sheet.dart";
 import "package:flutter/material.dart";
 import "package:flutter_svg/svg.dart";
 
@@ -26,17 +27,17 @@ class MemberCard extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.white,
+        border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF161616).withValues(alpha: 0.059),
+            color: const Color(0xFF161616).withValues(alpha: 0.09),
             blurRadius: 13,
             spreadRadius: 0,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-
       child: Column(
         children: [
           /// HEADER ROW
@@ -132,32 +133,49 @@ class MemberCard extends StatelessWidget {
           /// ACTIONS
           Row(
             children: [
-              ActionButton(
-                icon: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.xs),
-                  child: SvgPicture.asset(
-                    "assets/images/call.svg",
-                    height: AppSpacing.lg,
-                    width: AppSpacing.lg,
-                    fit: BoxFit.contain,
+              Expanded(
+                child: ActionButton(
+                  icon: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.xs),
+                    child: SvgPicture.asset(
+                      "assets/images/call.svg",
+                      height: AppSpacing.lg,
+                      width: AppSpacing.lg,
+                      fit: BoxFit.contain,
+                    ),
                   ),
+                  text: "Call",
                 ),
-                text: "Call",
               ),
 
               const SizedBox(width: AppSpacing.sm),
 
-              ActionButton(
-                icon: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.xs),
-                  child: SvgPicture.asset(
-                    "assets/images/workFlow.svg",
-                    height: AppSpacing.lg,
-                    width: AppSpacing.lg,
-                    fit: BoxFit.contain,
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => ReassignBottomSheet(
+                        member: member,
+                        parentContext: context,
+                      ),
+                    );
+                  },
+                  child: ActionButton(
+                    icon: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.xs),
+                      child: SvgPicture.asset(
+                        "assets/images/workFlow.svg",
+                        height: AppSpacing.lg,
+                        width: AppSpacing.lg,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    text: "Reassign",
                   ),
                 ),
-                text: "Reassign",
               ),
             ],
           ),

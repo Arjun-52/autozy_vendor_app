@@ -46,8 +46,8 @@ class TaskStatusTile extends StatelessWidget {
           ),
           Text(
             label,
-            style: const TextStyle(
-              color: Colors.grey,
+            style: TextStyle(
+              color: Color(0xff7E8392),
               fontSize: 10,
               fontWeight: FontWeight.w500,
             ),
