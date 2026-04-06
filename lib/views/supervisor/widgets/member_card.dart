@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../../data/models/team_member.dart';
+import 'reassign_bottom_sheet.dart';
 
 class MemberCard extends StatelessWidget {
   final String name;
@@ -188,12 +190,38 @@ class MemberCard extends StatelessWidget {
 
           Row(
             children: [
-              Expanded(child: _actionButton("assets/images/call.svg", "Call")),
+              Expanded(
+                child: _actionButton("assets/images/call.svg", "Call", () {
+                  // TODO: Add call functionality
+                }),
+              ),
 
               const SizedBox(width: 8),
 
               Expanded(
-                child: _actionButton("assets/images/workFlow.svg", "Reassign"),
+                child: _actionButton(
+                  "assets/images/workFlow.svg",
+                  "Reassign",
+                  () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => ReassignBottomSheet(
+                        member: TeamMember(
+                          id: 'temp_id', // TODO: Pass actual member ID
+                          name: name,
+                          role: role,
+                          tower: tower,
+                          status: status,
+                          completed: completed,
+                          total: total,
+                        ),
+                        parentContext: context,
+                      ),
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -202,28 +230,31 @@ class MemberCard extends StatelessWidget {
     );
   }
 
-  Widget _actionButton(String icon, String text) {
-    return Container(
-      height: 40,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+  Widget _actionButton(String icon, String text, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 40,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
 
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFE9E9E9)),
-        borderRadius: BorderRadius.circular(12),
-      ),
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color(0xFFE9E9E9)),
+          borderRadius: BorderRadius.circular(12),
+        ),
 
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SvgPicture.asset(icon, width: 16, height: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(icon, width: 16, height: 16),
 
-          const SizedBox(width: 8),
+            const SizedBox(width: 8),
 
-          Text(
-            text,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-          ),
-        ],
+            Text(
+              text,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
       ),
     );
   }
