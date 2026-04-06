@@ -16,6 +16,7 @@ import 'package:autozy_vendor_app/core/di/dependency_injection.dart';
 import 'package:autozy_vendor_app/viewmodels/auth_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/role_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/dashboard_viewmodel.dart';
+import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,6 +54,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => DashboardViewModel(di.dashboardRepository),
         ),
+
+        /// INSPECTOR
+        ChangeNotifierProvider(create: (_) => InspectorViewModel()),
       ],
 
       child: MaterialApp.router(

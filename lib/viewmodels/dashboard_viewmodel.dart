@@ -8,6 +8,7 @@ class DashboardViewModel extends BaseViewModel {
   DashboardViewModel(this._repository);
 
   List<JobModel> _jobs = [];
+  bool _isLoggedOut = false;
 
   void undoCNA(int index) {
     if (_isValidIndex(index)) {
@@ -16,6 +17,7 @@ class DashboardViewModel extends BaseViewModel {
   }
 
   List<JobModel> get jobs => List.unmodifiable(_jobs);
+  bool get isLoggedOut => _isLoggedOut;
 
   Future<void> loadJobs() async {
     await executeOperation(() async {
@@ -79,6 +81,11 @@ class DashboardViewModel extends BaseViewModel {
       phone: _jobs[index].phone,
       status: status,
     );
+    notifyListeners();
+  }
+
+  void resetRole() {
+    _isLoggedOut = false;
     notifyListeners();
   }
 }

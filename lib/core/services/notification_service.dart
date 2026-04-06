@@ -187,43 +187,32 @@ class NotificationService {
 
       print(" STARTING TOKEN FETCH");
 
-      NotificationSettings settings = await messaging.requestPermission();
+      // Request permission for Android 13+ and iOS
+      NotificationSettings settings = await messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
 
       print(" Permission: ${settings.authorizationStatus}");
 
+      // Get FCM token
       String? token = await messaging.getToken();
 
       print(" FCM TOKEN: $token");
 
-      if (token == null) {
-        print(" TOKEN IS NULL");
+      if (token != null) {
+        print(" FCM Token Generated Successfully!");
+        print(" Copy this token to Firebase Console:");
+        print(" $token");
+        print(
+          " Go to Firebase Console → Cloud Messaging → Create Campaign → Target this token",
+        );
+      } else {
+        print(" Failed to generate FCM token");
       }
     } catch (e) {
       print(" ERROR: $e");
-    }
-    try {
-      // Request notification permission first
-      final messaging = FirebaseMessaging.instance;
-
-      // Request permission for Android 13+ and iOS
-      await messaging.requestPermission(alert: true, badge: true, sound: true);
-
-      // Get FCM token
-      final token = await messaging.getToken();
-
-      if (token != null) {
-        // Print token in debug console - copy this for Firebase Console
-        developer.log(' FCM Token Generated Successfully!');
-        developer.log(' Copy this token to Firebase Console:');
-        developer.log(' $token');
-        developer.log(
-          'Go to Firebase Console → Cloud Messaging → Create Campaign → Target this token',
-        );
-      } else {
-        developer.log(' Failed to generate FCM token');
-      }
-    } catch (e) {
-      developer.log(' Error generating FCM token: $e');
     }
   }
 }

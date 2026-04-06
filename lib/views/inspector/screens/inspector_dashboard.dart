@@ -56,10 +56,19 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
             padding: AppSpacing.horizontal12Vertical6,
             decoration: BoxDecoration(
               color: AppColors.successLight,
-              border: Border.all(color: AppColors.successDark.withOpacity(0.5)),
+              border: Border.all(
+                color: AppColors.successDark.withValues(alpha: 0.5),
+              ),
               borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
             ),
-            child: const Text("• Online", style: AppStyles.smallMedium),
+            child: const Text(
+              "● Online",
+              style: TextStyle(
+                color: Color(0xff008847),
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),

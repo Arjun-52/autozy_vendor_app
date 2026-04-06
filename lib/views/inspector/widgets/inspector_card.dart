@@ -91,9 +91,10 @@ class InspectorCard extends StatelessWidget {
                       context,
                       "Take at least 1 photo before approving",
                     );
-                  } else {
-                    vm.approveInspection(index);
+                    return;
                   }
+
+                  vm.approveInspection(index);
                 },
 
                 onFlag: () => vm.flagInspection(index),

@@ -13,7 +13,6 @@ void showTopBanner(BuildContext context, {required String message}) {
     if (!context.mounted) return;
 
     final overlay = Overlay.of(context, rootOverlay: true);
-    if (overlay == null) return;
 
     late OverlayEntry entry;
 
@@ -92,8 +91,10 @@ void showTopBanner(BuildContext context, {required String message}) {
                   right: 4,
                   child: GestureDetector(
                     onTap: () {
-                      if (entry.mounted) entry.remove();
-                      _currentEntry = null;
+                      if (_currentEntry != null && _currentEntry!.mounted) {
+                        _currentEntry!.remove();
+                        _currentEntry = null;
+                      }
                     },
                     child: Container(
                       height: 20,
@@ -122,10 +123,8 @@ void showTopBanner(BuildContext context, {required String message}) {
 
     /// AUTO REMOVE
     Future.delayed(const Duration(seconds: 3), () {
-      if (entry.mounted) {
-        entry.remove();
-      }
-      if (_currentEntry == entry) {
+      if (_currentEntry != null && _currentEntry!.mounted) {
+        _currentEntry!.remove();
         _currentEntry = null;
       }
     });

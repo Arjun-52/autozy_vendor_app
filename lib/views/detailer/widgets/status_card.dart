@@ -42,9 +42,18 @@ class StatusCard extends StatelessWidget {
               : icon,
           const SizedBox(height: 6),
 
-          Text(
-            title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          Flexible(
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 10,
+                color: Colors.black,
+              ),
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+            ),
           ),
 
           const SizedBox(height: 2),
@@ -52,7 +61,7 @@ class StatusCard extends StatelessWidget {
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.grey, fontSize: 11),
+            style: const TextStyle(color: Color(0xff7E8392), fontSize: 11),
           ),
         ],
       ),

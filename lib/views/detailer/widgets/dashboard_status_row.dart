@@ -60,7 +60,7 @@ class DashboardStatusRow extends StatelessWidget {
               width: AppSpacing.iconMd,
             ),
             title: "",
-            subtitle: "Offline Ready",
+            subtitle: "Offline\nReady",
           ),
         ),
       ],
