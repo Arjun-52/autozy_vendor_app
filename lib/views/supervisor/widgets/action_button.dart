@@ -9,19 +9,36 @@ class ActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 12),
+      height: 40,
+
+      padding: const EdgeInsets.all(16),
+
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
+        color: Colors.white,
+
         borderRadius: BorderRadius.circular(12),
+
+        border: Border.all(color: const Color(0xFFE9E9E9), width: 1),
+
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF161616).withOpacity(0.04),
+            blurRadius: 13,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
+
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           icon,
-          SizedBox(width: 6),
+
+          const SizedBox(width: 8),
+
           Text(
             text,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
               color: Colors.black,

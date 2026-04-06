@@ -61,11 +61,11 @@ class InspectorCard extends StatelessWidget {
               name: inspection.name,
             ),
 
-            const SizedBox(height: AppSpacing.sm), // 10 → 8
+            const SizedBox(height: AppSpacing.sm),
 
             InspectorLocationRow(location: inspection.location),
 
-            const SizedBox(height: AppSpacing.md), // 12
+            const SizedBox(height: AppSpacing.md),
 
             InspectorStatusSection(
               isFlagged: isFlagged,

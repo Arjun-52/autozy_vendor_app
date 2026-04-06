@@ -78,6 +78,7 @@ class InspectorActionButtons extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(AppSpacing.xs),
+
                         decoration: const BoxDecoration(
                           color: AppColors.black,
                           shape: BoxShape.circle,
@@ -102,25 +103,39 @@ class InspectorActionButtons extends StatelessWidget {
               child: GestureDetector(
                 onTap: onFlag,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                  height: 40,
+                  width: 145.5,
+
+                  padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+
                   decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.error),
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                    border: Border.all(color: AppColors.error, width: 1),
+                    borderRadius: BorderRadius.circular(14),
                   ),
+
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SvgPicture.asset(
                         "assets/images/flag.svg",
-                        height: AppSpacing.md,
-                        width: AppSpacing.md,
+                        height: 16,
+                        width: 16,
                         colorFilter: const ColorFilter.mode(
                           AppColors.error,
                           BlendMode.srcIn,
                         ),
                       ),
-                      const SizedBox(width: AppSpacing.xs),
-                      const Text("Flag", style: AppStyles.warningButton),
+
+                      const SizedBox(width: 8),
+
+                      const Text(
+                        "Flag",
+                        style: TextStyle(
+                          color: Color(0xffFF383C),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ],
                   ),
                 ),

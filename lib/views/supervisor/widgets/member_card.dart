@@ -1,46 +1,58 @@
-import "package:autozy_vendor_app/data/models/team_member.dart";
-import "package:autozy_vendor_app/views/supervisor/widgets/action_button.dart";
-import "package:autozy_vendor_app/views/supervisor/widgets/progress_bar.dart";
-import "package:autozy_vendor_app/views/supervisor/widgets/reassign_bottom_sheet.dart";
-import "package:flutter/material.dart";
-import "package:flutter_svg/svg.dart";
-
-import "../../../core/constants/app_colors.dart";
-import "../../../core/constants/app_spacing.dart";
-import "../../../core/constants/app_styles.dart";
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class MemberCard extends StatelessWidget {
-  final TeamMember member;
+  final String name;
+  final String role;
+  final String tower;
+  final String status;
+  final int completed;
+  final int total;
 
-  const MemberCard({super.key, required this.member});
+  const MemberCard({
+    super.key,
+    required this.name,
+    required this.role,
+    required this.tower,
+    required this.status,
+    required this.completed,
+    required this.total,
+  });
 
   @override
   Widget build(BuildContext context) {
-    double progress = member.completed / member.total;
+    double progress = completed / total;
 
-    final isActive = member.status == "Active";
-
-    Color statusColor = isActive ? AppColors.successDark : AppColors.warning;
+    final isActive = status == "Active";
+    final statusColor = isActive
+        ? const Color(0xff008847)
+        : const Color(0xffFFA500);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.md),
-      padding: const EdgeInsets.all(AppSpacing.md),
+      margin: const EdgeInsets.only(bottom: 16),
+
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        color: Colors.white,
+
+        borderRadius: BorderRadius.circular(16),
+
+        border: Border.all(color: const Color(0xFFE9E9E9), width: 1),
+
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF161616).withValues(alpha: 0.09),
+            color: const Color(0xFF161616).withOpacity(0.12),
             blurRadius: 13,
-            spreadRadius: 0,
             offset: const Offset(0, 4),
           ),
         ],
       ),
+
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// HEADER ROW
+          /// HEADER
           Row(
             children: [
               Container(
@@ -48,10 +60,10 @@ class MemberCard extends StatelessWidget {
                 width: 45,
                 decoration: BoxDecoration(
                   color: statusColor.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(AppSpacing.sm),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.sm),
+                  padding: const EdgeInsets.all(8),
                   child: SvgPicture.asset(
                     "assets/images/profile-tick.svg",
                     fit: BoxFit.contain,
@@ -59,31 +71,55 @@ class MemberCard extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(width: AppSpacing.sm),
+              const SizedBox(width: 10),
 
+              /// NAME  DETAILS
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(member.name, style: AppStyles.bodyMedium),
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                    ),
+                  ),
+
+                  const SizedBox(height: 4),
 
                   Row(
                     children: [
-                      Text(member.role, style: AppStyles.caption),
+                      Text(
+                        role,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xff7E8392),
+                        ),
+                      ),
 
-                      const SizedBox(width: AppSpacing.xs),
+                      const SizedBox(width: 6),
 
                       Container(
-                        width: AppSpacing.xs,
-                        height: AppSpacing.xs,
+                        width: 4,
+                        height: 4,
                         decoration: const BoxDecoration(
-                          color: AppColors.textMuted,
+                          color: Color(0xff7E8392),
                           shape: BoxShape.circle,
                         ),
                       ),
 
-                      const SizedBox(width: AppSpacing.xs),
+                      const SizedBox(width: 6),
 
-                      Text(member.tower, style: AppStyles.caption),
+                      Text(
+                        tower,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xff7E8392),
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -91,19 +127,18 @@ class MemberCard extends StatelessWidget {
 
               const Spacer(),
 
-              /// STATUS BADGE
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm,
-                  vertical: AppSpacing.xs,
+                  horizontal: 10,
+                  vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
                   color: statusColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: statusColor.withOpacity(0.8)),
                 ),
                 child: Text(
-                  member.status,
+                  status,
                   style: TextStyle(
                     color: statusColor,
                     fontSize: 10,
@@ -114,70 +149,79 @@ class MemberCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: 14),
 
-          /// PROGRESS
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Progress: ${member.completed}/${member.total}",
-                style: AppStyles.caption,
+                "Progress: $completed/$total",
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Color(0xff7E8392),
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              SizedBox(width: 120, child: ProgressBar(value: progress)),
+
+              Container(
+                width: 120,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: const Color(0xffE9E9E9),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: progress,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: statusColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
 
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: 14),
 
-          /// ACTIONS
           Row(
             children: [
-              Expanded(
-                child: ActionButton(
-                  icon: Padding(
-                    padding: const EdgeInsets.all(AppSpacing.xs),
-                    child: SvgPicture.asset(
-                      "assets/images/call.svg",
-                      height: AppSpacing.lg,
-                      width: AppSpacing.lg,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                  text: "Call",
-                ),
-              ),
+              Expanded(child: _actionButton("assets/images/call.svg", "Call")),
 
-              const SizedBox(width: AppSpacing.sm),
+              const SizedBox(width: 8),
 
               Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      builder: (context) => ReassignBottomSheet(
-                        member: member,
-                        parentContext: context,
-                      ),
-                    );
-                  },
-                  child: ActionButton(
-                    icon: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.xs),
-                      child: SvgPicture.asset(
-                        "assets/images/workFlow.svg",
-                        height: AppSpacing.lg,
-                        width: AppSpacing.lg,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                    text: "Reassign",
-                  ),
-                ),
+                child: _actionButton("assets/images/workFlow.svg", "Reassign"),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _actionButton(String icon, String text) {
+    return Container(
+      height: 40,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+
+      decoration: BoxDecoration(
+        border: Border.all(color: const Color(0xFFE9E9E9)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SvgPicture.asset(icon, width: 16, height: 16),
+
+          const SizedBox(width: 8),
+
+          Text(
+            text,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
           ),
         ],
       ),

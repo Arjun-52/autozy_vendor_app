@@ -55,7 +55,14 @@ class SupervisorScreen extends StatelessWidget {
                 ),
                 borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
               ),
-              child: const Text("• Online", style: AppStyles.smallMedium),
+              child: const Text(
+                "● Online",
+                style: TextStyle(
+                  color: Color(0xff008847),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ],
         ),
@@ -145,8 +152,14 @@ class SupervisorScreen extends StatelessWidget {
                   child: vm.currentTab == SupervisorTab.team
                       ? ListView.builder(
                           itemCount: vm.members.length,
-                          itemBuilder: (_, i) =>
-                              MemberCard(member: vm.members[i]),
+                          itemBuilder: (_, i) => MemberCard(
+                            name: vm.members[i].name,
+                            role: vm.members[i].role,
+                            tower: vm.members[i].tower,
+                            status: vm.members[i].status,
+                            completed: vm.members[i].completed,
+                            total: vm.members[i].total,
+                          ),
                         )
                       : ListView.builder(
                           itemCount: vm.alerts.length,
