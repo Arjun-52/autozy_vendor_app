@@ -1,15 +1,17 @@
 import '../../data/models/job_model.dart';
 import '../services/api_service.dart';
+import '../../core/interfaces/dashboard_repository_interface.dart';
 
 /// Repository for dashboard-related data operations
 /// Acts as a bridge between ViewModel and API service
-class DashboardRepository {
+class DashboardRepository implements IDashboardRepository {
   final ApiService _apiService;
 
   DashboardRepository(this._apiService);
 
   /// Fetch jobs from API
   /// Returns mock data for now, ready for real API integration
+  @override
   Future<List<JobModel>> getJobs() async {
     try {
       // Always use fallback data for now
@@ -36,16 +38,19 @@ class DashboardRepository {
   }
 
   /// Mark job as completed
+  @override
   Future<bool> markJobCompleted(String vehicleId) async {
     return updateJobStatus(vehicleId, 'completed');
   }
 
   /// Mark job as CNA (Car Not Available)
+  @override
   Future<bool> markJobCNA(String vehicleId) async {
     return updateJobStatus(vehicleId, 'cna');
   }
 
   /// Undo job status back to pending
+  @override
   Future<bool> undoJobStatus(String vehicleId) async {
     return updateJobStatus(vehicleId, 'pending');
   }

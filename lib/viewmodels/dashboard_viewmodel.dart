@@ -1,9 +1,9 @@
 import '../../data/models/job_model.dart';
-import '../../data/repositories/dashboard_repository.dart';
 import '../../core/base/base_viewmodel.dart';
+import '../../core/interfaces/dashboard_repository_interface.dart';
 
 class DashboardViewModel extends BaseViewModel {
-  final DashboardRepository _repository;
+  final IDashboardRepository _repository;
 
   DashboardViewModel(this._repository);
 

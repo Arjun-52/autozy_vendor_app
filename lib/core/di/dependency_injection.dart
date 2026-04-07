@@ -13,6 +13,7 @@ import '../interfaces/auth_repository_interface.dart';
 import '../interfaces/role_repository_interface.dart';
 import '../interfaces/job_details_repository_interface.dart';
 import '../interfaces/specialist_tasks_repository_interface.dart';
+import '../interfaces/dashboard_repository_interface.dart';
 import '../network/api_client.dart';
 
 /// Dependency Injection Setup
@@ -27,7 +28,7 @@ class DependencyInjection {
   late final IAuthService _authService;
   late final IAuthRepository _authRepository;
   late final ApiService _apiService;
-  late final DashboardRepository _dashboardRepository;
+  late final IDashboardRepository _dashboardRepository;
 
   // NEW: API-ready services and repositories
   late final ApiClient _apiClient;
@@ -63,7 +64,7 @@ class DependencyInjection {
   IAuthService get authService => _authService;
   IAuthRepository get authRepository => _authRepository;
   ApiService get apiService => _apiService;
-  DashboardRepository get dashboardRepository => _dashboardRepository;
+  IDashboardRepository get dashboardRepository => _dashboardRepository;
 
   // NEW: Getters for API-ready repositories
   InspectorRepository get inspectorRepository => _inspectorRepository;
