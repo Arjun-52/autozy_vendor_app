@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
+import 'package:autozy_vendor_app/data/models/inspection_model.dart';
 import 'package:flutter_svg/svg.dart';
 
 void showJobDetailsSheet(BuildContext context, InspectionModel inspection) {

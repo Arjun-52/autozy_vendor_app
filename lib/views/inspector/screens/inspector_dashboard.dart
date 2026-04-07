@@ -32,7 +32,7 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
     final vm = context.watch<InspectorViewModel>();
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: Colors.white,
 
       appBar: AppBar(
         elevation: 2,

@@ -12,6 +12,7 @@ import 'package:autozy_vendor_app/views/detailer/screens/detailer_dashboard.dart
 import 'package:autozy_vendor_app/views/inspector/screens/inspector_dashboard.dart';
 import 'package:provider/provider.dart';
 import '../services/navigation_service.dart';
+import '../di/dependency_injection.dart';
 
 class AppRouter {
   // Private constructor to prevent instantiation
@@ -59,7 +60,7 @@ class AppRouter {
         path: '/supervisor',
         name: 'supervisor',
         builder: (context, state) => ChangeNotifierProvider(
-          create: (_) => SupervisorViewModel(),
+          create: (_) => SupervisorViewModel(di.supervisorRepository),
           child: const SupervisorScreen(),
         ),
       ),
@@ -68,7 +69,7 @@ class AppRouter {
         path: '/inspector',
         name: 'inspector',
         builder: (context, state) => ChangeNotifierProvider(
-          create: (_) => InspectorViewModel(),
+          create: (_) => InspectorViewModel(di.inspectorRepository),
           child: const InspectorDashboard(),
         ),
       ),

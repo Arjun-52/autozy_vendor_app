@@ -51,7 +51,7 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.greyLight,
+      backgroundColor: Colors.white,
 
       appBar: AppBar(
         elevation: 5,

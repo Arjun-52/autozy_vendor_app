@@ -53,7 +53,7 @@ class _OtpScreenState extends State<OtpScreen> {
     final vm = context.watch<AuthViewModel>();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: AppSpacing.horizontal20,

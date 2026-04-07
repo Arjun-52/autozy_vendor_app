@@ -1,74 +1,60 @@
-import 'package:flutter/material.dart';
 import '../core/base/base_viewmodel.dart';
-
-enum InspectionStatus { pending, approved, flagged }
-
-class InspectionModel {
-  final String vehicle;
-  final String name;
-  final String location;
-  int photoCount;
-  InspectionStatus status;
-
-  InspectionModel({
-    required this.vehicle,
-    required this.name,
-    required this.location,
-    this.photoCount = 0,
-    this.status = InspectionStatus.pending,
-  });
-}
+import '../core/interfaces/inspector_repository_interface.dart';
+import '../data/models/inspection_model.dart';
 
 class InspectorViewModel extends BaseViewModel {
+  final IInspectorRepository _repository;
+
+  InspectorViewModel(this._repository);
+
   List<InspectionModel> _inspections = [];
 
   List<InspectionModel> get inspections => _inspections;
 
   Future<void> loadInspections() async {
     await executeOperation(() async {
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      _inspections = [
-        InspectionModel(
-          vehicle: "MH 01 KL 9999",
-          name: "Rohit A",
-          location: "Tower A, Slot 6",
-        ),
-        InspectionModel(
-          vehicle: "TS 09 XY 1234",
-          name: "Ankit S",
-          location: "Tower B, Slot 3",
-        ),
-      ];
+      _inspections = await _repository.getInspections();
     }, onError: "Failed to load inspections");
   }
 
   void approveInspection(int index) {
     if (index < 0 || index >= _inspections.length) return;
 
-    _inspections[index].status = InspectionStatus.approved;
-    notifyListeners();
+    // Use repository for API call in future
+    _repository.approveInspection(_inspections[index].vehicle).then((_) {
+      _inspections[index].status = InspectionStatus.approved;
+      notifyListeners();
+    });
   }
 
   void flagInspection(int index) {
     if (index < 0 || index >= _inspections.length) return;
 
-    _inspections[index].status = InspectionStatus.flagged;
-    notifyListeners();
+    // Use repository for API call in future
+    _repository.flagInspection(_inspections[index].vehicle).then((_) {
+      _inspections[index].status = InspectionStatus.flagged;
+      notifyListeners();
+    });
   }
 
   void addPhoto(int index) {
     if (index < 0 || index >= _inspections.length) return;
 
-    _inspections[index].photoCount++;
-    notifyListeners();
+    // Use repository for API call in future
+    _repository.addPhoto(_inspections[index].vehicle).then((_) {
+      _inspections[index].photoCount++;
+      notifyListeners();
+    });
   }
 
   void resetInspection(int index) {
     if (index < 0 || index >= _inspections.length) return;
 
-    _inspections[index].status = InspectionStatus.pending;
-    notifyListeners();
+    // Use repository for API call in future
+    _repository.resetInspection(_inspections[index].vehicle).then((_) {
+      _inspections[index].status = InspectionStatus.pending;
+      notifyListeners();
+    });
   }
 
   int get approvedCount =>

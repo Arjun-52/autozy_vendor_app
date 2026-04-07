@@ -28,16 +28,15 @@ class InspectorActionButtons extends StatelessWidget {
         GestureDetector(
           onTap: onTakePhoto,
           child: Container(
-            padding: const EdgeInsets.symmetric(
-              vertical: AppSpacing.md, // 12
-            ),
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
             decoration: BoxDecoration(
               color: AppColors.surface,
               borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.textMuted.withOpacity(0.5),
-                  blurRadius: 4,
+                  color: const Color(0xFF636363).withValues(alpha: 0.16),
+                  blurRadius: 8,
+                  spreadRadius: 0,
                   offset: const Offset(0, 2),
                 ),
               ],
@@ -52,7 +51,7 @@ class InspectorActionButtons extends StatelessWidget {
                     BlendMode.srcIn,
                   ),
                 ),
-                const SizedBox(width: AppSpacing.xs), // 4/6 mapped
+                const SizedBox(width: AppSpacing.xs),
                 Text("Take Photo ($photoCount)", style: AppStyles.bodyMedium),
               ],
             ),

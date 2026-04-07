@@ -13,8 +13,23 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_styles.dart';
 
-class SupervisorScreen extends StatelessWidget {
+class SupervisorScreen extends StatefulWidget {
   const SupervisorScreen({super.key});
+
+  @override
+  State<SupervisorScreen> createState() => _SupervisorScreenState();
+}
+
+class _SupervisorScreenState extends State<SupervisorScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    // Load data from repository
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<SupervisorViewModel>().loadData();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

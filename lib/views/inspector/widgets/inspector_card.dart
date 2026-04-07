@@ -1,6 +1,7 @@
 import 'package:autozy_vendor_app/core/utils/capture_photo_sheet.dart';
 import 'package:autozy_vendor_app/core/utils/job_details_sheet.dart';
 import 'package:autozy_vendor_app/core/utils/top_banner.dart';
+import 'package:autozy_vendor_app/data/models/inspection_model.dart';
 import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -35,17 +36,26 @@ class InspectorCard extends StatelessWidget {
 
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-        padding: const EdgeInsets.all(AppSpacing.md),
+
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+
         decoration: BoxDecoration(
           color: isFlagged ? AppColors.border : AppColors.surface,
-          borderRadius: BorderRadius.circular(AppSpacing.lg),
-          border: isFlagged
-              ? Border.all(color: AppColors.error.withOpacity(0.3))
-              : null,
+
+          borderRadius: BorderRadius.circular(16),
+
+          border: Border.all(
+            color: isFlagged
+                ? AppColors.error.withValues(alpha: 0.3)
+                : const Color(0xFFE9E9E9),
+            width: 1,
+          ),
+
           boxShadow: [
             BoxShadow(
-              color: AppColors.black.withOpacity(0.08),
-              blurRadius: 10,
+              color: const Color(0xFF161616).withValues(alpha: 0.12),
+              blurRadius: 13,
+              spreadRadius: 0,
               offset: const Offset(0, 4),
             ),
           ],

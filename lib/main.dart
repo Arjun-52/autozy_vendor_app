@@ -17,6 +17,7 @@ import 'package:autozy_vendor_app/viewmodels/auth_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/role_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/dashboard_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
+import 'package:autozy_vendor_app/viewmodels/supervisor_viewmodel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,11 +25,11 @@ void main() async {
   // Initialize Firebase
   await Firebase.initializeApp();
 
-  // Initialize Notifications (FCM)
+  // Initialize Notifications
   final notificationService = NotificationService();
   await notificationService.initialize();
 
-  // Generate & print FCM token
+  // Generate print FCM token
   await NotificationService.generateAndPrintFCMToken();
 
   //  Dependency Injection
@@ -56,7 +57,14 @@ class MyApp extends StatelessWidget {
         ),
 
         /// INSPECTOR
-        ChangeNotifierProvider(create: (_) => InspectorViewModel()),
+        ChangeNotifierProvider(
+          create: (_) => InspectorViewModel(di.inspectorRepository),
+        ),
+
+        /// SUPERVISOR
+        ChangeNotifierProvider(
+          create: (_) => SupervisorViewModel(di.supervisorRepository),
+        ),
       ],
 
       child: MaterialApp.router(

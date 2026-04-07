@@ -18,18 +18,16 @@ class TeamStatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 100,
-      width: 106.33, // keep if fixed layout OR remove if using Expanded
+      width: 106.33,
 
-      padding: const EdgeInsets.all(16), // ✅ FIXED
+      padding: const EdgeInsets.all(16),
 
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
 
-        // ✅ ADD BORDER
         border: Border.all(color: const Color(0xFFE9E9E9), width: 1),
 
-        // ✅ EXACT SHADOW
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF161616).withOpacity(0.12),
@@ -41,11 +39,11 @@ class TeamStatusCard extends StatelessWidget {
       ),
 
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center, // ✅ IMPORTANT
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           icon,
 
-          const SizedBox(height: 10), // ✅ GAP FIX
+          const SizedBox(height: 10),
 
           Text(
             title,

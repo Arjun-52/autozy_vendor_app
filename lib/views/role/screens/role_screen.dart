@@ -31,21 +31,18 @@ class _RoleScreenState extends State<RoleScreen> {
     final vm = context.watch<RoleViewModel>();
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: Colors.white,
       body: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.xl, // 20
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
         child: Column(
           children: [
-            const SizedBox(
-              height: AppSpacing.xxl,
-            ), // ~24 instead of 60 (better scale)
+            const SizedBox(height: AppSpacing.xxl),
+
             /// LOGO
             Column(
               children: [
                 Container(
-                  height: 70, // ✅ allowed (logo-specific)
+                  height: 70,
                   width: 72,
                   decoration: BoxDecoration(
                     color: AppColors.primary,

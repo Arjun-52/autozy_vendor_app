@@ -25,9 +25,10 @@ class StatusCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
+            color: const Color(0xFF161616).withValues(alpha: 0.12),
+            blurRadius: 13,
+            spreadRadius: 0,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -46,8 +47,8 @@ class StatusCard extends StatelessWidget {
             child: Text(
               title,
               style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
                 color: Colors.black,
               ),
               textAlign: TextAlign.center,
@@ -61,7 +62,11 @@ class StatusCard extends StatelessWidget {
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Color(0xff7E8392), fontSize: 11),
+            style: const TextStyle(
+              color: Color(0xff7E8392),
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),

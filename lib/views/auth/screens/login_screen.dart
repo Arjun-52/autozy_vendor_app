@@ -24,7 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final vm = context.watch<AuthViewModel>();
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: Colors.white,
       body: Padding(
         padding: AppSpacing.horizontal24,
         child: Column(
