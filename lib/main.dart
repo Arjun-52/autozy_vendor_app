@@ -18,6 +18,8 @@ import 'package:autozy_vendor_app/viewmodels/role_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/dashboard_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/supervisor_viewmodel.dart';
+import 'package:autozy_vendor_app/viewmodels/job_details_viewmodel.dart';
+import 'package:autozy_vendor_app/viewmodels/specialist_tasks_viewmodel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,7 +51,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthViewModel(di.authRepository)),
 
         /// ROLE
-        ChangeNotifierProvider(create: (_) => RoleViewModel()),
+        ChangeNotifierProvider(create: (_) => RoleViewModel(di.roleRepository)),
 
         /// DASHBOARD
         ChangeNotifierProvider(
@@ -64,6 +66,16 @@ class MyApp extends StatelessWidget {
         /// SUPERVISOR
         ChangeNotifierProvider(
           create: (_) => SupervisorViewModel(di.supervisorRepository),
+        ),
+
+        /// JOB DETAILS
+        ChangeNotifierProvider(
+          create: (_) => JobDetailsViewModel(di.jobDetailsRepository),
+        ),
+
+        /// SPECIALIST TASKS
+        ChangeNotifierProvider(
+          create: (_) => SpecialistTasksViewModel(di.specialistTasksRepository),
         ),
       ],
 

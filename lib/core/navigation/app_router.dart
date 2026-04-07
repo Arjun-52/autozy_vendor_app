@@ -77,7 +77,7 @@ class AppRouter {
         path: '/specialist',
         name: 'specialist',
         builder: (context, state) => ChangeNotifierProvider(
-          create: (_) => SpecialistTasksViewModel(),
+          create: (_) => SpecialistTasksViewModel(di.specialistTasksRepository),
           child: const SpecialistModeScreen(),
         ),
       ),

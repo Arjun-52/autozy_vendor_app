@@ -24,6 +24,9 @@ class _RoleScreenState extends State<RoleScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AuthViewModel>().reset();
     });
+
+    // Load roles from repository
+    context.read<RoleViewModel>().loadRoles();
   }
 
   @override

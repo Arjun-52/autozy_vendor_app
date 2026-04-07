@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import '../../../viewmodels/specialist_tasks_viewmodel.dart';
+import '../../../data/models/task_model.dart';
 
 class CompletedTaskCard extends StatelessWidget {
   final Task task;

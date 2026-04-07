@@ -1,29 +1,65 @@
 import 'package:flutter/material.dart';
 import '../../core/utils/snackbar_helper.dart';
+import '../../core/interfaces/job_details_repository_interface.dart';
 
 class JobDetailsViewModel extends ChangeNotifier {
-  String vehicleNumber = "TS 01 AB 1234";
-  String customerName = "Rahul S.";
-  String location = "Tower A, Slot 6";
-  String phone = "9145679913";
-  String status = "Pending";
+  final IJobDetailsRepository _repository;
 
-  void callOwner() {
-    debugPrint("Calling $phone");
-    // later: integrate url_launcher
+  JobDetailsViewModel(this._repository);
+
+  // Job details - loaded from repository
+  String vehicleNumber = "";
+  String customerName = "";
+  String location = "";
+  String phone = "";
+  String status = "";
+
+  /// Load job details from repository
+  Future<void> loadJobDetails(String vehicleNumber) async {
+    try {
+      final details = await _repository.getJobDetails(vehicleNumber);
+      this.vehicleNumber = details['vehicleNumber'] ?? "";
+      customerName = details['customerName'] ?? "";
+      location = details['location'] ?? "";
+      phone = details['phone'] ?? "";
+      status = details['status'] ?? "";
+      notifyListeners();
+    } catch (e) {
+      // Keep fallback values if repository fails
+      this.vehicleNumber = vehicleNumber;
+      customerName = "Rahul S.";
+      location = "Tower A, Slot 6";
+      phone = "9145679913";
+      status = "Pending";
+      notifyListeners();
+    }
+  }
+
+  void callOwner() async {
+    try {
+      await _repository.callOwner(phone);
+      debugPrint("Calling $phone");
+      // later: integrate url_launcher
+    } catch (e) {
+      debugPrint("Failed to call owner: $e");
+    }
   }
 
   Future<void> uploadPhoto(BuildContext context) async {
-    // Simulate photo upload
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      final success = await _repository.uploadPhoto(vehicleNumber);
+      if (success) {
+        // Update status
+        status = "Completed";
+        notifyListeners();
 
-    // Update status
-    status = "Completed";
-    notifyListeners();
-
-    // Show success notification
-    if (context.mounted) {
-      SnackbarHelper.showTopNotification(context);
+        // Show success notification
+        if (context.mounted) {
+          SnackbarHelper.showTopNotification(context);
+        }
+      }
+    } catch (e) {
+      debugPrint("Failed to upload photo: $e");
     }
   }
 }

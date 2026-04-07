@@ -9,6 +9,7 @@ import '../../../core/services/alert_service.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_styles.dart';
+import '../../../core/di/dependency_injection.dart';
 
 class SpecialistModeScreen extends StatelessWidget {
   const SpecialistModeScreen({super.key});
@@ -16,7 +17,7 @@ class SpecialistModeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => SpecialistTasksViewModel(),
+      create: (_) => SpecialistTasksViewModel(di.specialistTasksRepository),
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
@@ -52,7 +53,14 @@ class SpecialistModeScreen extends StatelessWidget {
         ),
         body: SafeArea(
           child: Consumer<SpecialistTasksViewModel>(
-            builder: (context, vm, _) {
+            builder: (context, vm, child) {
+              // Load tasks when screen is built
+              if (vm.tasks.isEmpty) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  vm.loadTasks();
+                });
+              }
+
               if (vm.showError && vm.errorMessage != null) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   AlertService.showTopAlert(

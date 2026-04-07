@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../viewmodels/specialist_tasks_viewmodel.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../data/models/task_model.dart';
 
 import 'task_card_header.dart';
 import 'task_steps_list.dart';

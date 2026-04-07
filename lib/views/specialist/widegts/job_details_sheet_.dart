@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_styles.dart';
+import '../../../data/models/task_model.dart';
 import 'detail_row.dart';
 
 class JobDetailsSheet extends StatelessWidget {
