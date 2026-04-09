@@ -1,3 +1,4 @@
+import 'package:autozy_vendor_app/core/utils/top_status_banner.dart';
 import 'package:autozy_vendor_app/views/detailer/widgets/dashboard_status_row.dart';
 import 'package:autozy_vendor_app/views/detailer/widgets/jobs_list_view.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,8 @@ class DetailerDashboard extends StatefulWidget {
 }
 
 class _DetailerDashboardState extends State<DetailerDashboard> {
+  bool isOnline = false;
+
   @override
   void initState() {
     super.initState();
@@ -74,16 +77,37 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
             Text("Today's Route", style: AppStyles.smallMedium),
           ],
         ),
+
         actions: [
-          Container(
-            margin: AppSpacing.right16,
-            padding: AppSpacing.horizontal12Vertical6,
-            decoration: BoxDecoration(
-              color: AppColors.onlineBg.withOpacity(0.5),
-              border: Border.all(color: AppColors.success),
-              borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                isOnline = !isOnline;
+              });
+
+              handleOnlineToggle(context, isOnline); // ✅ ADD THIS LINE
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              margin: AppSpacing.right16,
+              padding: AppSpacing.horizontal12Vertical6,
+              decoration: BoxDecoration(
+                color: isOnline
+                    ? AppColors.onlineBg.withOpacity(0.5)
+                    : Colors.red.withOpacity(0.1),
+                border: Border.all(
+                  color: isOnline ? AppColors.success : Colors.red,
+                ),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+              ),
+              child: Text(
+                isOnline ? "● Online" : "● Offline",
+                style: TextStyle(
+                  color: isOnline ? AppColors.success : Colors.red,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
-            child: const Text("● Online", style: AppStyles.online),
           ),
         ],
       ),
