@@ -85,7 +85,7 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
                 isOnline = !isOnline;
               });
 
-              handleOnlineToggle(context, isOnline); // ✅ ADD THIS LINE
+              handleOnlineToggle(context, isOnline);
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 250),

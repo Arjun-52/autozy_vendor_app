@@ -1,3 +1,4 @@
+import 'package:autozy_vendor_app/core/utils/top_status_banner.dart';
 import 'package:autozy_vendor_app/viewmodels/supervisor_viewmodel.dart';
 import 'package:autozy_vendor_app/views/supervisor/widgets/alert_card.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,8 @@ class SupervisorScreen extends StatefulWidget {
 }
 
 class _SupervisorScreenState extends State<SupervisorScreen> {
+  bool isOnline = true;
+
   @override
   void initState() {
     super.initState();
@@ -60,22 +63,33 @@ class _SupervisorScreenState extends State<SupervisorScreen> {
             ],
           ),
           actions: [
-            Container(
-              margin: AppSpacing.right16,
-              padding: AppSpacing.horizontal12Vertical6,
-              decoration: BoxDecoration(
-                color: AppColors.successLight,
-                border: Border.all(
-                  color: AppColors.successDark.withOpacity(0.5),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  isOnline = !isOnline;
+                });
+
+                handleOnlineToggle(context, isOnline);
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                margin: AppSpacing.right16,
+                padding: AppSpacing.horizontal12Vertical6,
+                decoration: BoxDecoration(
+                  color: isOnline
+                      ? AppColors.onlineBg.withOpacity(0.5)
+                      : Colors.red.withOpacity(0.1),
+                  border: Border.all(
+                    color: isOnline ? AppColors.success : Colors.red,
+                  ),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
                 ),
-                borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-              ),
-              child: const Text(
-                "● Online",
-                style: TextStyle(
-                  color: Color(0xff008847),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                child: Text(
+                  isOnline ? "● Online" : "● Offline",
+                  style: TextStyle(
+                    color: isOnline ? AppColors.success : Colors.red,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
