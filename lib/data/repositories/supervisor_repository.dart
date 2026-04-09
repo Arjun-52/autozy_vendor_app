@@ -20,6 +20,7 @@ class SupervisorRepository implements ISupervisorRepository {
         completed: 12,
         total: 40,
         status: "Active",
+        phone: "+91 98765 43210",
       ),
       TeamMember(
         id: "2",
@@ -29,6 +30,7 @@ class SupervisorRepository implements ISupervisorRepository {
         completed: 8,
         total: 35,
         status: "Active",
+        phone: "+91 98765 43211",
       ),
       TeamMember(
         id: "3",
@@ -38,6 +40,7 @@ class SupervisorRepository implements ISupervisorRepository {
         completed: 3,
         total: 5,
         status: "Active",
+        phone: "+91 98765 43212",
       ),
       TeamMember(
         id: "4",
@@ -47,6 +50,7 @@ class SupervisorRepository implements ISupervisorRepository {
         completed: 16,
         total: 38,
         status: "Break",
+        phone: "+91 98765 43213",
       ),
     ];
   }

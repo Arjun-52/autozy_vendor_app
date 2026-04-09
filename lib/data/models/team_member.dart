@@ -12,8 +12,9 @@ class TeamMember {
   final int total;
   @JsonKey(name: 'member_status')
   final String status; // Active / Break / Offline
+  final String phone;
 
-  // Existing constructor - KEEP UNCHANGED for backward compatibility
+  // Updated constructor with phone parameter
   TeamMember({
     required this.id,
     required this.name,
@@ -22,6 +23,7 @@ class TeamMember {
     required this.completed,
     required this.total,
     required this.status,
+    required this.phone,
   });
 
   // New factory for JSON parsing

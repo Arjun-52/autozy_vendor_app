@@ -188,6 +188,7 @@ class _SupervisorScreenState extends State<SupervisorScreen> {
                             status: vm.members[i].status,
                             completed: vm.members[i].completed,
                             total: vm.members[i].total,
+                            phone: vm.members[i].phone,
                           ),
                         )
                       : ListView.builder(

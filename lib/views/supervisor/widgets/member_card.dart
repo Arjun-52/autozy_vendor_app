@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../data/models/team_member.dart';
 import 'reassign_bottom_sheet.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MemberCard extends StatelessWidget {
   final String name;
@@ -10,9 +11,11 @@ class MemberCard extends StatelessWidget {
   final String status;
   final int completed;
   final int total;
+  final String phone;
 
   const MemberCard({
     super.key,
+    required this.phone,
     required this.name,
     required this.role,
     required this.tower,
@@ -20,6 +23,11 @@ class MemberCard extends StatelessWidget {
     required this.completed,
     required this.total,
   });
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri url = Uri.parse('tel:$phoneNumber');
+
+    await launchUrl(url, mode: LaunchMode.externalApplication);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -192,7 +200,7 @@ class MemberCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _actionButton("assets/images/call.svg", "Call", () {
-                  // TODO: Add call functionality
+                  _makePhoneCall(phone);
                 }),
               ),
 
@@ -216,6 +224,7 @@ class MemberCard extends StatelessWidget {
                           status: status,
                           completed: completed,
                           total: total,
+                          phone: "9347830977",
                         ),
                         parentContext: context,
                       ),

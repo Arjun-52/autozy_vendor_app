@@ -32,6 +32,7 @@ class _ReassignBottomSheetState extends State<ReassignBottomSheet> {
         completed: 8,
         total: 35,
         status: "Active",
+        phone: "+91 98765 43211",
       ),
       TeamMember(
         id: "2",
@@ -41,6 +42,7 @@ class _ReassignBottomSheetState extends State<ReassignBottomSheet> {
         completed: 3,
         total: 5,
         status: "Active",
+        phone: "+91 98765 43212",
       ),
       TeamMember(
         id: "3",
@@ -50,6 +52,7 @@ class _ReassignBottomSheetState extends State<ReassignBottomSheet> {
         completed: 16,
         total: 38,
         status: "Warning",
+        phone: "+91 98765 43214",
       ),
     ];
 

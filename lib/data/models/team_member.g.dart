@@ -14,6 +14,7 @@ TeamMember _$TeamMemberFromJson(Map<String, dynamic> json) => TeamMember(
       completed: (json['completed'] as num).toInt(),
       total: (json['total'] as num).toInt(),
       status: json['member_status'] as String,
+      phone: json['phone'] as String,
     );
 
 Map<String, dynamic> _$TeamMemberToJson(TeamMember instance) =>
@@ -25,4 +26,5 @@ Map<String, dynamic> _$TeamMemberToJson(TeamMember instance) =>
       'completed': instance.completed,
       'total': instance.total,
       'member_status': instance.status,
+      'phone': instance.phone,
     };
