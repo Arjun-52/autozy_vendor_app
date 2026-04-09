@@ -2,6 +2,7 @@ import 'package:autozy_vendor_app/data/models/job_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
@@ -27,6 +28,11 @@ class JobDetailsBottomSheet extends StatelessWidget {
     this.index,
     required this.job,
   });
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri url = Uri.parse('tel:$phoneNumber');
+
+    await launchUrl(url, mode: LaunchMode.externalApplication);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,9 +111,7 @@ class JobDetailsBottomSheet extends StatelessWidget {
                           ),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.all(
-                            10,
-                          ), // ✅ acceptable small inline
+                          padding: const EdgeInsets.all(10),
                           child: SvgPicture.asset(
                             "assets/images/car2.svg",
                             fit: BoxFit.contain,
@@ -175,28 +179,33 @@ class JobDetailsBottomSheet extends StatelessWidget {
 
             Padding(
               padding: AppSpacing.all16,
-              child: Container(
-                width: double.infinity,
-                padding: AppSpacing.vertical16,
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      "assets/images/call.svg",
-                      height: AppSpacing.lg,
-                      width: AppSpacing.lg,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.black,
-                        BlendMode.srcIn,
+              child: GestureDetector(
+                onTap: () {
+                  _makePhoneCall("9876543210");
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: AppSpacing.vertical16,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        "assets/images/call.svg",
+                        height: AppSpacing.lg,
+                        width: AppSpacing.lg,
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.black,
+                          BlendMode.srcIn,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    const Text("Call Owner", style: AppStyles.buttonText),
-                  ],
+                      const SizedBox(width: AppSpacing.sm),
+                      const Text("Call Owner", style: AppStyles.buttonText),
+                    ],
+                  ),
                 ),
               ),
             ),
