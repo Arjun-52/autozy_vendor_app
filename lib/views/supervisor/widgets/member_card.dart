@@ -220,7 +220,7 @@ class MemberCard extends StatelessWidget {
                           id: 'temp_id', // TODO: Pass actual member ID
                           name: name,
                           role: role,
-                          tower: tower,
+                          tower: tower, 
                           status: status,
                           completed: completed,
                           total: total,

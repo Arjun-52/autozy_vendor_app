@@ -3,6 +3,7 @@ import 'package:autozy_vendor_app/viewmodels/supervisor_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/specialist_tasks_viewmodel.dart';
 import 'package:autozy_vendor_app/views/specialist/screens/specialist_mode_screen.dart';
 import 'package:autozy_vendor_app/views/supervisor/screens/supervisor_screen.dart';
+import 'package:autozy_vendor_app/widgets/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:autozy_vendor_app/views/auth/screens/login_screen.dart';
@@ -15,11 +16,10 @@ import '../services/navigation_service.dart';
 import '../di/dependency_injection.dart';
 
 class AppRouter {
-  // Private constructor to prevent instantiation
   AppRouter._();
 
   static final GoRouter router = GoRouter(
-    initialLocation: '/',
+    initialLocation: '/splash',
 
     navigatorKey: NavigationService.navigatorKey,
 
@@ -29,33 +29,41 @@ class AppRouter {
     ),
 
     routes: [
-      // Login screen
+      GoRoute(
+        path: '/splash',
+        name: 'splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
+
+      /// LOGIN
       GoRoute(
         path: '/',
         name: 'login',
         builder: (context, state) => const LoginScreen(),
       ),
 
-      // OTP
+      /// OTP
       GoRoute(
         path: '/otp',
         name: 'otp',
         builder: (context, state) => const OtpScreen(),
       ),
 
-      // Role
+      /// ROLE
       GoRoute(
         path: '/role',
         name: 'role',
         builder: (context, state) => const RoleScreen(),
       ),
 
-      // Dashboard
+      /// DETAILER DASHBOARD
       GoRoute(
         path: '/dashboard',
         name: 'dashboard',
         builder: (context, state) => DetailerDashboard(),
       ),
+
+      /// SUPERVISOR
       GoRoute(
         path: '/supervisor',
         name: 'supervisor',
@@ -64,7 +72,8 @@ class AppRouter {
           child: const SupervisorScreen(),
         ),
       ),
-      // Inspector Dashboard
+
+      /// INSPECTOR
       GoRoute(
         path: '/inspector',
         name: 'inspector',
@@ -73,6 +82,8 @@ class AppRouter {
           child: const InspectorDashboard(),
         ),
       ),
+
+      /// SPECIALIST
       GoRoute(
         path: '/specialist',
         name: 'specialist',
@@ -86,37 +97,24 @@ class AppRouter {
 }
 
 extension GoRouterExtension on GoRouter {
-  /// Navigate to login s
   void goToLogin() => go('/');
+  void pushLogin() => push('/');
 
-  /// Navigate to supervisor
+  void goToOtp() => go('/otp');
+  void pushOtp() => push('/otp');
+
+  void goToRole() => go('/role');
+  void pushRole() => push('/role');
+
+  void goToDashboard() => go('/dashboard');
+  void pushDashboard() => push('/dashboard');
+
   void goToSupervisor() => go('/supervisor');
   void pushSupervisor() => push('/supervisor');
 
-  /// Navigate to OTP screen
-  void goToOtp() => go('/otp');
-
-  /// Navigate to role
-  void goToRole() => go('/role');
-
-  /// Navigate to dashboard
-  void goToDashboard() => go('/dashboard');
-
-  /// Navigate to inspector dashboard
   void goToInspector() => go('/inspector');
-
-  /// Navigate to specialist dashboard
-  void goToSpecialist() => go('/specialist');
-
-  void pushLogin() => push('/');
-
-  void pushOtp() => push('/otp');
-
-  void pushRole() => push('/role');
-
-  void pushDashboard() => push('/dashboard');
-
   void pushInspector() => push('/inspector');
 
+  void goToSpecialist() => go('/specialist');
   void pushSpecialist() => push('/specialist');
 }
