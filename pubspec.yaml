@@ -69,10 +69,18 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   
+  # App Launcher Icons
+  flutter_launcher_icons: ^0.13.1
+  
   # Code Generation
   retrofit_generator: ^4.0.3+1
   build_runner: ^2.4.8
   json_serializable: ^6.7.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -86,6 +94,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/icon.png
   fonts:
     - family: Poppins
       fonts:
