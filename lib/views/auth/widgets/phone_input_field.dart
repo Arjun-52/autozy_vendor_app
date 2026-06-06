@@ -10,7 +10,7 @@ class PhoneInputField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 65,
-      width: 335,
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: Colors.white,

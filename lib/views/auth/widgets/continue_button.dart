@@ -17,20 +17,24 @@ class ContinueButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          padding: AppSpacing.vertical16,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+      height: 65,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: ElevatedButton(
+          onPressed: isLoading ? null : onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            padding: AppSpacing.vertical16,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+            ),
           ),
+          child: isLoading
+              ? const CircularProgressIndicator(
+                  color: AppColors.white, // ✅ fixed (visible now)
+                )
+              : const Text("Continue", style: AppStyles.buttonLarge),
         ),
-        child: isLoading
-            ? const CircularProgressIndicator(
-                color: AppColors.white, // ✅ fixed (visible now)
-              )
-            : const Text("Continue", style: AppStyles.buttonLarge),
       ),
     );
   }

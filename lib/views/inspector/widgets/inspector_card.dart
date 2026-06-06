@@ -28,8 +28,11 @@ class InspectorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = context.read<InspectorViewModel>();
 
-    final isFlagged = inspection.status == InspectionStatus.flagged;
-    final isApproved = inspection.status == InspectionStatus.approved;
+    final isFlagged = inspection.status == InspectionStatus.flagged ||
+        inspection.status == InspectionStatus.rejected;
+    final isApproved = inspection.status == InspectionStatus.approved ||
+        inspection.status == InspectionStatus.completed;
+    final isInProgress = inspection.status == InspectionStatus.inProgress;
 
     return GestureDetector(
       onTap: () => showJobDetailsSheet(context, inspection),
@@ -78,13 +81,58 @@ class InspectorCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
 
             InspectorStatusSection(
-              isFlagged: isFlagged,
+              isFlagged: isFlagged && inspection.status != InspectionStatus.rejected,
               isApproved: isApproved,
+              isInProgress: isInProgress,
+              isRejected: inspection.status == InspectionStatus.rejected,
             ),
 
             const SizedBox(height: AppSpacing.md),
 
-            if (!isFlagged && !isApproved)
+            if (inspection.status == InspectionStatus.pending)
+              SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: ElevatedButton(
+                  onPressed: vm.isLoading
+                      ? null
+                      : () async {
+                          final success = await vm.startInspection(inspection.vehicle);
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Inspection started successfully')),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Failed to start inspection')),
+                            );
+                          }
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: vm.isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: AppColors.black,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          "Start Inspection",
+                          style: TextStyle(
+                            color: AppColors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                ),
+              )
+            else if (isInProgress)
               InspectorActionButtons(
                 photoCount: inspection.photoCount,
 
@@ -95,7 +143,7 @@ class InspectorCard extends StatelessWidget {
                   );
                 },
 
-                onApprove: () {
+                onApprove: () async {
                   if (inspection.photoCount == 0) {
                     TopBanner(
                       context,
@@ -104,10 +152,83 @@ class InspectorCard extends StatelessWidget {
                     return;
                   }
 
-                  vm.approveInspection(index);
+                  final photosPayload = List.generate(
+                    inspection.photoCount,
+                    (i) => {
+                      "url": "https://api.autozy.com/photos/${inspection.vehicle}_$i.jpg",
+                      "type": "BEFORE",
+                      "timestamp": DateTime.now().toUtc().toIso8601String(),
+                    },
+                  );
+
+                  final success = await vm.completeInspection(inspection.vehicle, photosPayload);
+                  if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Inspection completed successfully')),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Failed to complete inspection')),
+                    );
+                  }
                 },
 
-                onFlag: () => vm.flagInspection(index),
+                onFlag: () {
+                  showDialog(
+                    context: context,
+                    builder: (dialogCtx) {
+                      final reasonController = TextEditingController(
+                        text: "Vehicle was locked and inspection could not be performed",
+                      );
+                      return AlertDialog(
+                        title: const Text("Fail Inspection"),
+                        content: TextField(
+                          controller: reasonController,
+                          decoration: const InputDecoration(
+                            labelText: "Reason",
+                            hintText: "Enter the reason for failure",
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(dialogCtx),
+                            child: const Text("Cancel"),
+                          ),
+                          ElevatedButton(
+                            onPressed: () async {
+                              Navigator.pop(dialogCtx);
+                              final photosPayload = List.generate(
+                                inspection.photoCount,
+                                (i) => "https://api.autozy.com/photos/fail_${inspection.vehicle}_$i.jpg",
+                              );
+                              final success = await vm.failInspection(
+                                inspection.vehicle,
+                                reasonController.text.trim(),
+                                photosPayload,
+                              );
+                              if (success) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Inspection failed successfully')),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Failed to flag inspection')),
+                                );
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                            ),
+                            child: const Text(
+                              "Submit",
+                              style: TextStyle(color: AppColors.black),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
               ),
           ],
         ),

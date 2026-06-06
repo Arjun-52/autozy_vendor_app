@@ -95,6 +95,26 @@ class ApiService {
             },
           ],
         };
+      case '/api/v1/inspections/queue':
+        return {
+          'success': true,
+          'data': [
+            {
+              'vehicle_number': 'MH 01 KL 9999',
+              'name': 'Rohit A',
+              'location': 'Tower A, Slot 6',
+              'status': 'pending',
+              'photo_count': 0,
+            },
+            {
+              'vehicle_number': 'TS 09 XY 1234',
+              'name': 'Ankit S',
+              'location': 'Tower B, Slot 3',
+              'status': 'pending',
+              'photo_count': 0,
+            },
+          ],
+        };
       default:
         return {'success': true, 'data': []};
     }

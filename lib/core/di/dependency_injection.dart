@@ -51,7 +51,8 @@ class DependencyInjection {
     // Initialize new API-ready services
     _apiClient = ApiClient();
     _apiClient.initialize();
-    _inspectorRepository = InspectorRepository();
+    final newApiService = NewApiService();
+    _inspectorRepository = InspectorRepository(newApiService);
     _supervisorRepository = SupervisorRepository();
 
     // Initialize refactored repositories
