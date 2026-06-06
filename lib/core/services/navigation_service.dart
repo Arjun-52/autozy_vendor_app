@@ -31,6 +31,28 @@ class NavigationService {
     }
   }
 
+  static void goToDashboardByRole(String role) {
+    if (context != null) {
+      switch (role.toUpperCase()) {
+        case 'DETAILER':
+          goToDashboard();
+          break;
+        case 'INSPECTOR':
+          goToInspector();
+          break;
+        case 'SUPERVISOR':
+          goToSupervisor();
+          break;
+        case 'SPECIALIST':
+          goToSpecialist();
+          break;
+        default:
+          goToRole();
+          break;
+      }
+    }
+  }
+
   static void goToInspector() {
     if (context != null) {
       context!.go('/inspector');

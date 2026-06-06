@@ -8,6 +8,7 @@ import '../widgets/role_card.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_styles.dart';
+import '../../../core/services/navigation_service.dart';
 
 class RoleScreen extends StatefulWidget {
   const RoleScreen({super.key});
@@ -35,11 +36,21 @@ class _RoleScreenState extends State<RoleScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            NavigationService.goToLogin();
+          },
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
         child: Column(
           children: [
-            const SizedBox(height: AppSpacing.xxl),
+            const SizedBox(height: AppSpacing.md),
 
             /// LOGO
             Column(

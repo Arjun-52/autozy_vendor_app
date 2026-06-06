@@ -4,6 +4,8 @@ import 'package:autozy_vendor_app/views/detailer/widgets/jobs_list_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:go_router/go_router.dart';
+
 import '../widgets/job_details_bottom_sheet.dart';
 import '../../../core/services/navigation_service.dart';
 import '../../../core/constants/app_colors.dart';
@@ -79,6 +81,12 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
         ),
 
         actions: [
+          IconButton(
+            icon: const Icon(Icons.history, color: AppColors.black),
+            onPressed: () {
+              context.push('/wash-history');
+            },
+          ),
           GestureDetector(
             onTap: () {
               setState(() {

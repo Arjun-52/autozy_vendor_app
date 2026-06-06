@@ -1,8 +1,12 @@
+import 'dart:io';
 import '../../data/models/inspection_model.dart';
+import '../../data/models/upload_image_response.dart';
 
 /// Repository interface for Inspector operations
 /// Enables loose coupling and easy API integration
 abstract class IInspectorRepository {
+  /// Upload image
+  Future<UploadImageResponse> uploadImage(File file);
   /// Get all inspections
   Future<List<InspectionModel>> getInspections();
 

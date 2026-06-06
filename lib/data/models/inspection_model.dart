@@ -49,6 +49,9 @@ class InspectionModel {
   List<InspectionPhoto>? photos;
   String? notes;
 
+  @JsonKey(ignore: true)
+  List<Map<String, String>> uploadedPhotos = [];
+
   InspectionModel({
     required this.vehicle,
     required this.name,
@@ -58,7 +61,9 @@ class InspectionModel {
     this.completedAt,
     this.photos,
     this.notes,
-  });
+  }) {
+    uploadedPhotos = [];
+  }
 
   factory InspectionModel.fromJson(Map<String, dynamic> json) =>
       _$InspectionModelFromJson(json);

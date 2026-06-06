@@ -135,11 +135,12 @@ class InspectorCard extends StatelessWidget {
             else if (isInProgress)
               InspectorActionButtons(
                 photoCount: inspection.photoCount,
+                isUploading: vm.isUploadingImage && vm.uploadingVehicle == inspection.vehicle,
 
                 onTakePhoto: () {
                   showCapturePhotoSheet(
                     context: context,
-                    onTakePhoto: () => vm.addPhoto(index),
+                    onTakePhoto: () => vm.uploadImage(inspection.vehicle),
                   );
                 },
 
@@ -152,14 +153,20 @@ class InspectorCard extends StatelessWidget {
                     return;
                   }
 
-                  final photosPayload = List.generate(
-                    inspection.photoCount,
-                    (i) => {
-                      "url": "https://api.autozy.com/photos/${inspection.vehicle}_$i.jpg",
-                      "type": "BEFORE",
-                      "timestamp": DateTime.now().toUtc().toIso8601String(),
-                    },
-                  );
+                  final photosPayload = inspection.uploadedPhotos.isNotEmpty
+                      ? inspection.uploadedPhotos.map((photo) => {
+                            "url": photo['url'] ?? "",
+                            "type": "BEFORE",
+                            "timestamp": DateTime.now().toUtc().toIso8601String(),
+                          }).toList()
+                      : List.generate(
+                          inspection.photoCount,
+                          (i) => {
+                            "url": "https://api.autozy.com/photos/${inspection.vehicle}_$i.jpg",
+                            "type": "BEFORE",
+                            "timestamp": DateTime.now().toUtc().toIso8601String(),
+                          },
+                        );
 
                   final success = await vm.completeInspection(inspection.vehicle, photosPayload);
                   if (success) {
@@ -197,10 +204,12 @@ class InspectorCard extends StatelessWidget {
                           ElevatedButton(
                             onPressed: () async {
                               Navigator.pop(dialogCtx);
-                              final photosPayload = List.generate(
-                                inspection.photoCount,
-                                (i) => "https://api.autozy.com/photos/fail_${inspection.vehicle}_$i.jpg",
-                              );
+                              final photosPayload = inspection.uploadedPhotos.isNotEmpty
+                                  ? inspection.uploadedPhotos.map((photo) => photo['url'] ?? "").toList()
+                                  : List.generate(
+                                      inspection.photoCount,
+                                      (i) => "https://api.autozy.com/photos/fail_${inspection.vehicle}_$i.jpg",
+                                    );
                               final success = await vm.failInspection(
                                 inspection.vehicle,
                                 reasonController.text.trim(),

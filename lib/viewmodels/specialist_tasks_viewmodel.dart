@@ -1,6 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../../core/interfaces/specialist_tasks_repository_interface.dart';
 import '../../data/models/task_model.dart';
+import '../../data/models/addon_service.dart';
+import '../../data/models/pagination_meta.dart';
+
+import '../../data/models/specialist_job_model.dart';
 
 class SpecialistTasksViewModel extends ChangeNotifier {
   final ISpecialistTasksRepository _repository;
@@ -8,6 +12,72 @@ class SpecialistTasksViewModel extends ChangeNotifier {
   SpecialistTasksViewModel(this._repository);
 
   List<Task> tasks = [];
+  List<SpecialistJobModel> _specialistJobs = [];
+  List<SpecialistJobModel> get specialistJobs => _specialistJobs;
+
+  bool _isLoadingJobs = false;
+  bool get isLoadingJobs => _isLoadingJobs;
+
+  List<AddOnService> _addonServices = [];
+  List<AddOnService> get addonServices => _addonServices;
+
+  bool _isLoadingAddonServices = false;
+  bool get isLoadingAddonServices => _isLoadingAddonServices;
+
+  List<dynamic> _addonBookings = [];
+  List<dynamic> get addonBookings => _addonBookings;
+
+  PaginationMeta? _bookingsMeta;
+  PaginationMeta? get bookingsMeta => _bookingsMeta;
+
+  bool _isLoadingBookings = false;
+  bool get isLoadingBookings => _isLoadingBookings;
+
+  Future<void> fetchAddonBookings({int page = 1, int limit = 20}) async {
+    _isLoadingBookings = true;
+    _errorMessage = null;
+    _showError = false;
+    notifyListeners();
+
+    if (kDebugMode) {
+      print('Controller fetch start');
+    }
+
+    try {
+      final response = await _repository.getMyAddonBookings(page: page, limit: limit);
+      _addonBookings = response.data;
+      _bookingsMeta = response.meta;
+      if (kDebugMode) {
+        print('Controller fetch success');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Controller fetch failure: $e');
+      }
+      if (e.toString().contains('401') || e.toString().contains('Unauthorized') || e.toString().contains('unauthorized')) {
+        _errorMessage = null;
+        _showError = false;
+      } else {
+        _errorMessage = e.toString();
+        _showError = true;
+      }
+    } finally {
+      _isLoadingBookings = false;
+      notifyListeners();
+    }
+  }
+
+  String? _selectedPricingId;
+  String? get selectedPricingId => _selectedPricingId;
+
+  void selectService(String pricingId) {
+    if (_selectedPricingId == pricingId) {
+      _selectedPricingId = null;
+    } else {
+      _selectedPricingId = pricingId;
+    }
+    notifyListeners();
+  }
 
   // Error state management
   String? _errorMessage;
@@ -15,6 +85,72 @@ class SpecialistTasksViewModel extends ChangeNotifier {
 
   String? get errorMessage => _errorMessage;
   bool get showError => _showError;
+
+  Future<void> fetchAddonServices() async {
+    _isLoadingAddonServices = true;
+    _errorMessage = null;
+    _showError = false;
+    notifyListeners();
+
+    if (kDebugMode) {
+      print('Controller fetch start');
+    }
+
+    try {
+      _addonServices = await _repository.getAddonServices();
+      if (kDebugMode) {
+        print('Controller fetch success');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Controller fetch failure: $e');
+      }
+      if (e.toString().contains('401') || e.toString().contains('Unauthorized') || e.toString().contains('unauthorized')) {
+        _errorMessage = null;
+        _showError = false;
+      } else {
+        _errorMessage = e.toString();
+        _showError = true;
+      }
+    } finally {
+      _isLoadingAddonServices = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchSpecialistJobs({String? date}) async {
+    _isLoadingJobs = true;
+    _errorMessage = null;
+    _showError = false;
+    notifyListeners();
+
+    if (kDebugMode) {
+      print('Controller fetch start');
+    }
+
+    final targetDate = date ?? DateTime.now().toString().split(' ')[0];
+
+    try {
+      _specialistJobs = await _repository.getSpecialistJobs(date: targetDate);
+      if (kDebugMode) {
+        print('Controller fetch success');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Controller fetch failure: $e');
+      }
+      if (e.toString().contains('401') || e.toString().contains('Unauthorized') || e.toString().contains('unauthorized')) {
+        _errorMessage = null;
+        _showError = false;
+      } else {
+        _errorMessage = e.toString();
+        _showError = true;
+      }
+    } finally {
+      _isLoadingJobs = false;
+      notifyListeners();
+    }
+  }
 
   /// Load tasks from repository
   Future<void> loadTasks() async {

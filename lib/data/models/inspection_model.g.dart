@@ -30,9 +30,7 @@ InspectionModel _$InspectionModelFromJson(Map<String, dynamic> json) =>
           InspectionStatus.pending,
       completedAt: json['completed_at'] as String?,
       photos: (json['photos'] as List<dynamic>?)
-          ?.map((e) => e is String
-              ? InspectionPhoto(url: e, type: 'BEFORE', timestamp: '')
-              : InspectionPhoto.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => InspectionPhoto.fromJson(e as Map<String, dynamic>))
           .toList(),
       notes: json['notes'] as String?,
     );
@@ -45,7 +43,7 @@ Map<String, dynamic> _$InspectionModelToJson(InspectionModel instance) =>
       'photo_count': instance.photoCount,
       'status': _$InspectionStatusEnumMap[instance.status]!,
       'completed_at': instance.completedAt,
-      'photos': instance.photos?.map((e) => e.toJson()).toList(),
+      'photos': instance.photos,
       'notes': instance.notes,
     };
 

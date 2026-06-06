@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../core/services/navigation_service.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import '../viewmodels/dashboard_viewmodel.dart';
+import '../core/network/api_client.dart';
 
 class StateDrivenNavigator extends StatefulWidget {
   final Widget child;
@@ -41,7 +42,8 @@ class _StateDrivenNavigatorState extends State<StateDrivenNavigator> {
             !authViewModel.isLoading) {
           _isNavigating = true;
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            NavigationService.goToRole();
+            final role = ApiClient().staffRole ?? "";
+            NavigationService.goToDashboardByRole(role);
             Future.delayed(const Duration(milliseconds: 100), () {
               if (mounted) {
                 authViewModel.reset();

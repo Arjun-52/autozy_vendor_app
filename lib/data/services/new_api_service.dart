@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:retrofit/retrofit.dart';
 import 'package:dio/dio.dart';
 import '../../core/network/api_client.dart';
+
+import '../../core/constants/api_endpoints.dart';
 
 part 'new_api_service.g.dart';
 
@@ -10,12 +13,19 @@ part 'new_api_service.g.dart';
 abstract class NewApiService {
   factory NewApiService() => _NewApiService(ApiClient().dio);
 
+  @POST(ApiEndpoints.uploadImage)
+  @MultiPart()
+  Future<dynamic> uploadImage(@Part(name: 'file') File file);
+
   /// Authentication endpoints
-  @POST('/auth/send-otp')
+  @POST(ApiEndpoints.sendOtp)
   Future<dynamic> sendOtp(@Body() Map<String, dynamic> data);
 
-  @POST('/auth/verify-otp')
+  @POST(ApiEndpoints.verifyOtp)
   Future<dynamic> verifyOtp(@Body() Map<String, dynamic> data);
+
+  @POST(ApiEndpoints.refreshToken)
+  Future<dynamic> refreshToken(@Body() Map<String, dynamic> data);
 
   /// Jobs/Inspections endpoints
   @GET('/jobs')
@@ -26,6 +36,30 @@ abstract class NewApiService {
 
   @GET('/api/v1/inspections/queue')
   Future<dynamic> getInspectionQueue();
+
+  @GET(ApiEndpoints.specialistJobs)
+  Future<dynamic> getSpecialistJobs(@Query('date') String date);
+
+  @GET(ApiEndpoints.addonServices)
+  Future<dynamic> getAddonServices();
+
+  @GET(ApiEndpoints.myAddonBookings)
+  Future<dynamic> getMyAddonBookings(
+    @Query('page') int page,
+    @Query('limit') int limit,
+  );
+
+  @GET(ApiEndpoints.adminServiceRecords)
+  Future<dynamic> getAdminServiceRecords();
+
+  @GET(ApiEndpoints.adminInspections)
+  Future<dynamic> getAdminInspections();
+
+  @GET(ApiEndpoints.washHistory)
+  Future<dynamic> getWashHistory(
+    @Query('page') int page,
+    @Query('limit') int limit,
+  );
 
   @GET('/api/v1/inspections/subscription/{subscriptionId}')
   Future<dynamic> getInspectionBySubscription(

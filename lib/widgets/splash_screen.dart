@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import '../core/network/api_client.dart';
+import '../core/services/navigation_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,7 +18,13 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     Timer(const Duration(seconds: 3), () {
-      context.go('/');
+      final token = ApiClient().token;
+      final role = ApiClient().staffRole;
+      if (token != null && token.isNotEmpty && role != null && role.isNotEmpty) {
+        NavigationService.goToDashboardByRole(role);
+      } else {
+        context.go('/');
+      }
     });
   }
 

@@ -12,6 +12,7 @@ class MemberCard extends StatelessWidget {
   final int completed;
   final int total;
   final String phone;
+  final bool hideProgress;
 
   const MemberCard({
     super.key,
@@ -22,6 +23,7 @@ class MemberCard extends StatelessWidget {
     required this.status,
     required this.completed,
     required this.total,
+    this.hideProgress = false,
   });
   Future<void> _makePhoneCall(String phoneNumber) async {
     final Uri url = Uri.parse('tel:$phoneNumber');
@@ -31,7 +33,7 @@ class MemberCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double progress = completed / total;
+    double progress = total > 0 ? completed / total : 0.0;
 
     final isActive = status == "Active";
     final statusColor = isActive
@@ -159,40 +161,40 @@ class MemberCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 14),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Progress: $completed/$total",
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Color(0xff7E8392),
-                  fontWeight: FontWeight.w500,
+          if (!hideProgress) ...[
+            const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Progress: $completed/$total",
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xff7E8392),
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-
-              Container(
-                width: 120,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: const Color(0xffE9E9E9),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: FractionallySizedBox(
-                  alignment: Alignment.centerLeft,
-                  widthFactor: progress,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: statusColor,
-                      borderRadius: BorderRadius.circular(10),
+                Container(
+                  width: 120,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: const Color(0xffE9E9E9),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: progress,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: statusColor,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
 
           const SizedBox(height: 14),
 

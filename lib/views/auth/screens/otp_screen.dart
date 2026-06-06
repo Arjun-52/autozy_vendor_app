@@ -20,11 +20,11 @@ class OtpScreen extends StatefulWidget {
 
 class _OtpScreenState extends State<OtpScreen> {
   final List<TextEditingController> controllers = List.generate(
-    4,
+    6,
     (_) => TextEditingController(),
   );
 
-  final List<FocusNode> focusNodes = List.generate(4, (_) => FocusNode());
+  final List<FocusNode> focusNodes = List.generate(6, (_) => FocusNode());
 
   @override
   void initState() {
@@ -82,13 +82,13 @@ class _OtpScreenState extends State<OtpScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
-                        4,
+                        6,
                         (index) => Padding(
                           padding: AppSpacing.horizontal10,
                           child: OtpBox(
                             controller: controllers[index],
                             focusNode: focusNodes[index],
-                            nextFocus: index < 3 ? focusNodes[index + 1] : null,
+                            nextFocus: index < 5 ? focusNodes[index + 1] : null,
                             prevFocus: index > 0 ? focusNodes[index - 1] : null,
                           ),
                         ),

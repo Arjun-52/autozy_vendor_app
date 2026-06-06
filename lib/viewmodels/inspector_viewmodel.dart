@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:image_picker/image_picker.dart';
 import '../core/base/base_viewmodel.dart';
 import '../core/interfaces/inspector_repository_interface.dart';
 import '../data/models/inspection_model.dart';
@@ -197,5 +199,90 @@ class InspectorViewModel extends BaseViewModel {
       }
     }
     return success;
+  }
+
+  bool _isUploadingImage = false;
+  bool get isUploadingImage => _isUploadingImage;
+
+  String? _uploadingVehicle;
+  String? get uploadingVehicle => _uploadingVehicle;
+
+  Future<void> uploadImage(String vehicleNumber) async {
+    if (kDebugMode) {
+      print('Take Photo tapped. Inspection ID: $vehicleNumber');
+    }
+
+    // Open Camera / Gallery Permission is implicit in picker but we catch denials
+    final ImagePicker picker = ImagePicker();
+    XFile? pickedFile;
+    try {
+      pickedFile = await picker.pickImage(source: ImageSource.camera);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Camera/Gallery Permission Denied or Pick Failed: $e');
+      }
+      setError("Camera or Gallery permission denied");
+      return;
+    }
+
+    if (pickedFile == null) {
+      if (kDebugMode) {
+        print('Image selection cancelled by user.');
+      }
+      return;
+    }
+
+    if (kDebugMode) {
+      print('Image selected: ${pickedFile.path}');
+    }
+
+    _isUploadingImage = true;
+    _uploadingVehicle = vehicleNumber;
+    setError(null);
+    notifyListeners();
+
+    if (kDebugMode) {
+      print('Upload request start. Inspection ID: $vehicleNumber');
+    }
+
+    try {
+      final file = File(pickedFile.path);
+      final response = await _repository.uploadImage(file);
+
+      if (response.success) {
+        if (kDebugMode) {
+          print('Upload success. URL received: ${response.data.url}, Key received: ${response.data.key}');
+        }
+
+        final idx = _inspections.indexWhere((element) => element.vehicle == vehicleNumber);
+        if (idx != -1) {
+          // Store returned URL and key
+          _inspections[idx].uploadedPhotos.add({
+            'url': response.data.url,
+            'key': response.data.key,
+          });
+          // Update photo count
+          _inspections[idx].photoCount = _inspections[idx].uploadedPhotos.length;
+
+          if (kDebugMode) {
+            print('Controller update success. New count: ${_inspections[idx].photoCount}');
+          }
+        }
+      } else {
+        if (kDebugMode) {
+          print('Upload failure: response success field is false');
+        }
+        setError("Upload failed: API error");
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Upload failure: $e');
+      }
+      setError("Upload failed: $e");
+    } finally {
+      _isUploadingImage = false;
+      _uploadingVehicle = null;
+      notifyListeners();
+    }
   }
 }

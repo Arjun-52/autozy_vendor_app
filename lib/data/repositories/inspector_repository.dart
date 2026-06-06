@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import '../../core/interfaces/inspector_repository_interface.dart';
 import '../../data/models/inspection_model.dart';
 import '../../data/models/inspection_queue_response.dart';
 import '../../data/models/inspection_subscription_response.dart';
+import '../../data/models/upload_image_response.dart';
 import '../services/new_api_service.dart';
 
 /// Implementation of InspectorRepository connecting to NewApiService
@@ -10,6 +12,41 @@ class InspectorRepository implements IInspectorRepository {
   final NewApiService _apiService;
 
   InspectorRepository(this._apiService);
+
+  @override
+  Future<UploadImageResponse> uploadImage(File file) async {
+    if (kDebugMode) {
+      print('API request start: uploadImage');
+    }
+    try {
+      final response = await _apiService.uploadImage(file);
+      if (kDebugMode) {
+        print('API response received: $response');
+      }
+
+      if (response == null) {
+        throw Exception("Null response received");
+      }
+
+      try {
+        final parsedResponse = UploadImageResponse.fromJson(response as Map<String, dynamic>);
+        if (kDebugMode) {
+          print('Parsing success: uploadImage');
+        }
+        return parsedResponse;
+      } catch (e) {
+        if (kDebugMode) {
+          print('Parsing failure: $e');
+        }
+        throw Exception("Failed to parse response: $e");
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('API request error: $e');
+      }
+      rethrow;
+    }
+  }
 
   @override
   Future<List<InspectionModel>> getInspections() async {

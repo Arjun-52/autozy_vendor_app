@@ -14,6 +14,8 @@ import '../interfaces/role_repository_interface.dart';
 import '../interfaces/job_details_repository_interface.dart';
 import '../interfaces/specialist_tasks_repository_interface.dart';
 import '../interfaces/dashboard_repository_interface.dart';
+import 'package:autozy_vendor_app/data/repositories/wash_history_repository.dart';
+import '../interfaces/wash_history_repository_interface.dart';
 import '../network/api_client.dart';
 
 /// Dependency Injection Setup
@@ -39,6 +41,7 @@ class DependencyInjection {
   late final IRoleRepository _roleRepository;
   late final IJobDetailsRepository _jobDetailsRepository;
   late final ISpecialistTasksRepository _specialistTasksRepository;
+  late final IWashHistoryRepository _washHistoryRepository;
 
   /// Initialize all dependencies
   void initialize() {
@@ -53,12 +56,13 @@ class DependencyInjection {
     _apiClient.initialize();
     final newApiService = NewApiService();
     _inspectorRepository = InspectorRepository(newApiService);
-    _supervisorRepository = SupervisorRepository();
+    _supervisorRepository = SupervisorRepository(newApiService);
+    _washHistoryRepository = WashHistoryRepository(newApiService);
 
     // Initialize refactored repositories
     _roleRepository = RoleRepository();
     _jobDetailsRepository = JobDetailsRepository();
-    _specialistTasksRepository = SpecialistTasksRepository();
+    _specialistTasksRepository = SpecialistTasksRepository(newApiService);
   }
 
   // Getters for services
@@ -76,6 +80,7 @@ class DependencyInjection {
   IJobDetailsRepository get jobDetailsRepository => _jobDetailsRepository;
   ISpecialistTasksRepository get specialistTasksRepository =>
       _specialistTasksRepository;
+  IWashHistoryRepository get washHistoryRepository => _washHistoryRepository;
 }
 
 /// Global instance for easy access
