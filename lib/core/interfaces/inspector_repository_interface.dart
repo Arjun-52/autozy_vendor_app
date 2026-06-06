@@ -17,4 +17,16 @@ abstract class IInspectorRepository {
 
   /// Reset inspection status
   Future<bool> resetInspection(String inspectionId);
+
+  /// Start inspection status
+  Future<bool> startInspection(String inspectionId);
+
+  /// Complete inspection status
+  Future<InspectionModel> completeInspection(String inspectionId, List<Map<String, dynamic>> photos);
+
+  /// Fail inspection status
+  Future<InspectionModel> failInspection(String inspectionId, String reason, List<String> photos);
+
+  /// Get inspection by subscription ID
+  Future<InspectionModel?> getInspectionBySubscription(String subscriptionId);
 }

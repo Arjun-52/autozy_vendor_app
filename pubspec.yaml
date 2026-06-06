@@ -53,10 +53,12 @@ dev_dependencies:
   # Splash Screen
   flutter_native_splash: ^2.4.7
 
+#  APP ICON CONFIG
 flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/icon.png"
+
 
 flutter:
   uses-material-design: true
@@ -64,7 +66,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icon.png
-    - assets/images/logo.svg  
+    - assets/images/logo.svg   
 
   fonts:
     - family: Poppins
@@ -78,6 +80,3 @@ flutter:
 
 flutter_native_splash:
   color: "#FFFFFF"
-  image: assets/logo.png
-  android: true
-  ios: true

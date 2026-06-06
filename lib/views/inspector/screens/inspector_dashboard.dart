@@ -146,16 +146,49 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
 
             const SizedBox(height: AppSpacing.sm),
             Expanded(
-              child: ListView(
-                children: [
-                  ...vm.inspections.asMap().entries.map(
-                    (entry) => InspectorCard(
-                      inspection: entry.value,
-                      index: entry.key,
-                    ),
-                  ),
-                ],
-              ),
+              child: vm.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : vm.errorMessage != null
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                vm.errorMessage!,
+                                style: const TextStyle(color: AppColors.error),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 10),
+                              ElevatedButton(
+                                onPressed: () => vm.loadInspections(),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                ),
+                                child: const Text(
+                                  "Retry",
+                                  style: TextStyle(color: AppColors.black),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : vm.inspections.isEmpty
+                          ? const Center(
+                              child: Text(
+                                "No inspections in queue",
+                                style: AppStyles.body,
+                              ),
+                            )
+                          : ListView(
+                              children: [
+                                ...vm.inspections.asMap().entries.map(
+                                  (entry) => InspectorCard(
+                                    inspection: entry.value,
+                                    index: entry.key,
+                                  ),
+                                ),
+                              ],
+                            ),
             ),
           ],
         ),
