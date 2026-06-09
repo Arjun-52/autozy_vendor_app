@@ -14,6 +14,10 @@ class InspectorViewModel extends BaseViewModel {
 
   List<InspectionModel> get inspections => _inspections;
 
+  // Pending verifications fetched separately
+  List<InspectionModel> _pendingVerifications = [];
+  List<InspectionModel> get pendingVerifications => _pendingVerifications;
+
   InspectionModel? _currentSubscriptionInspection;
   InspectionModel? get currentSubscriptionInspection => _currentSubscriptionInspection;
 
@@ -37,6 +41,61 @@ class InspectorViewModel extends BaseViewModel {
         print('Controller fetch failure: $errorMessage');
       }
     }
+  }
+
+  // Load pending verifications for inspector
+  Future<void> loadPendingVerifications() async {
+    if (kDebugMode) {
+      print('Controller fetch start: loadPendingVerifications');
+    }
+    await executeOperation(
+      () async {
+        _pendingVerifications = await _repository.fetchPendingVerifications();
+      },
+      onError: "Failed to load pending verifications",
+      onSuccess: () {
+        if (kDebugMode) {
+          print('Controller fetch success: loaded ${_pendingVerifications.length} pending verifications');
+        }
+      },
+    );
+    if (errorMessage != null) {
+      if (kDebugMode) {
+        print('Controller fetch failure: $errorMessage');
+      }
+    }
+  }
+
+  // Approve a verification
+  Future<void> approveVerification(String inspectionId) async {
+    await executeOperation(
+      () async {
+        await _repository.approveVerification(inspectionId);
+        // Update local list status
+        int idx = _pendingVerifications.indexWhere((e) => e.vehicle == inspectionId);
+        if (idx != -1) {
+          _pendingVerifications[idx].status = InspectionStatus.approved;
+        }
+        // Optionally refresh inspections list
+        await loadInspections();
+      },
+      onError: "Failed to approve verification",
+    );
+  }
+
+  // Reject a verification with reason and optional photos
+  Future<void> rejectVerification(String inspectionId, String reason, List<File> photos) async {
+    await executeOperation(
+      () async {
+        await _repository.rejectVerification(inspectionId, reason, photos);
+        int idx = _pendingVerifications.indexWhere((e) => e.vehicle == inspectionId);
+        if (idx != -1) {
+          _pendingVerifications[idx].status = InspectionStatus.rejected;
+        }
+        await loadInspections();
+      },
+      onError: "Failed to reject verification",
+    );
   }
 
   Future<void> loadInspections() async {
@@ -105,7 +164,7 @@ class InspectorViewModel extends BaseViewModel {
       _inspections.where((e) => e.status == InspectionStatus.approved).length;
 
   int get pendingCount =>
-      _inspections.where((e) => e.status == InspectionStatus.pending).length;
+      _inspections.where((e) => e.status == InspectionStatus.pendingVerification).length;
 
   int get flaggedCount =>
       _inspections.where((e) => e.status == InspectionStatus.flagged).length;

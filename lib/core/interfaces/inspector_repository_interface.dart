@@ -33,4 +33,14 @@ abstract class IInspectorRepository {
 
   /// Get inspection by subscription ID
   Future<InspectionModel?> getInspectionBySubscription(String subscriptionId);
+
+  /// Fetch pending verifications for inspectors
+  Future<List<InspectionModel>> fetchPendingVerifications();
+
+  /// Approve a verification
+  Future<void> approveVerification(String inspectionId);
+
+  /// Reject a verification with reason and optional photos
+  Future<void> rejectVerification(String inspectionId, String reason, List<File> photos);
+
 }

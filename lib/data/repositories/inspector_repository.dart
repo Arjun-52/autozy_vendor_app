@@ -1,4 +1,5 @@
 import 'dart:io';
+import '../../core/network/api_client.dart';
 import 'package:flutter/foundation.dart';
 import '../../core/interfaces/inspector_repository_interface.dart';
 import '../../data/models/inspection_model.dart';
@@ -52,6 +53,12 @@ class InspectorRepository implements IInspectorRepository {
   Future<List<InspectionModel>> getInspections() async {
     if (kDebugMode) {
       print('API request start: getInspectionQueue');
+      // Debug authentication info
+      final token = ApiClient().token;
+      final role = ApiClient().staffRole;
+      print('Inspector token exists: ${token != null}');
+      print('Inspector role: $role');
+      print('Authorization header: Bearer ${token?.substring(0, 10)}...');
     }
     try {
       final response = await _apiService.getInspectionQueue();
@@ -67,15 +74,23 @@ class InspectorRepository implements IInspectorRepository {
       }
 
       if (response == null) {
+        // Log full response for debugging if available
+        print('Response is null.');
+
         throw Exception("Null response received");
       }
 
       try {
-        final parsedResponse = InspectionQueueResponse.fromJson(response as Map<String, dynamic>);
+        final Map<String, dynamic> respMap = response as Map<String, dynamic>;
+        final List<dynamic> rawList = respMap['data'] ?? [];
+        final List<InspectionModel> inspections = rawList
+            .map((e) => InspectionModel.fromQueueJson(e as Map<String, dynamic>))
+            .toList();
         if (kDebugMode) {
+          print('Parsed ${inspections.length} inspections from queue');
           print('Parsing success: getInspectionQueue');
         }
-        return parsedResponse.data;
+        return inspections;
       } catch (e) {
         if (kDebugMode) {
           print('Parsing failure: $e');
@@ -282,4 +297,33 @@ class InspectorRepository implements IInspectorRepository {
       rethrow;
     }
   }
+
+  @override
+  Future<List<InspectionModel>> fetchPendingVerifications() async {
+    final all = await getInspections();
+    return all.where((e) => e.status == InspectionStatus.pendingVerification).toList();
+  }
+
+  @override
+  Future<void> approveVerification(String inspectionId) async {
+    if (kDebugMode) {
+      print('Approve verification request for $inspectionId');
+    }
+    final response = await _apiService.approveInspection(inspectionId);
+    if (kDebugMode) {
+      print('Approve response: $response');
+    }
+  }
+
+  @override
+  Future<void> rejectVerification(String inspectionId, String reason, List<File> photos) async {
+    if (kDebugMode) {
+      print('Reject verification request for $inspectionId with reason $reason');
+    }
+    await _apiService.failInspection(inspectionId, {
+      'reason': reason,
+      'photos': photos,
+    });
+  }
+
 }
