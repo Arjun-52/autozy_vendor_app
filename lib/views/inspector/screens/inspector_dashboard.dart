@@ -1,10 +1,10 @@
+import 'package:autozy_vendor_app/core/services/navigation_service.dart';
 import 'package:autozy_vendor_app/core/utils/top_status_banner.dart';
 import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
 import 'package:autozy_vendor_app/views/inspector/widgets/inspector_card.dart';
 import 'package:autozy_vendor_app/views/detailer/widgets/status_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -36,14 +36,13 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-
       appBar: AppBar(
         elevation: 2,
         backgroundColor: AppColors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.black),
           onPressed: () {
-            context.go('/role');
+            NavigationService.goToLogin();
           },
         ),
         title: Column(
@@ -83,6 +82,12 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
                 ),
               ),
             ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: AppColors.black),
+            onPressed: () {
+              NavigationService.goToLogin();
+            },
           ),
         ],
       ),

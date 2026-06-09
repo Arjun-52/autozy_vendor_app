@@ -13,6 +13,7 @@ import '../widgets/member_card.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_styles.dart';
+import '../../../core/services/navigation_service.dart';
 
 class SupervisorScreen extends StatefulWidget {
   const SupervisorScreen({super.key});
@@ -92,6 +93,12 @@ class _SupervisorScreenState extends State<SupervisorScreen> {
                   ),
                 ),
               ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.logout, color: AppColors.black),
+              onPressed: () {
+                NavigationService.logout();
+              },
             ),
           ],
         ),

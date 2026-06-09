@@ -57,6 +57,13 @@ class InspectorRepository implements IInspectorRepository {
       final response = await _apiService.getInspectionQueue();
       if (kDebugMode) {
         print('API response received: $response');
+        // Detailed debug: pretty print JSON if response is a map
+        try {
+          final jsonString = response is Map ? response.toString() : response;
+          print('🔍 Inspection Queue Raw JSON: $jsonString');
+        } catch (e) {
+          print('Error printing response: $e');
+        }
       }
 
       if (response == null) {

@@ -1,6 +1,7 @@
 import 'package:autozy_vendor_app/views/detailer/widgets/capture_photo_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../data/models/job_model.dart';
 
 import 'job_card_header.dart';
 import 'job_card_location.dart';
@@ -13,6 +14,8 @@ class JobCard extends StatelessWidget {
   final bool isCompleted;
   final int? index;
   final bool isCNA;
+  final JobStatus status;
+  final String? beforeImage;
   final VoidCallback? onTap;
 
   const JobCard({
@@ -23,6 +26,8 @@ class JobCard extends StatelessWidget {
     this.isCompleted = false,
     this.index,
     this.isCNA = false,
+    this.status = JobStatus.pending,
+    this.beforeImage,
     this.onTap,
   });
 
@@ -79,10 +84,12 @@ class JobCard extends StatelessWidget {
             const SizedBox(height: 12),
 
             JobCardActions(
+              status: status,
               isCompleted: isCompleted,
               isCNA: isCNA,
               index: index,
               onClean: () => _openCapturePhotoBottomSheet(context),
+              onTapCard: onTap,
             ),
           ],
         ),

@@ -4,6 +4,7 @@ import 'package:autozy_vendor_app/views/specialist/widegts/task_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../../../core/services/navigation_service.dart';
 
 import '../../../viewmodels/specialist_tasks_viewmodel.dart';
 import '../../../core/services/alert_service.dart';
@@ -38,8 +39,8 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: AppColors.black),
             onPressed: () {
-              context.go('/role');
-            },
+                NavigationService.goBack();
+              },
           ),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,37 +50,43 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
             ],
           ),
           actions: [
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  isOnline = !isOnline;
-                });
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    isOnline = !isOnline;
+                  });
 
-                handleOnlineToggle(context, isOnline);
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                margin: AppSpacing.right16,
-                padding: AppSpacing.horizontal12Vertical6,
-                decoration: BoxDecoration(
-                  color: isOnline
-                      ? AppColors.onlineBg.withOpacity(0.5)
-                      : Colors.red.withOpacity(0.1),
-                  border: Border.all(
-                    color: isOnline ? AppColors.success : Colors.red,
+                  handleOnlineToggle(context, isOnline);
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  margin: AppSpacing.right16,
+                  padding: AppSpacing.horizontal12Vertical6,
+                  decoration: BoxDecoration(
+                    color: isOnline
+                        ? AppColors.onlineBg.withOpacity(0.5)
+                        : Colors.red.withOpacity(0.1),
+                    border: Border.all(
+                      color: isOnline ? AppColors.success : Colors.red,
+                    ),
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
                   ),
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-                ),
-                child: Text(
-                  isOnline ? "● Online" : "● Offline",
-                  style: TextStyle(
-                    color: isOnline ? AppColors.success : Colors.red,
-                    fontWeight: FontWeight.w600,
+                  child: Text(
+                    isOnline ? "● Online" : "● Offline",
+                    style: TextStyle(
+                      color: isOnline ? AppColors.success : Colors.red,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+              IconButton(
+                icon: const Icon(Icons.logout, color: AppColors.black),
+                onPressed: () {
+                  NavigationService.logout();
+                },
+              ),
+            ]
         ),
         body: SafeArea(
           child: Consumer<SpecialistTasksViewModel>(

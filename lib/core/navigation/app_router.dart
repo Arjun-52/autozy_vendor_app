@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:autozy_vendor_app/views/auth/screens/login_screen.dart';
 import 'package:autozy_vendor_app/views/auth/screens/otp_screen.dart';
-import 'package:autozy_vendor_app/views/role/screens/role_screen.dart';
+
 import 'package:autozy_vendor_app/views/detailer/screens/detailer_dashboard.dart';
 import 'package:autozy_vendor_app/views/detailer/screens/wash_history_screen.dart';
 import 'package:autozy_vendor_app/viewmodels/wash_history_viewmodel.dart';
@@ -49,13 +49,6 @@ class AppRouter {
         path: '/otp',
         name: 'otp',
         builder: (context, state) => const OtpScreen(),
-      ),
-
-      /// ROLE
-      GoRoute(
-        path: '/role',
-        name: 'role',
-        builder: (context, state) => const RoleScreen(),
       ),
 
       /// DETAILER DASHBOARD
@@ -114,9 +107,6 @@ extension GoRouterExtension on GoRouter {
 
   void goToOtp() => go('/otp');
   void pushOtp() => push('/otp');
-
-  void goToRole() => go('/role');
-  void pushRole() => push('/role');
 
   void goToDashboard() => go('/dashboard');
   void pushDashboard() => push('/dashboard');

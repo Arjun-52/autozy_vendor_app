@@ -48,8 +48,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: AppSpacing.custom30),
                     ContinueButton(
                       isLoading: vm.isLoading,
-                      onPressed: () {
-                        vm.sendOtp(_phoneController.text.trim());
+                      onPressed: () async {
+                        await vm.sendOtp(_phoneController.text.trim());
+                        if (mounted && vm.errorMessage != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(vm.errorMessage!),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                        }
                       },
                     ),
                   ],

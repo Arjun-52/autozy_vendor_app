@@ -33,6 +33,8 @@ class JobsListView extends StatelessWidget {
               location: job.location,
               isCompleted: job.isCompleted,
               isCNA: job.isCNA,
+              status: job.status,
+              beforeImage: job.beforeImage,
               index: index,
               onTap: () => onTap(index),
             );

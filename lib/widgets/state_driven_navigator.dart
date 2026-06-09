@@ -30,7 +30,6 @@ class _StateDrivenNavigatorState extends State<StateDrivenNavigator> {
             NavigationService.goToOtp();
             Future.delayed(const Duration(milliseconds: 100), () {
               if (mounted) {
-                authViewModel.reset();
                 _isNavigating = false;
               }
             });
@@ -58,7 +57,9 @@ class _StateDrivenNavigatorState extends State<StateDrivenNavigator> {
             if (dashboardViewModel.isLoggedOut &&
                 !dashboardViewModel.isLoading) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                NavigationService.goToRole();
+                // Reset authentication state before returning to login
+                authViewModel.reset();
+                NavigationService.goToLogin();
                 dashboardViewModel.resetRole();
               });
             }

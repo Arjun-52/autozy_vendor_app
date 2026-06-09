@@ -64,12 +64,7 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.black),
           onPressed: () {
-            if (NavigationService.context != null &&
-                Navigator.canPop(NavigationService.context!)) {
-              NavigationService.pop();
-            } else {
-              NavigationService.goToRole();
-            }
+            context.pop();
           },
         ),
         title: Column(
@@ -116,6 +111,12 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
                 ),
               ),
             ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: AppColors.black),
+            onPressed: () {
+              NavigationService.goToLogin();
+            },
           ),
         ],
       ),

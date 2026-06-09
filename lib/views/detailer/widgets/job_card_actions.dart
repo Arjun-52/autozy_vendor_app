@@ -6,26 +6,55 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_styles.dart';
 import '../../../viewmodels/dashboard_viewmodel.dart';
+import '../../../data/models/job_model.dart';
 
 class JobCardActions extends StatelessWidget {
+  final JobStatus status;
   final bool isCompleted;
   final bool isCNA;
   final int? index;
   final VoidCallback onClean;
+  final VoidCallback? onTapCard;
 
   const JobCardActions({
     super.key,
+    required this.status,
     required this.isCompleted,
     required this.isCNA,
     required this.index,
     required this.onClean,
+    this.onTapCard,
   });
 
   @override
   Widget build(BuildContext context) {
     final vm = context.read<DashboardViewModel>();
 
-    if (!isCompleted && !isCNA) {
+    if (status == JobStatus.pending && !isCNA) {
+      return Row(
+        children: [
+          Expanded(
+            child: _PrimaryButton(
+              text: "Start Job",
+              icon: "assets/images/camera.svg",
+              onTap: onTapCard ?? () {},
+            ),
+          ),
+          const SizedBox(width: AppSpacing.custom10),
+          Expanded(
+            child: _OutlineButton(
+              text: "CNA",
+              icon: "assets/images/disclaimer.svg",
+              onTap: () {
+                if (index != null) vm.markCNA(index!);
+              },
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (status == JobStatus.cleaning && !isCNA) {
       return Row(
         children: [
           Expanded(
