@@ -34,8 +34,8 @@ abstract class NewApiService {
   @GET('/inspections')
   Future<dynamic> getInspections();
 
-  @GET('/api/v1/inspections/queue')
-  Future<dynamic> getInspectionQueue();
+  @GET('/api/v1/admin/inspections')
+  Future<dynamic> getInspectionQueue(@Query('status') String status);
 
   @GET(ApiEndpoints.specialistJobs)
   Future<dynamic> getSpecialistJobs(@Query('date') String date);
@@ -92,6 +92,12 @@ abstract class NewApiService {
 
   @POST('/api/v1/inspections/{id}/fail')
   Future<dynamic> failInspection(
+    @Path('id') String id,
+    @Body() Map<String, dynamic> body,
+  );
+
+  @POST('/service/{id}/comments')
+  Future<dynamic> addComment(
     @Path('id') String id,
     @Body() Map<String, dynamic> body,
   );

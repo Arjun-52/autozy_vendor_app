@@ -188,7 +188,9 @@ class ErrorInterceptor extends Interceptor {
     if (kDebugMode) {
       print('API Error: ${err.message}');
       print('Response Status: ${err.response?.statusCode}');
+      print('Response Headers: ${err.response?.headers}');
       print('Response Body: ${err.response?.data}');
+      print('Full Error: $err');
     }
 
     // Handle 401 Unauthorized globally by attempting token refresh

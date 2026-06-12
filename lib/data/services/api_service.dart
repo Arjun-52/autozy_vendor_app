@@ -95,23 +95,47 @@ class ApiService {
             },
           ],
         };
-      case '/api/v1/inspections/queue':
+      case '/api/v1/admin/inspections?status=PENDING':
         return {
           'success': true,
           'data': [
             {
-              'vehicle_number': 'MH 01 KL 9999',
+              'id': 'mock-uuid-1',
+              'vehicle_id': 'vehicle-uuid-1',
+              'vehicle': {
+                'id': 'vehicle-uuid-1',
+                'vehicle_number': 'MH 01 KL 9999',
+              },
               'name': 'Rohit A',
+              'customer_name': 'Rohit A',
               'location': 'Tower A, Slot 6',
-              'status': 'pending',
+              'address': 'Tower A, Slot 6',
+              'city': 'Mumbai',
+              'status': 'PENDING',
               'photo_count': 0,
+              'created_at': '2026-06-12T12:00:00Z',
+              'parking_available': true,
+              'keys_provided': true,
+              'security_permission': true,
             },
             {
-              'vehicle_number': 'TS 09 XY 1234',
+              'id': 'mock-uuid-2',
+              'vehicle_id': 'vehicle-uuid-2',
+              'vehicle': {
+                'id': 'vehicle-uuid-2',
+                'vehicle_number': 'TS 09 XY 1234',
+              },
               'name': 'Ankit S',
+              'customer_name': 'Ankit S',
               'location': 'Tower B, Slot 3',
-              'status': 'pending',
+              'address': 'Tower B, Slot 3',
+              'city': 'Hyderabad',
+              'status': 'PENDING',
               'photo_count': 0,
+              'created_at': '2026-06-12T11:30:00Z',
+              'parking_available': true,
+              'keys_provided': false,
+              'security_permission': true,
             },
           ],
         };

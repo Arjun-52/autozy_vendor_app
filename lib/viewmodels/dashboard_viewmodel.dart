@@ -91,8 +91,68 @@ class DashboardViewModel extends BaseViewModel {
       status: _jobs[index].status,
       beforeImage: url,
       capturedAt: timestamp,
+      afterImage: _jobs[index].afterImage,
+      afterImageCapturedAt: _jobs[index].afterImageCapturedAt,
+      remarks: _jobs[index].remarks,
     );
     notifyListeners();
+  }
+
+  void updateAfterPhoto(int index, String url, String timestamp) {
+    if (!_isValidIndex(index)) return;
+    _jobs[index] = JobModel(
+      vehicle: _jobs[index].vehicle,
+      name: _jobs[index].name,
+      location: _jobs[index].location,
+      phone: _jobs[index].phone,
+      status: _jobs[index].status,
+      beforeImage: _jobs[index].beforeImage,
+      capturedAt: _jobs[index].capturedAt,
+      afterImage: url,
+      afterImageCapturedAt: timestamp,
+      remarks: _jobs[index].remarks,
+    );
+    notifyListeners();
+  }
+
+  void addJobRemark(int index, String reason, String? additionalComment) {
+    if (!_isValidIndex(index)) return;
+    final list = List<JobRemarkModel>.from(_jobs[index].remarks ?? []);
+    list.insert(0, JobRemarkModel(
+      reason: reason,
+      additionalComment: additionalComment,
+      createdAt: DateTime.now().toLocal().toString().split('.')[0],
+    ));
+    _jobs[index] = JobModel(
+      vehicle: _jobs[index].vehicle,
+      name: _jobs[index].name,
+      location: _jobs[index].location,
+      phone: _jobs[index].phone,
+      status: _jobs[index].status,
+      beforeImage: _jobs[index].beforeImage,
+      capturedAt: _jobs[index].capturedAt,
+      afterImage: _jobs[index].afterImage,
+      afterImageCapturedAt: _jobs[index].afterImageCapturedAt,
+      remarks: list,
+    );
+    notifyListeners();
+  }
+
+  Future<bool> markJobCNAWithRemark(int index, String reason, String? additionalComment) async {
+    if (!_isValidIndex(index)) return false;
+    
+    // Save remark first
+    addJobRemark(index, reason, additionalComment);
+    
+    // Mark as CNA
+    final vehicleId = _jobs[index].vehicle;
+    final success = await _repository.markJobCNA(vehicleId);
+
+    if (success) {
+      _updateJobStatus(index, JobStatus.cna);
+    }
+
+    return success;
   }
 
   // Helper methods
@@ -109,6 +169,9 @@ class DashboardViewModel extends BaseViewModel {
       status: status,
       beforeImage: _jobs[index].beforeImage,
       capturedAt: _jobs[index].capturedAt,
+      afterImage: _jobs[index].afterImage,
+      afterImageCapturedAt: _jobs[index].afterImageCapturedAt,
+      remarks: _jobs[index].remarks,
     );
     notifyListeners();
   }

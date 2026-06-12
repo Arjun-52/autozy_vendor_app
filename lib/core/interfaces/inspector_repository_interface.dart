@@ -43,4 +43,7 @@ abstract class IInspectorRepository {
   /// Reject a verification with reason and optional photos
   Future<void> rejectVerification(String inspectionId, String reason, List<File> photos);
 
+  /// Add comment to service
+  Future<void> addComment(String serviceId, String comment);
+
 }

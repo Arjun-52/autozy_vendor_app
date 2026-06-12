@@ -162,9 +162,9 @@ class _NewApiService implements NewApiService {
   }
 
   @override
-  Future<dynamic> getInspectionQueue() async {
+  Future<dynamic> getInspectionQueue(status) async {
     const _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'status': status};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     final _result = await _dio.fetch(_setStreamType<dynamic>(Options(
@@ -174,7 +174,7 @@ class _NewApiService implements NewApiService {
     )
         .compose(
           _dio.options,
-          '/api/v1/inspections/queue',
+          '/api/v1/admin/inspections',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -507,6 +507,32 @@ class _NewApiService implements NewApiService {
         .compose(
           _dio.options,
           '/api/v1/inspections/${id}/fail',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = _result.data;
+    return value;
+  }
+
+  @override
+  Future<dynamic> addComment(
+    id,
+    body,
+  ) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(body);
+    final _result = await _dio.fetch(_setStreamType<dynamic>(Options(
+      method: 'POST',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          '/service/${id}/comments',
           queryParameters: queryParameters,
           data: _data,
         )

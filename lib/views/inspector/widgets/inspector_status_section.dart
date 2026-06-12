@@ -7,6 +7,8 @@ class InspectorStatusSection extends StatelessWidget {
   final bool isApproved;
   final bool isInProgress;
   final bool isRejected;
+  final bool isPendingVerification;
+  final bool isVerified;
 
   const InspectorStatusSection({
     super.key,
@@ -14,6 +16,8 @@ class InspectorStatusSection extends StatelessWidget {
     required this.isApproved,
     this.isInProgress = false,
     this.isRejected = false,
+    this.isPendingVerification = false,
+    this.isVerified = false,
   });
 
   @override
@@ -62,6 +66,22 @@ class InspectorStatusSection extends StatelessWidget {
       );
     }
 
+    if (isVerified) {
+      return Row(
+        children: [
+          const Icon(Icons.verified, color: AppColors.success),
+          const SizedBox(width: 6),
+          Text(
+            "Verified",
+            style: TextStyle(
+              color: AppColors.success.withOpacity(0.8),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      );
+    }
+
     if (isApproved) {
       return const Row(
         children: [
@@ -87,6 +107,22 @@ class InspectorStatusSection extends StatelessWidget {
             "In Progress",
             style: TextStyle(
               color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (isPendingVerification) {
+      return Row(
+        children: [
+          const Icon(Icons.hourglass_empty, color: Colors.orange),
+          const SizedBox(width: 6),
+          Text(
+            "Pending Verification",
+            style: TextStyle(
+              color: Colors.orange,
               fontWeight: FontWeight.bold,
             ),
           ),

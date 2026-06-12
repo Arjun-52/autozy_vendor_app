@@ -42,6 +42,14 @@ class JobDetailsBottomSheet extends StatefulWidget {
 class _JobDetailsBottomSheetState extends State<JobDetailsBottomSheet> {
   bool _isUploadingBeforePhoto = false;
   String? _errorMessage;
+  String? _selectedRemarkReason;
+  final TextEditingController _additionalNotesController = TextEditingController();
+
+  @override
+  void dispose() {
+    _additionalNotesController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -63,7 +71,12 @@ class _JobDetailsBottomSheetState extends State<JobDetailsBottomSheet> {
     final ImagePicker picker = ImagePicker();
     XFile? pickedFile;
     try {
-      pickedFile = await picker.pickImage(source: ImageSource.camera, imageQuality: 80);
+      pickedFile = await picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 80,
+        maxWidth: 1920,
+        maxHeight: 1920,
+      );
     } catch (e) {
       setState(() {
         _errorMessage = "Camera permission denied";
@@ -487,6 +500,8 @@ class _JobDetailsBottomSheetState extends State<JobDetailsBottomSheet> {
                   ),
 
                   _buildBeforePhotoSection(context, job, dashboardVm),
+                  _buildAfterPhotoSection(context, job),
+                  _buildRemarksSection(context, job, dashboardVm),
                 ],
               ),
             ),
@@ -613,6 +628,221 @@ class _JobDetailsBottomSheetState extends State<JobDetailsBottomSheet> {
         Icon(icon, size: 16, color: AppColors.textSecondary),
         const SizedBox(width: AppSpacing.sm),
         Expanded(child: Text(text, style: AppStyles.body)),
+      ],
+    );
+  }
+
+  Widget _buildAfterPhotoSection(BuildContext context, JobModel job) {
+    final hasAfterPhoto = job.afterImage != null && job.afterImage!.isNotEmpty;
+    if (!hasAfterPhoto) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: AppSpacing.md),
+        const Divider(color: AppColors.border),
+        const SizedBox(height: AppSpacing.md),
+        const Text("After-Cleaning Photo", style: AppStyles.subHeading),
+        const SizedBox(height: AppSpacing.md),
+        Container(
+          height: 150,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+            image: DecorationImage(
+              image: NetworkImage(job.afterImage!),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        const Row(
+          children: [
+            Icon(Icons.check_circle, color: AppColors.success, size: 20),
+            SizedBox(width: 6),
+            Text(
+              "After Photo Uploaded ✓",
+              style: TextStyle(color: AppColors.success, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        if (job.afterImageCapturedAt != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4.0),
+            child: Text(
+              "Captured at: ${job.afterImageCapturedAt}",
+              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildRemarksSection(BuildContext context, JobModel job, DashboardViewModel dashboardVm) {
+    final showInputs = job.status == JobStatus.pending || job.status == JobStatus.cleaning;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: AppSpacing.md),
+        const Divider(color: AppColors.border),
+        const SizedBox(height: AppSpacing.md),
+        const Text("Service Remarks", style: AppStyles.subHeading),
+        const SizedBox(height: AppSpacing.sm),
+
+        if (showInputs) ...[
+          DropdownButtonFormField<String>(
+            value: _selectedRemarkReason,
+            decoration: InputDecoration(
+              labelText: "Select Reason / Remark",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            ),
+            items: const [
+              DropdownMenuItem(value: "Customer Unavailable", child: Text("Customer Unavailable")),
+              DropdownMenuItem(value: "Vehicle Locked", child: Text("Vehicle Locked")),
+              DropdownMenuItem(value: "Vehicle Not Found", child: Text("Vehicle Not Found")),
+              DropdownMenuItem(value: "Bad Weather", child: Text("Bad Weather")),
+            ],
+            onChanged: (val) {
+              setState(() {
+                _selectedRemarkReason = val;
+              });
+            },
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          TextField(
+            controller: _additionalNotesController,
+            decoration: InputDecoration(
+              labelText: "Additional Notes",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            ),
+            maxLines: 2,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: _selectedRemarkReason != null
+                      ? () {
+                          final reason = _selectedRemarkReason!;
+                          final comment = _additionalNotesController.text.trim();
+                          
+                          dashboardVm.addJobRemark(widget.index!, reason, comment);
+
+                          context.read<InspectorViewModel>().addRemarkFromDetailer(widget.vehicle, reason, comment);
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Remarks saved successfully.")),
+                          );
+
+                          setState(() {
+                            _selectedRemarkReason = null;
+                            _additionalNotesController.clear();
+                          });
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    disabledBackgroundColor: AppColors.border,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text("Save Remark", style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: _selectedRemarkReason != null
+                      ? () async {
+                          final reason = _selectedRemarkReason!;
+                          final comment = _additionalNotesController.text.trim();
+
+                          context.read<InspectorViewModel>().reportIssueFromDetailer(widget.vehicle, reason, comment);
+
+                          final scaffoldMessenger = ScaffoldMessenger.of(context);
+                          final navigator = Navigator.of(context);
+
+                          final success = await dashboardVm.markJobCNAWithRemark(widget.index!, reason, comment);
+                          
+                          if (success) {
+                            scaffoldMessenger.showSnackBar(
+                              const SnackBar(content: Text("Service Issue reported successfully.")),
+                            );
+                            navigator.pop();
+                          }
+                        }
+                      : null,
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: _selectedRemarkReason != null ? Colors.red : AppColors.border),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: Text(
+                    "Report Issue",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: _selectedRemarkReason != null ? Colors.red : AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+
+        if (job.remarks != null && job.remarks!.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.md),
+          const Text("Remarks History", style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+          const SizedBox(height: AppSpacing.sm),
+          ...job.remarks!.map((remark) {
+            return Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: const BorderSide(color: AppColors.border),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          remark.reason,
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.warning),
+                        ),
+                        Text(
+                          remark.createdAt,
+                          style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                        ),
+                      ],
+                    ),
+                    if (remark.additionalComment != null && remark.additionalComment!.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        remark.additionalComment!,
+                        style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+                      ),
+                    ],
+                    const SizedBox(height: 4),
+                    Text(
+                      "By ${remark.createdBy}",
+                      style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ],
       ],
     );
   }

@@ -3,6 +3,29 @@ import 'package:json_annotation/json_annotation.dart';
 part 'job_model.g.dart';
 
 @JsonSerializable()
+class JobRemarkModel {
+  final String reason;
+  @JsonKey(name: 'additional_comment')
+  final String? additionalComment;
+  @JsonKey(name: 'created_by')
+  final String createdBy;
+  @JsonKey(name: 'created_at')
+  final String createdAt;
+
+  JobRemarkModel({
+    required this.reason,
+    this.additionalComment,
+    this.createdBy = 'Detailer Mode',
+    required this.createdAt,
+  });
+
+  factory JobRemarkModel.fromJson(Map<String, dynamic> json) =>
+      _$JobRemarkModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$JobRemarkModelToJson(this);
+}
+
+@JsonSerializable()
 class JobModel {
   @JsonKey(name: 'vehicle_number')
   final String vehicle;
@@ -17,6 +40,14 @@ class JobModel {
   @JsonKey(name: 'captured_at')
   final String? capturedAt;
 
+  @JsonKey(name: 'after_image')
+  final String? afterImage;
+  @JsonKey(name: 'after_captured_at')
+  final String? afterImageCapturedAt;
+
+  @JsonKey(name: 'remarks')
+  final List<JobRemarkModel>? remarks;
+
   // Existing constructor - KEEP UNCHANGED for backward compatibility
   JobModel({
     required this.vehicle,
@@ -26,6 +57,9 @@ class JobModel {
     this.status = JobStatus.pending,
     this.beforeImage,
     this.capturedAt,
+    this.afterImage,
+    this.afterImageCapturedAt,
+    this.remarks,
   });
 
   // New factory for JSON parsing

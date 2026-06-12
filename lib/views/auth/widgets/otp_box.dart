@@ -16,16 +16,15 @@ class OtpBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 68,
-      height: 68,
+    return AspectRatio(
+      aspectRatio: 1.0,
       child: TextField(
         controller: controller,
         focusNode: focusNode,
         keyboardType: TextInputType.number,
         textAlign: TextAlign.center,
         style: const TextStyle(
-          fontSize: 22,
+          fontSize: 20,
           fontWeight: FontWeight.bold,
           color: Colors.black,
         ),
@@ -50,3 +49,4 @@ class OtpBox extends StatelessWidget {
     );
   }
 }
+

@@ -13,6 +13,7 @@ import 'inspector_card_header.dart';
 import 'inspector_location_row.dart';
 import 'inspector_status_section.dart';
 import 'inspector_action_buttons.dart';
+import '../screens/proof_verification_screen.dart';
 
 class InspectorCard extends StatelessWidget {
   final InspectionModel inspection;
@@ -31,11 +32,23 @@ class InspectorCard extends StatelessWidget {
     final isFlagged = inspection.status == InspectionStatus.flagged ||
         inspection.status == InspectionStatus.rejected;
     final isApproved = inspection.status == InspectionStatus.approved ||
-        inspection.status == InspectionStatus.completed;
+        inspection.status == InspectionStatus.completed ||
+        inspection.status == InspectionStatus.verified;
     final isInProgress = inspection.status == InspectionStatus.inProgress;
 
     return GestureDetector(
-      onTap: () => showJobDetailsSheet(context, inspection),
+      onTap: () {
+        if (inspection.status == InspectionStatus.pendingVerification) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProofVerificationScreen(inspection: inspection),
+            ),
+          );
+        } else {
+          showJobDetailsSheet(context, inspection);
+        }
+      },
 
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
@@ -85,6 +98,8 @@ class InspectorCard extends StatelessWidget {
               isApproved: isApproved,
               isInProgress: isInProgress,
               isRejected: inspection.status == InspectionStatus.rejected,
+              isPendingVerification: inspection.status == InspectionStatus.pendingVerification,
+              isVerified: inspection.status == InspectionStatus.verified,
             ),
 
             const SizedBox(height: AppSpacing.md),
@@ -97,7 +112,7 @@ class InspectorCard extends StatelessWidget {
                   onPressed: vm.isLoading
                       ? null
                       : () async {
-                          final success = await vm.startInspection(inspection.vehicle);
+                          final success = await vm.startInspection(inspection.id);
                           if (success) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Inspection started successfully')),
@@ -132,15 +147,43 @@ class InspectorCard extends StatelessWidget {
                         ),
                 ),
               )
+            else if (inspection.status == InspectionStatus.pendingVerification)
+              SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProofVerificationScreen(inspection: inspection),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "Verify Proof",
+                    style: TextStyle(
+                      color: AppColors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              )
             else if (isInProgress)
               InspectorActionButtons(
                 photoCount: inspection.photoCount,
-                isUploading: vm.isUploadingImage && vm.uploadingVehicle == inspection.vehicle,
+                isUploading: vm.isUploadingImage && vm.uploadingInspectionId == inspection.id,
 
                 onTakePhoto: () {
                   showCapturePhotoSheet(
                     context: context,
-                    onTakePhoto: () => vm.uploadImage(inspection.vehicle),
+                    onTakePhoto: () => vm.uploadImage(inspection.id),
                   );
                 },
 
@@ -162,13 +205,13 @@ class InspectorCard extends StatelessWidget {
                       : List.generate(
                           inspection.photoCount,
                           (i) => {
-                            "url": "https://api.autozy.com/photos/${inspection.vehicle}_$i.jpg",
+                            "url": "https://api.autozy.com/photos/${inspection.id}_$i.jpg",
                             "type": "BEFORE",
                             "timestamp": DateTime.now().toUtc().toIso8601String(),
                           },
                         );
 
-                  final success = await vm.completeInspection(inspection.vehicle, photosPayload);
+                  final success = await vm.completeInspection(inspection.id, photosPayload);
                   if (success) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Inspection completed successfully')),
@@ -208,10 +251,10 @@ class InspectorCard extends StatelessWidget {
                                   ? inspection.uploadedPhotos.map((photo) => photo['url'] ?? "").toList()
                                   : List.generate(
                                       inspection.photoCount,
-                                      (i) => "https://api.autozy.com/photos/fail_${inspection.vehicle}_$i.jpg",
+                                      (i) => "https://api.autozy.com/photos/fail_${inspection.id}_$i.jpg",
                                     );
                               final success = await vm.failInspection(
-                                inspection.vehicle,
+                                inspection.id,
                                 reasonController.text.trim(),
                                 photosPayload,
                               );

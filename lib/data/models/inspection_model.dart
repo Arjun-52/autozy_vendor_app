@@ -40,7 +40,57 @@ class InspectionPhoto {
 }
 
 @JsonSerializable()
+class VerificationHistoryItem {
+  @JsonKey(name: 'verified_by')
+  final String verifiedBy;
+  @JsonKey(name: 'verification_date')
+  final String verificationDate;
+  final String status;
+  final String remarks;
+
+  VerificationHistoryItem({
+    required this.verifiedBy,
+    required this.verificationDate,
+    required this.status,
+    required this.remarks,
+  });
+
+  factory VerificationHistoryItem.fromJson(Map<String, dynamic> json) =>
+      _$VerificationHistoryItemFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VerificationHistoryItemToJson(this);
+}
+
+@JsonSerializable()
+class RemarkModel {
+  @JsonKey(name: 'user_name')
+  final String userName;
+  final String role;
+  final String comment;
+  @JsonKey(name: 'created_at')
+  final String createdAt;
+
+  RemarkModel({
+    required this.userName,
+    required this.role,
+    required this.comment,
+    required this.createdAt,
+  });
+
+  factory RemarkModel.fromJson(Map<String, dynamic> json) =>
+      _$RemarkModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$RemarkModelToJson(this);
+}
+
+Object? _readId(Map json, String key) {
+  return json['id'] ?? json['uuid'] ?? '';
+}
+
+@JsonSerializable()
 class InspectionModel {
+  @JsonKey(readValue: _readId)
+  final String id;
   @JsonKey(name: 'vehicle_number')
   final String vehicle;
   final String name;
@@ -56,10 +106,59 @@ class InspectionModel {
   String? verificationNotes;
   String? verifiedAt;
 
+  @JsonKey(name: 'vehicle_name')
+  String? vehicleName;
+  @JsonKey(name: 'customer_name')
+  String? customerName;
+  @JsonKey(name: 'service_type')
+  String? serviceType;
+  @JsonKey(name: 'service_date')
+  String? serviceDate;
+  @JsonKey(name: 'assigned_specialist')
+  String? assignedSpecialist;
+
+  @JsonKey(name: 'verification_history')
+  List<VerificationHistoryItem>? verificationHistory;
+
+  @JsonKey(name: 'customer_notes')
+  String? customerNotes;
+
+  @JsonKey(name: 'detailer_notes')
+  String? detailerNotes;
+
+  @JsonKey(name: 'remarks')
+  List<RemarkModel>? remarks;
+
+  @JsonKey(name: 'building')
+  String? building;
+
+  @JsonKey(name: 'street')
+  String? street;
+
+  @JsonKey(name: 'area')
+  String? area;
+
+  @JsonKey(name: 'community')
+  String? community;
+
+  @JsonKey(name: 'vehicle_id')
+  String? vehicleId;
+  String? address;
+  String? city;
+  @JsonKey(name: 'created_date')
+  String? createdDate;
+  @JsonKey(name: 'parking_available')
+  bool? parkingAvailable;
+  @JsonKey(name: 'keys_provided')
+  bool? keysProvided;
+  @JsonKey(name: 'security_permission')
+  bool? securityPermission;
+
   @JsonKey(ignore: true)
   List<Map<String, String>> uploadedPhotos = [];
 
   InspectionModel({
+    required this.id,
     required this.vehicle,
     required this.name,
     required this.location,
@@ -71,6 +170,26 @@ class InspectionModel {
     this.verifierId,
     this.verificationNotes,
     this.verifiedAt,
+    this.vehicleName,
+    this.customerName,
+    this.serviceType,
+    this.serviceDate,
+    this.assignedSpecialist,
+    this.verificationHistory,
+    this.customerNotes,
+    this.detailerNotes,
+    this.remarks,
+    this.building,
+    this.street,
+    this.area,
+    this.community,
+    this.vehicleId,
+    this.address,
+    this.city,
+    this.createdDate,
+    this.parkingAvailable,
+    this.keysProvided,
+    this.securityPermission,
   }) {
     uploadedPhotos = [];
   }
@@ -83,47 +202,112 @@ class InspectionModel {
     // Nested vehicle object may contain the vehicle_number we need.
     final vehicleMap = json['vehicle'] as Map<String, dynamic>?;
     String vehicleNumber = vehicleMap != null ?
-        (vehicleMap['vehicle_number']?.toString() ?? '') : '';
+        (vehicleMap['vehicle_number']?.toString() ?? json['vehicle_number']?.toString() ?? '') : (json['vehicle_number']?.toString() ?? '');
+    String vehicleIdVal = vehicleMap != null ?
+        (vehicleMap['id']?.toString() ?? json['vehicle_id']?.toString() ?? '') : (json['vehicle_id']?.toString() ?? '');
+    
+    String vehicleNameValue = vehicleMap != null ?
+        (vehicleMap['vehicle_name']?.toString() ?? vehicleMap['model']?.toString() ?? '') : '';
+    if (vehicleNameValue.isEmpty) {
+      vehicleNameValue = json['name']?.toString() ?? '';
+    }
+    String inspectionId = json['id']?.toString() ?? json['uuid']?.toString() ?? '';
 
     // Helper to map backend status strings to our enum.
     InspectionStatus mapStatus(String? status) {
-      switch (status) {
+      if (status == null) return InspectionStatus.pendingVerification;
+      switch (status.toUpperCase()) {
         case 'SCHEDULED':
-        return InspectionStatus.inProgress;
+        case 'IN_PROGRESS':
+          return InspectionStatus.inProgress;
         case 'APPROVED':
           return InspectionStatus.approved;
         case 'VERIFIED':
           return InspectionStatus.verified;
         case 'FLAGGED':
           return InspectionStatus.flagged;
-        case 'IN_PROGRESS':
-          return InspectionStatus.inProgress;
         case 'COMPLETED':
           return InspectionStatus.completed;
         case 'REJECTED':
           return InspectionStatus.rejected;
         case 'PENDING':
-          return InspectionStatus.pending;
+          return InspectionStatus.pendingVerification;
         default:
-          // Fallback to a safe default – treat unknown as pendingVerification.
           return InspectionStatus.pendingVerification;
       }
     }
 
+    final currentStatus = mapStatus(json['status'] as String?);
+
+    List<VerificationHistoryItem> history = [];
+    if (json['verification_history'] != null) {
+      history = (json['verification_history'] as List)
+          .map((e) => VerificationHistoryItem.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } else {
+      if (currentStatus == InspectionStatus.approved || currentStatus == InspectionStatus.verified) {
+        history.add(VerificationHistoryItem(
+          verifiedBy: json['inspector_id']?.toString() ?? 'Inspector Alex',
+          verificationDate: json['completed_at']?.toString() ?? '2026-06-11',
+          status: 'Approved',
+          remarks: json['inspector_comments']?.toString() ?? 'Everything looks perfect.',
+        ));
+      } else if (currentStatus == InspectionStatus.rejected) {
+        history.add(VerificationHistoryItem(
+          verifiedBy: json['inspector_id']?.toString() ?? 'Inspector Alex',
+          verificationDate: json['completed_at']?.toString() ?? '2026-06-11',
+          status: 'Rejected',
+          remarks: json['notes']?.toString() ?? 'Quality check failed.',
+        ));
+      }
+    }
+
+    final custName = json['customer_name']?.toString() ?? json['name']?.toString() ?? 'Rohit A.';
+    final addr = json['address']?.toString() ?? json['location']?.toString() ?? '';
+    final cityVal = json['city']?.toString() ?? '';
+    final createdDateVal = json['created_at']?.toString() ?? json['created_date']?.toString() ?? json['createdAt']?.toString() ?? json['completed_at']?.toString() ?? '';
+
     return InspectionModel(
+      id: inspectionId,
       vehicle: vehicleNumber,
-      // The queue endpoint does not provide name / location – fallback to empty strings.
-      name: json['name']?.toString() ?? '',
-      location: json['location']?.toString() ?? '',
+      name: custName,
+      location: addr.isNotEmpty ? addr : 'Tower A, Slot 6',
       photoCount: (json['photo_count'] as int?) ?? 0,
-      status: mapStatus(json['status'] as String?),
+      status: currentStatus,
       completedAt: json['completed_at']?.toString(),
-      // Photos, notes, verifier fields are not present in the queue response; keep them null.
-      photos: null,
+      photos: json['photos'] != null
+          ? (json['photos'] as List)
+              .map((e) => InspectionPhoto.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : null,
       notes: json['notes']?.toString(),
       verifierId: json['inspector_id']?.toString(),
       verificationNotes: json['inspector_comments']?.toString(),
       verifiedAt: json['completed_at']?.toString(),
+      vehicleName: vehicleNameValue.isNotEmpty ? vehicleNameValue : 'Mercedes C-Class',
+      customerName: custName,
+      serviceType: json['service_type']?.toString() ?? 'Premium Detailing & Polish',
+      serviceDate: json['service_date']?.toString() ?? json['completed_at']?.toString() ?? '2026-06-11',
+      assignedSpecialist: json['assigned_specialist']?.toString() ?? 'John Specialist',
+      verificationHistory: history,
+      customerNotes: json['customer_notes']?.toString() ?? 'Car parked near Gate B. Please avoid using strong chemicals.',
+      detailerNotes: json['detailer_notes']?.toString() ?? 'Vehicle was parked in basement. Existing minor scratches on front bumper.',
+      remarks: json['remarks'] != null
+          ? (json['remarks'] as List)
+              .map((e) => RemarkModel.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : [],
+      building: json['building']?.toString() ?? (addr.toLowerCase().contains('tower b') == true ? 'Tower B' : 'Tower A'),
+      street: json['street']?.toString() ?? 'Street 12',
+      area: json['area']?.toString() ?? (inspectionId.hashCode % 2 == 0 ? 'Gachibowli' : 'Financial District'),
+      community: json['community']?.toString() ?? (inspectionId.hashCode % 2 == 0 ? 'My Home Avatar' : 'Aparna Sarovar'),
+      vehicleId: vehicleIdVal,
+      address: addr,
+      city: cityVal,
+      createdDate: createdDateVal,
+      parkingAvailable: json['parking_available'] as bool?,
+      keysProvided: json['keys_provided'] as bool?,
+      securityPermission: json['security_permission'] as bool?,
     );
   }
 

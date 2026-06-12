@@ -1,6 +1,9 @@
 import 'dart:io';
+import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
 import '../../core/network/api_client.dart';
 import 'package:flutter/foundation.dart';
+import '../../core/constants/api_endpoints.dart';
 import '../../core/interfaces/inspector_repository_interface.dart';
 import '../../data/models/inspection_model.dart';
 import '../../data/models/inspection_queue_response.dart';
@@ -16,21 +19,56 @@ class InspectorRepository implements IInspectorRepository {
 
   @override
   Future<UploadImageResponse> uploadImage(File file) async {
+    final int bytes = file.lengthSync();
+    final double kb = bytes / 1024;
+    final double mb = kb / 1024;
+    debugPrint('Image size: $bytes bytes');
+
+    final filename = file.path.split(RegExp(r'[/\\]')).last;
+    final extension = filename.split('.').last.toLowerCase();
+    final mimeType = extension == 'png' ? 'image/png' : 'image/jpeg';
+
     if (kDebugMode) {
       print('API request start: uploadImage');
+      print('--- Image Upload Payload Info ---');
+      print('File path: ${file.path}');
+      print('File size in KB: ${kb.toStringAsFixed(2)} KB');
+      print('File size in MB: ${mb.toStringAsFixed(2)} MB');
+      print('Multipart field name: file');
+      print('Content-Type: $mimeType');
+      print('Filename: $filename');
+      print('---------------------------------');
     }
     try {
-      final response = await _apiService.uploadImage(file);
+      final multipartFile = await MultipartFile.fromFile(
+        file.path,
+        filename: filename,
+        contentType: MediaType.parse(mimeType),
+      );
+
+      final formData = FormData.fromMap({
+        'file': multipartFile,
+      });
+
       if (kDebugMode) {
-        print('API response received: $response');
+        print('API request start: uploadImage (direct via Dio)');
       }
 
-      if (response == null) {
+      final response = await ApiClient().dio.post(
+        ApiEndpoints.uploadImage,
+        data: formData,
+      );
+
+      if (kDebugMode) {
+        print('API response received: ${response.data}');
+      }
+
+      if (response.data == null) {
         throw Exception("Null response received");
       }
 
       try {
-        final parsedResponse = UploadImageResponse.fromJson(response as Map<String, dynamic>);
+        final parsedResponse = UploadImageResponse.fromJson(response.data as Map<String, dynamic>);
         if (kDebugMode) {
           print('Parsing success: uploadImage');
         }
@@ -61,7 +99,7 @@ class InspectorRepository implements IInspectorRepository {
       print('Authorization header: Bearer ${token?.substring(0, 10)}...');
     }
     try {
-      final response = await _apiService.getInspectionQueue();
+      final response = await _apiService.getInspectionQueue('PENDING');
       if (kDebugMode) {
         print('API response received: $response');
         // Detailed debug: pretty print JSON if response is a map
@@ -323,6 +361,18 @@ class InspectorRepository implements IInspectorRepository {
     await _apiService.failInspection(inspectionId, {
       'reason': reason,
       'photos': photos,
+    });
+  }
+
+  @override
+  Future<void> addComment(String serviceId, String comment) async {
+    if (kDebugMode) {
+      print('Add comment to service $serviceId: $comment');
+    }
+    await _apiService.addComment(serviceId, {
+      'service_id': serviceId,
+      'remark': comment,
+      'action': 'review',
     });
   }
 

@@ -10,6 +10,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_styles.dart';
 import '../../../viewmodels/dashboard_viewmodel.dart';
+import '../../../core/di/dependency_injection.dart';
 
 class CapturePhotoBottomSheet extends StatefulWidget {
   final int jobIndex;
@@ -24,13 +25,99 @@ class CapturePhotoBottomSheet extends StatefulWidget {
 class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
   File? imageFile;
   final ImagePicker picker = ImagePicker();
+  bool _isUploading = false;
+  bool _isUploadSuccess = false;
+  String? _errorMessage;
 
-  Future<void> takePhoto() async {
-    final XFile? photo = await picker.pickImage(source: ImageSource.camera);
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? photo = await picker.pickImage(
+        source: source,
+        imageQuality: 80,
+        maxWidth: 1920,
+        maxHeight: 1920,
+      );
 
-    if (photo != null) {
+      if (photo != null) {
+        setState(() {
+          imageFile = File(photo.path);
+          _errorMessage = null;
+        });
+      }
+    } catch (e) {
       setState(() {
-        imageFile = File(photo.path);
+        _errorMessage = "Permission denied or capture failed.";
+      });
+    }
+  }
+
+  void _showFullScreenPreview(BuildContext context) {
+    if (imageFile == null) return;
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.black,
+          insetPadding: EdgeInsets.zero,
+          child: Stack(
+            children: [
+              Center(
+                child: InteractiveViewer(
+                  minScale: 0.5,
+                  maxScale: 4.0,
+                  child: Image.file(imageFile!, fit: BoxFit.contain),
+                ),
+              ),
+              Positioned(
+                top: 40,
+                right: 20,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _uploadAfterPhoto(DashboardViewModel dashboardVm) async {
+    if (imageFile == null) return;
+    setState(() {
+      _isUploading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final response = await di.inspectorRepository.uploadImage(imageFile!);
+      if (response.success) {
+        final imageUrl = response.data.url;
+        final timestamp = DateTime.now().toLocal().toString().split('.')[0];
+        
+        dashboardVm.updateAfterPhoto(widget.jobIndex, imageUrl, timestamp);
+        
+        setState(() {
+          _isUploadSuccess = true;
+          _isUploading = false;
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("After photo uploaded successfully.")),
+          );
+        }
+      } else {
+        setState(() {
+          _errorMessage = "Upload failed: API error";
+          _isUploading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = "Upload failed: $e";
+        _isUploading = false;
       });
     }
   }
@@ -52,6 +139,8 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final dashboardVm = context.watch<DashboardViewModel>();
+
     return Container(
       padding: AppSpacing.all16,
       decoration: BoxDecoration(
@@ -82,109 +171,206 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
                 child: const Icon(Icons.close, color: AppColors.black),
               ),
               const SizedBox(width: AppSpacing.custom10),
-              const Text("Capture Photo", style: AppStyles.title16Medium),
+              const Text("Capture After-Cleaning Photo", style: AppStyles.title16Medium),
             ],
           ),
 
           const SizedBox(height: AppSpacing.custom20),
 
           /// preview box
-          Container(
-            height: AppSpacing.custom180,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppSpacing.radius14),
-              border: Border.all(color: AppColors.grey),
-            ),
-            child: imageFile == null
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SvgPicture.asset(
-                        "assets/images/camera.svg",
-                        fit: BoxFit.contain,
-                        colorFilter: const ColorFilter.mode(
-                          AppColors.black,
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.custom8),
-                      const Text(
-                        "Camera Preview Area",
-                        style: AppStyles.smallDark,
-                      ),
-                    ],
-                  )
-                : ClipRRect(
-                    borderRadius: BorderRadius.circular(AppSpacing.radius14),
-                    child: Image.file(imageFile!, fit: BoxFit.cover),
-                  ),
-          ),
-
-          const SizedBox(height: AppSpacing.custom20),
-
-          /// buttons
-          Row(
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    takePhoto().then((_) {
-                      if (imageFile != null) {
-                        _handleJobCompletion();
-                      }
-                    });
-                  },
-                  borderRadius: BorderRadius.circular(AppSpacing.radius14),
-                  child: Container(
-                    padding: AppSpacing.vertical14,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(AppSpacing.radius14),
-                    ),
-                    child: Row(
+          GestureDetector(
+            onTap: imageFile != null ? () => _showFullScreenPreview(context) : null,
+            child: Container(
+              height: AppSpacing.custom180,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppSpacing.radius14),
+                border: Border.all(color: AppColors.grey),
+              ),
+              child: imageFile == null
+                  ? Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SvgPicture.asset(
                           "assets/images/camera.svg",
-                          height: AppSpacing.xl,
-                          width: AppSpacing.xl,
+                          fit: BoxFit.contain,
                           colorFilter: const ColorFilter.mode(
                             AppColors.black,
                             BlendMode.srcIn,
                           ),
                         ),
-                        const SizedBox(width: AppSpacing.custom8),
+                        const SizedBox(height: AppSpacing.custom8),
                         const Text(
-                          "Take Photo",
-                          style: AppStyles.button16Medium,
+                          "Tap buttons below to capture / pick",
+                          style: AppStyles.smallDark,
+                        ),
+                      ],
+                    )
+                  : Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(AppSpacing.radius14),
+                          child: Image.file(imageFile!, fit: BoxFit.cover),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(AppSpacing.radius14),
+                            color: Colors.black26,
+                          ),
+                          child: const Center(
+                            child: Icon(Icons.zoom_in, color: Colors.white, size: 36),
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: AppSpacing.custom10),
-
-              Expanded(
-                child: InkWell(
-                  onTap: () => Navigator.pop(context),
-                  borderRadius: BorderRadius.circular(AppSpacing.radius14),
-                  child: Container(
-                    padding: AppSpacing.vertical14,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.error),
-                      borderRadius: BorderRadius.circular(AppSpacing.radius14),
-                    ),
-                    child: const Center(
-                      child: Text("Cancel", style: AppStyles.dangerButton),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
+
+          const SizedBox(height: AppSpacing.custom20),
+
+          if (_errorMessage != null) ...[
+            Text(_errorMessage!, style: const TextStyle(color: AppColors.error, fontSize: 13)),
+            const SizedBox(height: AppSpacing.custom10),
+          ],
+
+          if (_isUploadSuccess) ...[
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.check_circle, color: AppColors.success, size: 20),
+                SizedBox(width: 6),
+                Text(
+                  "After Photo Uploaded Successful ✓",
+                  style: TextStyle(color: AppColors.success, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.lg),
+          ],
+
+          /// buttons
+          if (_isUploading)
+            const Center(child: CircularProgressIndicator())
+          else if (imageFile == null)
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () => _pickImage(ImageSource.camera),
+                    borderRadius: BorderRadius.circular(AppSpacing.radius14),
+                    child: Container(
+                      padding: AppSpacing.vertical14,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(AppSpacing.radius14),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset(
+                            "assets/images/camera.svg",
+                            height: AppSpacing.xl,
+                            width: AppSpacing.xl,
+                            colorFilter: const ColorFilter.mode(
+                              AppColors.black,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.custom8),
+                          const Text(
+                            "Use Camera",
+                            style: AppStyles.button16Medium,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.custom10),
+                Expanded(
+                  child: InkWell(
+                    onTap: () => _pickImage(ImageSource.gallery),
+                    borderRadius: BorderRadius.circular(AppSpacing.radius14),
+                    child: Container(
+                      padding: AppSpacing.vertical14,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.primary),
+                        borderRadius: BorderRadius.circular(AppSpacing.radius14),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.photo_library, color: AppColors.black),
+                          const SizedBox(width: AppSpacing.custom8),
+                          const Text(
+                            "Use Gallery",
+                            style: AppStyles.button16Medium,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          else ...[
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        imageFile = null;
+                        _isUploadSuccess = false;
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(AppSpacing.radius14),
+                    child: Container(
+                      padding: AppSpacing.vertical14,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.grey),
+                        borderRadius: BorderRadius.circular(AppSpacing.radius14),
+                      ),
+                      child: const Center(
+                        child: Text("Retake", style: AppStyles.smallDark),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.custom10),
+                Expanded(
+                  child: InkWell(
+                    onTap: _isUploadSuccess
+                        ? _handleJobCompletion
+                        : () => _uploadAfterPhoto(dashboardVm),
+                    borderRadius: BorderRadius.circular(AppSpacing.radius14),
+                    child: Container(
+                      padding: AppSpacing.vertical14,
+                      decoration: _isUploadSuccess
+                          ? BoxDecoration(
+                              color: AppColors.success,
+                              borderRadius: BorderRadius.circular(AppSpacing.radius14),
+                            )
+                          : BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(AppSpacing.radius14),
+                            ),
+                      child: Center(
+                        child: Text(
+                          _isUploadSuccess ? "Complete Job" : "Upload Photo",
+                          style: TextStyle(
+                            color: _isUploadSuccess ? Colors.white : AppColors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
