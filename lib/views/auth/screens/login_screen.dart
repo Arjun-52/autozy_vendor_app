@@ -25,49 +25,52 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Padding(
-        padding: AppSpacing.horizontal24,
-        child: Column(
-          children: [
-            const SizedBox(height: AppSpacing.custom80),
-
-            const LoginLogo(),
-
-            const SizedBox(height: AppSpacing.custom40),
-
-            const Text("Log in or Sign Up", style: AppStyles.heading),
-
-            const SizedBox(height: AppSpacing.custom65),
-
-            PhoneInputField(controller: _phoneController),
-
-            const SizedBox(height: AppSpacing.lg),
-
-            if (vm.errorMessage != null)
-              Text(
-                vm.errorMessage!,
-                style: const TextStyle(color: AppColors.error),
+      body: SafeArea(
+        child: Padding(
+          padding: AppSpacing.horizontal24,
+          child: Column(
+            children: [
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const LoginLogo(),
+                    const SizedBox(height: AppSpacing.custom65),
+                    const Text("Log in or Sign Up", style: AppStyles.heading),
+                    const SizedBox(height: AppSpacing.custom65),
+                    PhoneInputField(controller: _phoneController),
+                    const SizedBox(height: AppSpacing.lg),
+                    if (vm.errorMessage != null)
+                      Text(
+                        vm.errorMessage!,
+                        style: const TextStyle(color: AppColors.error),
+                      ),
+                    const SizedBox(height: AppSpacing.custom30),
+                    ContinueButton(
+                      isLoading: vm.isLoading,
+                      onPressed: () async {
+                        await vm.sendOtp(_phoneController.text.trim());
+                        if (mounted && vm.errorMessage != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(vm.errorMessage!),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
-
-            const SizedBox(height: AppSpacing.custom30),
-
-            ContinueButton(
-              isLoading: vm.isLoading,
-              onPressed: () {
-                vm.sendOtp(_phoneController.text.trim());
-              },
-            ),
-
-            const SizedBox(height: AppSpacing.custom280),
-
-            const Text(
-              "By continuing, you agree to our Terms and Conditions\n& Privacy Policy",
-              textAlign: TextAlign.center,
-              style: AppStyles.captionCenter,
-            ),
-
-            const SizedBox(height: AppSpacing.custom20),
-          ],
+              const Text(
+                "By continuing, you agree to our Terms and Conditions\n& Privacy Policy",
+                textAlign: TextAlign.center,
+                style: AppStyles.captionCenter,
+              ),
+              const SizedBox(height: AppSpacing.custom80),
+            ],
+          ),
         ),
       ),
     );

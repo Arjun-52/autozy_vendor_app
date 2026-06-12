@@ -7,12 +7,21 @@ class AuthRepository implements IAuthRepository {
   AuthRepository(this.service);
 
   @override
-  Future<bool> sendOtp(String phone) async {
+  Future<bool> sendOtp({required String phone}) async {
     return await service.sendOtp(phone);
   }
 
   @override
-  Future<bool> verifyOtp(String otp) async {
-    return await service.verifyOtp(otp);
+  Future<bool> verifyOtp({
+    required String phone,
+    required String otp,
+    required String deviceId,
+  }) async {
+    return await service.verifyOtp(phone: phone, otp: otp, deviceId: deviceId);
+  }
+
+  @override
+  Future<bool> refreshToken({required String refreshToken}) async {
+    return await service.refreshToken(refreshToken: refreshToken);
   }
 }

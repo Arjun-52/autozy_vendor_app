@@ -20,11 +20,11 @@ class OtpScreen extends StatefulWidget {
 
 class _OtpScreenState extends State<OtpScreen> {
   final List<TextEditingController> controllers = List.generate(
-    4,
+    6,
     (_) => TextEditingController(),
   );
 
-  final List<FocusNode> focusNodes = List.generate(4, (_) => FocusNode());
+  final List<FocusNode> focusNodes = List.generate(6, (_) => FocusNode());
 
   @override
   void initState() {
@@ -62,58 +62,52 @@ class _OtpScreenState extends State<OtpScreen> {
               const SizedBox(height: AppSpacing.custom20),
 
               const OtpHeader(),
-              const SizedBox(height: AppSpacing.custom20),
-
-              const OtpLogo(),
-              const SizedBox(height: AppSpacing.custom20),
-
-              const Text(
-                "We have sent a verification code to",
-                style: AppStyles.body16Medium,
-                textAlign: TextAlign.center,
-              ),
-
-              const SizedBox(height: AppSpacing.custom5),
-
-              Text("+91 ${vm.phoneNumber}", style: AppStyles.bold),
-
-              const SizedBox(height: AppSpacing.custom20),
-
-              const Text("Enter the Code", style: AppStyles.heading),
-
-              const SizedBox(height: AppSpacing.custom20),
-
-              /// OTP BOXES
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  4,
-                  (index) => Padding(
-                    padding: AppSpacing.horizontal10,
-                    child: OtpBox(
-                      controller: controllers[index],
-                      focusNode: focusNodes[index],
-                      nextFocus: index < 3 ? focusNodes[index + 1] : null,
-                      prevFocus: index > 0 ? focusNodes[index - 1] : null,
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const OtpLogo(),
+                    const SizedBox(height: 25),
+                    const Text(
+                      "We have sent a verification code to",
+                      style: AppStyles.body16Medium,
+                      textAlign: TextAlign.center,
                     ),
-                  ),
+                    const SizedBox(height: AppSpacing.custom5),
+                    Text("+91 ${vm.phoneNumber}", style: AppStyles.bold),
+                    const SizedBox(height: 35),
+
+                    const Text("Enter the Code", style: AppStyles.heading),
+                    const SizedBox(height: AppSpacing.custom20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        6,
+                        (index) => Padding(
+                          padding: AppSpacing.horizontal10,
+                          child: OtpBox(
+                            controller: controllers[index],
+                            focusNode: focusNodes[index],
+                            nextFocus: index < 5 ? focusNodes[index + 1] : null,
+                            prevFocus: index > 0 ? focusNodes[index - 1] : null,
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (vm.errorMessage != null) ...[
+                      const SizedBox(height: AppSpacing.custom10),
+                      Text(vm.errorMessage!, style: AppStyles.error),
+                    ],
+                    const SizedBox(height: 20),
+                    const ResendOtpText(),
+                    const SizedBox(height: 35),
+
+                    OtpVerifyButton(vm: vm, getOtp: getOtp),
+                    const SizedBox(height: AppSpacing.custom40), // Shifts everything above center
+                  ],
                 ),
               ),
-
-              const SizedBox(height: AppSpacing.custom20),
-
-              /// ERROR MESSAGE
-              if (vm.errorMessage != null)
-                Text(vm.errorMessage!, style: AppStyles.error),
-
-              const SizedBox(height: AppSpacing.custom20),
-
-              /// VERIFY BUTTON
-              OtpVerifyButton(vm: vm, getOtp: getOtp),
-
-              const SizedBox(height: AppSpacing.custom20),
-
-              const ResendOtpText(),
+              const SizedBox(height: AppSpacing.custom40),
             ],
           ),
         ),

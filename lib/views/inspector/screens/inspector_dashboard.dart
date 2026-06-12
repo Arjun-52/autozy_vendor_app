@@ -1,10 +1,10 @@
+import 'package:autozy_vendor_app/core/services/navigation_service.dart';
 import 'package:autozy_vendor_app/core/utils/top_status_banner.dart';
 import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
 import 'package:autozy_vendor_app/views/inspector/widgets/inspector_card.dart';
 import 'package:autozy_vendor_app/views/detailer/widgets/status_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -36,14 +36,13 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-
       appBar: AppBar(
         elevation: 2,
         backgroundColor: AppColors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.black),
           onPressed: () {
-            context.go('/role');
+            NavigationService.goToLogin();
           },
         ),
         title: Column(
@@ -83,6 +82,12 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
                 ),
               ),
             ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: AppColors.black),
+            onPressed: () {
+              NavigationService.goToLogin();
+            },
           ),
         ],
       ),
@@ -146,16 +151,49 @@ class _InspectorDashboardState extends State<InspectorDashboard> {
 
             const SizedBox(height: AppSpacing.sm),
             Expanded(
-              child: ListView(
-                children: [
-                  ...vm.inspections.asMap().entries.map(
-                    (entry) => InspectorCard(
-                      inspection: entry.value,
-                      index: entry.key,
-                    ),
-                  ),
-                ],
-              ),
+              child: vm.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : vm.errorMessage != null
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                vm.errorMessage!,
+                                style: const TextStyle(color: AppColors.error),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 10),
+                              ElevatedButton(
+                                onPressed: () => vm.loadInspections(),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                ),
+                                child: const Text(
+                                  "Retry",
+                                  style: TextStyle(color: AppColors.black),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : vm.inspections.isEmpty
+                          ? const Center(
+                              child: Text(
+                                "No inspections in queue",
+                                style: AppStyles.body,
+                              ),
+                            )
+                          : ListView(
+                              children: [
+                                ...vm.inspections.asMap().entries.map(
+                                  (entry) => InspectorCard(
+                                    inspection: entry.value,
+                                    index: entry.key,
+                                  ),
+                                ),
+                              ],
+                            ),
             ),
           ],
         ),

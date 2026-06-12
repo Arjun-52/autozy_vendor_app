@@ -8,8 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:autozy_vendor_app/views/auth/screens/login_screen.dart';
 import 'package:autozy_vendor_app/views/auth/screens/otp_screen.dart';
-import 'package:autozy_vendor_app/views/role/screens/role_screen.dart';
+
 import 'package:autozy_vendor_app/views/detailer/screens/detailer_dashboard.dart';
+import 'package:autozy_vendor_app/views/detailer/screens/wash_history_screen.dart';
+import 'package:autozy_vendor_app/viewmodels/wash_history_viewmodel.dart';
 import 'package:autozy_vendor_app/views/inspector/screens/inspector_dashboard.dart';
 import 'package:provider/provider.dart';
 import '../services/navigation_service.dart';
@@ -49,18 +51,21 @@ class AppRouter {
         builder: (context, state) => const OtpScreen(),
       ),
 
-      /// ROLE
-      GoRoute(
-        path: '/role',
-        name: 'role',
-        builder: (context, state) => const RoleScreen(),
-      ),
-
       /// DETAILER DASHBOARD
       GoRoute(
         path: '/dashboard',
         name: 'dashboard',
         builder: (context, state) => DetailerDashboard(),
+      ),
+
+      /// WASH HISTORY
+      GoRoute(
+        path: '/wash-history',
+        name: 'wash-history',
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (_) => WashHistoryViewModel(di.washHistoryRepository),
+          child: const WashHistoryScreen(),
+        ),
       ),
 
       /// SUPERVISOR
@@ -103,11 +108,11 @@ extension GoRouterExtension on GoRouter {
   void goToOtp() => go('/otp');
   void pushOtp() => push('/otp');
 
-  void goToRole() => go('/role');
-  void pushRole() => push('/role');
-
   void goToDashboard() => go('/dashboard');
   void pushDashboard() => push('/dashboard');
+
+  void goToWashHistory() => go('/wash-history');
+  void pushWashHistory() => push('/wash-history');
 
   void goToSupervisor() => go('/supervisor');
   void pushSupervisor() => push('/supervisor');

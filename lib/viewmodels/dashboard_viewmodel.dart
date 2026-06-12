@@ -68,6 +68,33 @@ class DashboardViewModel extends BaseViewModel {
     return _isValidIndex(index) ? _jobs[index] : null;
   }
 
+  Future<bool> startJobCleaning(int index) async {
+    if (!_isValidIndex(index)) return false;
+
+    final vehicleId = _jobs[index].vehicle;
+    final success = await _repository.startJobCleaning(vehicleId);
+
+    if (success) {
+      _updateJobStatus(index, JobStatus.cleaning);
+    }
+
+    return success;
+  }
+
+  void updateBeforePhoto(int index, String url, String timestamp) {
+    if (!_isValidIndex(index)) return;
+    _jobs[index] = JobModel(
+      vehicle: _jobs[index].vehicle,
+      name: _jobs[index].name,
+      location: _jobs[index].location,
+      phone: _jobs[index].phone,
+      status: _jobs[index].status,
+      beforeImage: url,
+      capturedAt: timestamp,
+    );
+    notifyListeners();
+  }
+
   // Helper methods
   bool _isValidIndex(int index) {
     return index >= 0 && index < _jobs.length;
@@ -80,6 +107,8 @@ class DashboardViewModel extends BaseViewModel {
       location: _jobs[index].location,
       phone: _jobs[index].phone,
       status: status,
+      beforeImage: _jobs[index].beforeImage,
+      capturedAt: _jobs[index].capturedAt,
     );
     notifyListeners();
   }

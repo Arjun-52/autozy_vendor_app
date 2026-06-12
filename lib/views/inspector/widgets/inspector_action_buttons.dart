@@ -11,6 +11,7 @@ class InspectorActionButtons extends StatelessWidget {
   final VoidCallback onApprove;
   final VoidCallback onFlag;
   final VoidCallback onTakePhoto;
+  final bool isUploading;
 
   const InspectorActionButtons({
     super.key,
@@ -18,6 +19,7 @@ class InspectorActionButtons extends StatelessWidget {
     required this.onApprove,
     required this.onFlag,
     required this.onTakePhoto,
+    this.isUploading = false,
   });
 
   @override
@@ -26,7 +28,7 @@ class InspectorActionButtons extends StatelessWidget {
       children: [
         /// TAKE PHOTO
         GestureDetector(
-          onTap: onTakePhoto,
+          onTap: isUploading ? null : onTakePhoto,
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
             decoration: BoxDecoration(
@@ -44,15 +46,26 @@ class InspectorActionButtons extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SvgPicture.asset(
-                  "assets/images/camera.svg",
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.textPrimary,
-                    BlendMode.srcIn,
+                if (isUploading)
+                  const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      color: AppColors.textPrimary,
+                      strokeWidth: 2,
+                    ),
+                  )
+                else ...[
+                  SvgPicture.asset(
+                    "assets/images/camera.svg",
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.textPrimary,
+                      BlendMode.srcIn,
+                    ),
                   ),
-                ),
-                const SizedBox(width: AppSpacing.xs),
-                Text("Take Photo ($photoCount)", style: AppStyles.bodyMedium),
+                  const SizedBox(width: AppSpacing.xs),
+                  Text("Take Photo ($photoCount)", style: AppStyles.bodyMedium),
+                ],
               ],
             ),
           ),

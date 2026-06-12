@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../network/api_client.dart';
 
 class NavigationService {
   static final GlobalKey<NavigatorState> navigatorKey =
@@ -13,21 +14,46 @@ class NavigationService {
     }
   }
 
+  static void logout() {
+    ApiClient().clearToken();
+    ApiClient().clearRefreshToken();
+    ApiClient().clearStaffRole();
+    goToLogin();
+  }
+
   static void goToOtp() {
     if (context != null) {
       context!.go('/otp');
     }
   }
 
-  static void goToRole() {
-    if (context != null) {
-      context!.go('/role');
-    }
-  }
+
 
   static void goToDashboard() {
     if (context != null) {
       context!.go('/dashboard');
+    }
+  }
+
+  static void goToDashboardByRole(String role) {
+    if (context != null) {
+      switch (role.toUpperCase()) {
+        case 'DETAILER':
+          goToDashboard();
+          break;
+        case 'INSPECTOR':
+          goToInspector();
+          break;
+        case 'SUPERVISOR':
+          goToSupervisor();
+          break;
+        case 'SPECIALIST':
+          goToSpecialist();
+          break;
+        default:
+          goToLogin();
+          break;
+      }
     }
   }
 
@@ -66,7 +92,7 @@ class NavigationService {
       if (Navigator.canPop(context!)) {
         context!.pop();
       } else {
-        goToRole();
+        goToLogin();
       }
     }
   }

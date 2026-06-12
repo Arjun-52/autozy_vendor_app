@@ -3,14 +3,22 @@ import 'package:autozy_vendor_app/data/models/inspection_model.dart';
 import 'package:flutter_svg/svg.dart';
 
 void showJobDetailsSheet(BuildContext context, InspectionModel inspection) {
-  final isFlagged = inspection.status == InspectionStatus.flagged;
+  final isFlagged = inspection.status == InspectionStatus.flagged ||
+      inspection.status == InspectionStatus.rejected;
 
   String statusText;
   Color statusColor;
 
-  if (inspection.status == InspectionStatus.approved) {
+  if (inspection.status == InspectionStatus.approved ||
+      inspection.status == InspectionStatus.completed) {
     statusText = "Completed";
     statusColor = Colors.green;
+  } else if (inspection.status == InspectionStatus.inProgress) {
+    statusText = "In Progress";
+    statusColor = Colors.blue;
+  } else if (inspection.status == InspectionStatus.rejected) {
+    statusText = "Rejected";
+    statusColor = Colors.red;
   } else if (isFlagged) {
     statusText = "Car Not Available";
     statusColor = Colors.red;
@@ -216,9 +224,12 @@ void showJobDetailsSheet(BuildContext context, InspectionModel inspection) {
                               decoration: BoxDecoration(
                                 color: isFlagged
                                     ? Colors.red.shade50
-                                    : inspection.status ==
-                                          InspectionStatus.approved
+                                    : (inspection.status == InspectionStatus.approved ||
+                                       inspection.status == InspectionStatus.completed)
                                     ? Colors.green.shade50
+                                    : inspection.status ==
+                                          InspectionStatus.inProgress
+                                    ? Colors.blue.shade50
                                     : Colors.orange.shade50,
                                 borderRadius: BorderRadius.circular(8),
                               ),

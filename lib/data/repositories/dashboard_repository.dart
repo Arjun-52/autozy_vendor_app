@@ -49,6 +49,12 @@ class DashboardRepository implements IDashboardRepository {
     return updateJobStatus(vehicleId, 'cna');
   }
 
+  /// Start cleaning job
+  @override
+  Future<bool> startJobCleaning(String vehicleId) async {
+    return updateJobStatus(vehicleId, 'cleaning');
+  }
+
   /// Undo job status back to pending
   @override
   Future<bool> undoJobStatus(String vehicleId) async {
@@ -62,6 +68,8 @@ class DashboardRepository implements IDashboardRepository {
         return JobStatus.completed;
       case 'cna':
         return JobStatus.cna;
+      case 'cleaning':
+        return JobStatus.cleaning;
       case 'pending':
       default:
         return JobStatus.pending;

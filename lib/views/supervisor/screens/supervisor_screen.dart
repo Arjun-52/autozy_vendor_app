@@ -13,6 +13,7 @@ import '../widgets/member_card.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_styles.dart';
+import '../../../core/services/navigation_service.dart';
 
 class SupervisorScreen extends StatefulWidget {
   const SupervisorScreen({super.key});
@@ -93,6 +94,12 @@ class _SupervisorScreenState extends State<SupervisorScreen> {
                 ),
               ),
             ),
+            IconButton(
+              icon: const Icon(Icons.logout, color: AppColors.black),
+              onPressed: () {
+                NavigationService.logout();
+              },
+            ),
           ],
         ),
         body: SafeArea(
@@ -171,6 +178,13 @@ class _SupervisorScreenState extends State<SupervisorScreen> {
                       selected: vm.currentTab == SupervisorTab.alerts,
                       onTap: () => vm.switchTab(SupervisorTab.alerts),
                     ),
+                    const SizedBox(width: AppSpacing.sm),
+                    TabButton(
+                      text: "Records",
+                      icon: Icons.assignment_outlined,
+                      selected: vm.currentTab == SupervisorTab.records,
+                      onTap: () => vm.switchTab(SupervisorTab.records),
+                    ),
                   ],
                 ),
 
@@ -189,12 +203,15 @@ class _SupervisorScreenState extends State<SupervisorScreen> {
                             completed: vm.members[i].completed,
                             total: vm.members[i].total,
                             phone: vm.members[i].phone,
+                            hideProgress: vm.members[i].role.trim().toLowerCase() == 'inspector',
                           ),
                         )
-                      : ListView.builder(
-                          itemCount: vm.alerts.length,
-                          itemBuilder: (_, i) => AlertCard(alert: vm.alerts[i]),
-                        ),
+                      : vm.currentTab == SupervisorTab.alerts
+                          ? ListView.builder(
+                              itemCount: vm.alerts.length,
+                              itemBuilder: (_, i) => AlertCard(alert: vm.alerts[i]),
+                            )
+                          : _buildServiceRecordsSection(vm),
                 ),
               ],
             ),
@@ -203,4 +220,76 @@ class _SupervisorScreenState extends State<SupervisorScreen> {
       ),
     );
   }
+
+  Widget _buildServiceRecordsSection(SupervisorViewModel vm) {
+    if (vm.isLoadingServiceRecords) {
+      return const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+        ),
+      );
+    }
+
+    if (vm.serviceRecordsError != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
+            const SizedBox(height: 16),
+            Text(
+              "Failed to load service records",
+              style: AppStyles.subHeading.copyWith(color: AppColors.error),
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () => vm.fetchServiceRecords(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text("Retry"),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (vm.serviceRecords.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.assignment_turned_in_outlined, size: 64, color: AppColors.textPrimary.withOpacity(0.4)),
+            const SizedBox(height: 16),
+            const Text(
+              "No Service Records Available",
+              style: AppStyles.subHeading,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Daily wash/service jobs will appear here.",
+              style: AppStyles.caption.copyWith(color: AppColors.textPrimary.withOpacity(0.6)),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: vm.serviceRecords.length,
+      itemBuilder: (context, index) {
+        final record = vm.serviceRecords[index];
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          child: ListTile(
+            title: Text("Record #${index + 1}"),
+            subtitle: Text(record.toString()),
+          ),
+        );
+      },
+    );
+  }
 }
+
