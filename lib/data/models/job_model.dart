@@ -4,20 +4,31 @@ part 'job_model.g.dart';
 
 @JsonSerializable()
 class JobRemarkModel {
-  final String reason;
+  final String id;
+  @JsonKey(name: 'job_id')
+  final String? jobId;
+  final String? reason;
   @JsonKey(name: 'additional_comment')
   final String? additionalComment;
   @JsonKey(name: 'created_by')
   final String createdBy;
+  @JsonKey(name: 'user_role')
+  final String userRole;
+  @JsonKey(name: 'user_id')
+  final String? userId;
   @JsonKey(name: 'created_at')
   final String createdAt;
 
   JobRemarkModel({
-    required this.reason,
+    String? id,
+    this.jobId,
+    this.reason,
     this.additionalComment,
     this.createdBy = 'Detailer Mode',
+    this.userRole = 'Detailer',
+    this.userId,
     required this.createdAt,
-  });
+  }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
 
   factory JobRemarkModel.fromJson(Map<String, dynamic> json) =>
       _$JobRemarkModelFromJson(json);

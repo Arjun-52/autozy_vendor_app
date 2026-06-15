@@ -115,14 +115,22 @@ class DashboardViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  void addJobRemark(int index, String reason, String? additionalComment) {
-    if (!_isValidIndex(index)) return;
-    final list = List<JobRemarkModel>.from(_jobs[index].remarks ?? []);
-    list.insert(0, JobRemarkModel(
+  Future<JobRemarkModel?> addJobRemark(int index, String? reason, String? additionalComment) async {
+    if (!_isValidIndex(index)) return null;
+
+    final vehicleId = _jobs[index].vehicle;
+    await _repository.saveJobRemark(vehicleId, reason, additionalComment);
+
+    final remark = JobRemarkModel(
       reason: reason,
       additionalComment: additionalComment,
+      createdBy: 'Detailer Mode',
+      userRole: 'Detailer',
       createdAt: DateTime.now().toLocal().toString().split('.')[0],
-    ));
+    );
+
+    final list = List<JobRemarkModel>.from(_jobs[index].remarks ?? []);
+    list.insert(0, remark);
     _jobs[index] = JobModel(
       vehicle: _jobs[index].vehicle,
       name: _jobs[index].name,
@@ -136,13 +144,54 @@ class DashboardViewModel extends BaseViewModel {
       remarks: list,
     );
     notifyListeners();
+    return remark;
+  }
+
+  Future<bool> updateJobRemark(int index, String remarkId, String? reason, String? additionalComment) async {
+    if (!_isValidIndex(index)) return false;
+
+    final success = await _repository.updateJobRemark(remarkId, reason, additionalComment);
+
+    if (success) {
+      final list = List<JobRemarkModel>.from(_jobs[index].remarks ?? []);
+      final remarkIdx = list.indexWhere((r) => r.id == remarkId);
+      if (remarkIdx != -1) {
+        final oldRemark = list[remarkIdx];
+        list[remarkIdx] = JobRemarkModel(
+          id: oldRemark.id,
+          jobId: oldRemark.jobId,
+          reason: reason,
+          additionalComment: additionalComment,
+          createdBy: oldRemark.createdBy,
+          userRole: oldRemark.userRole,
+          userId: oldRemark.userId,
+          createdAt: DateTime.now().toLocal().toString().split('.')[0],
+        );
+
+        _jobs[index] = JobModel(
+          vehicle: _jobs[index].vehicle,
+          name: _jobs[index].name,
+          location: _jobs[index].location,
+          phone: _jobs[index].phone,
+          status: _jobs[index].status,
+          beforeImage: _jobs[index].beforeImage,
+          capturedAt: _jobs[index].capturedAt,
+          afterImage: _jobs[index].afterImage,
+          afterImageCapturedAt: _jobs[index].afterImageCapturedAt,
+          remarks: list,
+        );
+        notifyListeners();
+        return true;
+      }
+    }
+    return false;
   }
 
   Future<bool> markJobCNAWithRemark(int index, String reason, String? additionalComment) async {
     if (!_isValidIndex(index)) return false;
     
     // Save remark first
-    addJobRemark(index, reason, additionalComment);
+    await addJobRemark(index, reason, additionalComment);
     
     // Mark as CNA
     final vehicleId = _jobs[index].vehicle;

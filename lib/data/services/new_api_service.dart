@@ -40,6 +40,33 @@ abstract class NewApiService {
   @GET(ApiEndpoints.specialistJobs)
   Future<dynamic> getSpecialistJobs(@Query('date') String date);
 
+  @POST('/api/v1/specialist/jobs/{id}/accept')
+  Future<dynamic> acceptSpecialistJob(@Path('id') String id);
+
+  @POST('/api/v1/specialist/jobs/{id}/start')
+  Future<dynamic> startSpecialistJob(
+    @Path('id') String id,
+    @Body() Map<String, dynamic> body,
+  );
+
+  @POST('/api/v1/specialist/jobs/{id}/before-photos')
+  Future<dynamic> uploadSpecialistBeforePhotos(
+    @Path('id') String id,
+    @Body() Map<String, dynamic> body,
+  );
+
+  @POST('/api/v1/specialist/jobs/{id}/after-photos')
+  Future<dynamic> uploadSpecialistAfterPhotos(
+    @Path('id') String id,
+    @Body() Map<String, dynamic> body,
+  );
+
+  @POST('/api/v1/specialist/jobs/{id}/complete')
+  Future<dynamic> completeSpecialistJob(
+    @Path('id') String id,
+    @Body() Map<String, dynamic> body,
+  );
+
   @GET(ApiEndpoints.addonServices)
   Future<dynamic> getAddonServices();
 

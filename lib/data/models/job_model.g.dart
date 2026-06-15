@@ -8,17 +8,25 @@ part of 'job_model.dart';
 
 JobRemarkModel _$JobRemarkModelFromJson(Map<String, dynamic> json) =>
     JobRemarkModel(
-      reason: json['reason'] as String,
+      id: json['id'] as String?,
+      jobId: json['job_id'] as String?,
+      reason: json['reason'] as String?,
       additionalComment: json['additional_comment'] as String?,
       createdBy: json['created_by'] as String? ?? 'Detailer Mode',
+      userRole: json['user_role'] as String? ?? 'Detailer',
+      userId: json['user_id'] as String?,
       createdAt: json['created_at'] as String,
     );
 
 Map<String, dynamic> _$JobRemarkModelToJson(JobRemarkModel instance) =>
     <String, dynamic>{
+      'id': instance.id,
+      'job_id': instance.jobId,
       'reason': instance.reason,
       'additional_comment': instance.additionalComment,
       'created_by': instance.createdBy,
+      'user_role': instance.userRole,
+      'user_id': instance.userId,
       'created_at': instance.createdAt,
     };
 

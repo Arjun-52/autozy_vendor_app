@@ -30,6 +30,7 @@ dependencies:
   
   # Permissions
   permission_handler: ^11.3.6
+  geolocator: ^10.1.0
   
   # HTTP Client & API
   dio: ^4.0.6

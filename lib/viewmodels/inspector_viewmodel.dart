@@ -784,12 +784,23 @@ class InspectorViewModel extends BaseViewModel {
     );
   }
 
-  void addRemarkFromDetailer(String vehicle, String reason, String comment) {
+  void addRemarkFromDetailer(String vehicle, String? reason, String? comment) {
     final timestamp = DateTime.now().toLocal().toString().split('.')[0];
+    String remarkText = '';
+    if (reason != null && reason.isNotEmpty && comment != null && comment.isNotEmpty) {
+      remarkText = 'Reason: $reason. Notes: $comment';
+    } else if (reason != null && reason.isNotEmpty) {
+      remarkText = 'Reason: $reason';
+    } else if (comment != null && comment.isNotEmpty) {
+      remarkText = comment;
+    } else {
+      return;
+    }
+
     final newRemark = RemarkModel(
       userName: 'Detailer',
       role: 'Detailer',
-      comment: comment.isNotEmpty ? 'Reason: $reason. Notes: $comment' : 'Reason: $reason',
+      comment: remarkText,
       createdAt: timestamp,
     );
 
@@ -810,6 +821,56 @@ class InspectorViewModel extends BaseViewModel {
       _pendingVerifications[pendingIdx].remarks!.insert(0, newRemark);
     }
 
+    notifyListeners();
+  }
+
+  void updateRemarkFromDetailer(String vehicle, String? oldReason, String? oldComment, String? newReason, String? newComment) {
+    final timestamp = DateTime.now().toLocal().toString().split('.')[0];
+    
+    String getRemarkText(String? reason, String? comment) {
+      if (reason != null && reason.isNotEmpty && comment != null && comment.isNotEmpty) {
+        return 'Reason: $reason. Notes: $comment';
+      } else if (reason != null && reason.isNotEmpty) {
+        return 'Reason: $reason';
+      } else if (comment != null && comment.isNotEmpty) {
+        return comment;
+      }
+      return '';
+    }
+
+    final oldText = getRemarkText(oldReason, oldComment);
+    final newText = getRemarkText(newReason, newComment);
+    if (oldText.isEmpty || newText.isEmpty) return;
+
+    void updateList(List<InspectionModel> list) {
+      for (final inspection in list) {
+        if (inspection.vehicle == vehicle && inspection.remarks != null) {
+          final remarkIdx = inspection.remarks!.indexWhere((r) => r.comment == oldText && r.role.toLowerCase() == 'detailer');
+          if (remarkIdx != -1) {
+            inspection.remarks![remarkIdx] = RemarkModel(
+              userName: 'Detailer',
+              role: 'Detailer',
+              comment: newText,
+              createdAt: timestamp,
+            );
+          }
+        }
+      }
+    }
+
+    updateList(_inspections);
+    updateList(_pendingVerifications);
+    if (_currentSubscriptionInspection != null && _currentSubscriptionInspection!.vehicle == vehicle && _currentSubscriptionInspection!.remarks != null) {
+      final remarkIdx = _currentSubscriptionInspection!.remarks!.indexWhere((r) => r.comment == oldText && r.role.toLowerCase() == 'detailer');
+      if (remarkIdx != -1) {
+        _currentSubscriptionInspection!.remarks![remarkIdx] = RemarkModel(
+          userName: 'Detailer',
+          role: 'Detailer',
+          comment: newText,
+          createdAt: timestamp,
+        );
+      }
+    }
     notifyListeners();
   }
 

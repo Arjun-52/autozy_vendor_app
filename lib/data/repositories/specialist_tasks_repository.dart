@@ -209,4 +209,72 @@ class SpecialistTasksRepository implements ISpecialistTasksRepository {
     await Future.delayed(const Duration(milliseconds: 100));
     return true;
   }
+
+  @override
+  Future<bool> acceptSpecialistJob(String id) async {
+    try {
+      final response = await _apiService.acceptSpecialistJob(id);
+      return response != null && response['success'] == true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('acceptSpecialistJob error: $e');
+      }
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> startSpecialistJob(String id, List<Map<String, dynamic>> beforePhotos) async {
+    try {
+      final response = await _apiService.startSpecialistJob(id, {'before_photos': beforePhotos});
+      return response != null && response['success'] == true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('startSpecialistJob error: $e');
+      }
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> uploadSpecialistBeforePhotos(String id, List<String> photos) async {
+    try {
+      final response = await _apiService.uploadSpecialistBeforePhotos(id, {'photos': photos});
+      return response != null && response['success'] == true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('uploadSpecialistBeforePhotos error: $e');
+      }
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> uploadSpecialistAfterPhotos(String id, List<String> photos) async {
+    try {
+      final response = await _apiService.uploadSpecialistAfterPhotos(id, {'photos': photos});
+      return response != null && response['success'] == true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('uploadSpecialistAfterPhotos error: $e');
+      }
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> completeSpecialistJob(String id, List<Map<String, dynamic>> afterPhotos, String notes) async {
+    try {
+      final response = await _apiService.completeSpecialistJob(id, {
+        'after_photos': afterPhotos,
+        'specialist_notes': notes,
+      });
+      return response != null && response['success'] == true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('completeSpecialistJob error: $e');
+      }
+      return false;
+    }
+  }
 }

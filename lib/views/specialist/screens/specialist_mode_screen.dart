@@ -2,7 +2,6 @@ import 'package:autozy_vendor_app/core/utils/top_status_banner.dart';
 import 'package:autozy_vendor_app/views/specialist/widegts/task_status_tile.dart';
 import 'package:autozy_vendor_app/views/specialist/widegts/task_card.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/services/navigation_service.dart';
 
@@ -128,15 +127,18 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
 
                   /// LIST
                   Expanded(
-                    child: ListView(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.lg,
-                      ),
-                      children: [
-                        const Text(
-                          "Add-on Tasks",
-                          style: AppStyles.sectionTitle,
+                    child: RefreshIndicator(
+                      onRefresh: () => vm.fetchSpecialistJobs(),
+                      child: ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.lg,
                         ),
+                        children: [
+                          const Text(
+                            "Add-on Tasks",
+                            style: AppStyles.sectionTitle,
+                          ),
                         const SizedBox(height: AppSpacing.lg),
                         if (vm.isLoadingJobs)
                           const Center(child: CircularProgressIndicator())
@@ -153,15 +155,9 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
                         else
                           ...List.generate(vm.specialistJobs.length, (index) {
                             final job = vm.specialistJobs[index];
-                            final task = job.toTask();
-
                             return TaskCard(
-                              task: task,
+                              job: job,
                               taskIndex: index,
-                              onStart: () => vm.startJob(index),
-                              onComplete: () => vm.completeJob(index),
-                              onToggleStep: (stepIndex) =>
-                                  vm.toggleStep(index, stepIndex),
                             );
                           }),
                         const SizedBox(height: AppSpacing.lg),
@@ -296,6 +292,7 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
                       ],
                     ),
                   ),
+                ),
                 ],
               );
             },

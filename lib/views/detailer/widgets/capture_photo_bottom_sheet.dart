@@ -10,6 +10,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_styles.dart';
 import '../../../viewmodels/dashboard_viewmodel.dart';
+import '../../../viewmodels/inspector_viewmodel.dart';
 import '../../../core/di/dependency_injection.dart';
 
 class CapturePhotoBottomSheet extends StatefulWidget {
@@ -28,6 +29,13 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
   bool _isUploading = false;
   bool _isUploadSuccess = false;
   String? _errorMessage;
+  final TextEditingController _completionRemarkController = TextEditingController();
+
+  @override
+  void dispose() {
+    _completionRemarkController.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickImage(ImageSource source) async {
     try {
@@ -125,7 +133,16 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
   void _handleJobCompletion() {
     if (!mounted) return;
 
-    context.read<DashboardViewModel>().markJobCompleted(widget.jobIndex);
+    final remarkText = _completionRemarkController.text.trim();
+    final dashboardVm = context.read<DashboardViewModel>();
+    final vehicle = dashboardVm.getJob(widget.jobIndex)?.vehicle ?? '';
+
+    if (remarkText.isNotEmpty) {
+      dashboardVm.addJobRemark(widget.jobIndex, "Job Completed", remarkText);
+      context.read<InspectorViewModel>().addRemarkFromDetailer(vehicle, "Job Completed", remarkText);
+    }
+
+    dashboardVm.markJobCompleted(widget.jobIndex);
 
     Navigator.pop(context);
 
@@ -225,6 +242,21 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
                       ],
                     ),
             ),
+          ),
+
+          const SizedBox(height: AppSpacing.custom20),
+
+          TextField(
+            controller: _completionRemarkController,
+            decoration: InputDecoration(
+              labelText: "Completion Remarks (Optional)",
+              hintText: "e.g. Customer requested extra cleaning...",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            ),
+            maxLines: 2,
           ),
 
           const SizedBox(height: AppSpacing.custom20),

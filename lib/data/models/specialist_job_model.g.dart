@@ -22,6 +22,15 @@ SpecialistJobModel _$SpecialistJobModelFromJson(Map<String, dynamic> json) =>
       vehicle:
           SpecialistVehicle.fromJson(json['vehicle'] as Map<String, dynamic>),
       user: SpecialistUser.fromJson(json['user'] as Map<String, dynamic>),
+      supervisorAuditStatus: json['supervisor_audit_status'] as String?,
+      disputeWindowEnd: json['dispute_window_end'] as String?,
+      beforePhotos: (json['before_photos'] as List<dynamic>?)
+          ?.map((e) => SpecialistPhoto.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      afterPhotos: (json['after_photos'] as List<dynamic>?)
+          ?.map((e) => SpecialistPhoto.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      specialistNotes: json['specialist_notes'] as String?,
     );
 
 Map<String, dynamic> _$SpecialistJobModelToJson(SpecialistJobModel instance) =>
@@ -35,6 +44,11 @@ Map<String, dynamic> _$SpecialistJobModelToJson(SpecialistJobModel instance) =>
       'scheduled_date': instance.scheduledDate,
       'scheduled_slot_start': instance.scheduledSlotStart,
       'scheduled_slot_end': instance.scheduledSlotEnd,
+      'supervisor_audit_status': instance.supervisorAuditStatus,
+      'dispute_window_end': instance.disputeWindowEnd,
+      'before_photos': instance.beforePhotos,
+      'after_photos': instance.afterPhotos,
+      'specialist_notes': instance.specialistNotes,
       'addon_service': instance.addonService,
       'vehicle': instance.vehicle,
       'user': instance.user,
@@ -66,6 +80,16 @@ SpecialistVehicle _$SpecialistVehicleFromJson(Map<String, dynamic> json) =>
       brand: json['brand'] as String,
       model: json['model'] as String,
       sizeCategory: json['size_category'] as String,
+      parkingLocationLat: (json['parking_location_lat'] as num?)?.toDouble(),
+      parkingLocationLng: (json['parking_location_lng'] as num?)?.toDouble(),
+      parkingNotes: json['parking_notes'] as String?,
+      flatNo: json['flat_no'] as String?,
+      building: json['building'] as String?,
+      locality: json['locality'] as String?,
+      landmark: json['landmark'] as String?,
+      city: json['city'] as String?,
+      state: json['state'] as String?,
+      pincode: json['pincode'] as String?,
     );
 
 Map<String, dynamic> _$SpecialistVehicleToJson(SpecialistVehicle instance) =>
@@ -75,6 +99,16 @@ Map<String, dynamic> _$SpecialistVehicleToJson(SpecialistVehicle instance) =>
       'brand': instance.brand,
       'model': instance.model,
       'size_category': instance.sizeCategory,
+      'parking_location_lat': instance.parkingLocationLat,
+      'parking_location_lng': instance.parkingLocationLng,
+      'parking_notes': instance.parkingNotes,
+      'flat_no': instance.flatNo,
+      'building': instance.building,
+      'locality': instance.locality,
+      'landmark': instance.landmark,
+      'city': instance.city,
+      'state': instance.state,
+      'pincode': instance.pincode,
     };
 
 SpecialistUser _$SpecialistUserFromJson(Map<String, dynamic> json) =>
@@ -89,4 +123,20 @@ Map<String, dynamic> _$SpecialistUserToJson(SpecialistUser instance) =>
       'id': instance.id,
       'phone': instance.phone,
       'name': instance.name,
+    };
+
+SpecialistPhoto _$SpecialistPhotoFromJson(Map<String, dynamic> json) =>
+    SpecialistPhoto(
+      url: json['url'] as String,
+      timestamp: json['timestamp'] as String,
+      lat: (json['lat'] as num).toDouble(),
+      lng: (json['lng'] as num).toDouble(),
+    );
+
+Map<String, dynamic> _$SpecialistPhotoToJson(SpecialistPhoto instance) =>
+    <String, dynamic>{
+      'url': instance.url,
+      'timestamp': instance.timestamp,
+      'lat': instance.lat,
+      'lng': instance.lng,
     };

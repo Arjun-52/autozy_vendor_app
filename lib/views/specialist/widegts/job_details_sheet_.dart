@@ -1,40 +1,43 @@
-import 'package:autozy_vendor_app/viewmodels/specialist_tasks_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_styles.dart';
-import '../../../data/models/task_model.dart';
+import '../../../data/models/specialist_job_model.dart';
 import 'detail_row.dart';
 
 class JobDetailsSheet extends StatelessWidget {
-  final Task task;
+  final SpecialistJobModel job;
 
-  const JobDetailsSheet({super.key, required this.task});
+  const JobDetailsSheet({super.key, required this.job});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(30), // ✅ allowed (modal style)
+          top: Radius.circular(30),
         ),
       ),
       child: SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             /// DRAG HANDLE
-            Container(
-              width: AppSpacing.xl,
-              height: AppSpacing.xs,
-              margin: const EdgeInsets.only(bottom: AppSpacing.lg),
-              decoration: BoxDecoration(
-                color: AppColors.border,
-                borderRadius: BorderRadius.circular(AppSpacing.sm),
+            Align(
+              alignment: Alignment.center,
+              child: Container(
+                width: AppSpacing.xl,
+                height: AppSpacing.xs,
+                margin: const EdgeInsets.only(bottom: AppSpacing.lg),
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(AppSpacing.sm),
+                ),
               ),
             ),
 
@@ -76,8 +79,11 @@ class JobDetailsSheet extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(task.vehicle, style: AppStyles.bodyMedium),
-                    const Text("Rohit A • SUV", style: AppStyles.caption),
+                    Text(job.vehicle.vehicleNumber, style: AppStyles.bodyMedium),
+                    Text(
+                      "${job.user.name} • ${job.vehicle.brand} ${job.vehicle.model}",
+                      style: AppStyles.caption,
+                    ),
                   ],
                 ),
               ],
@@ -93,12 +99,45 @@ class JobDetailsSheet extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
               ),
               child: Column(
-                children: const [
-                  DetailRow(Icons.location_on, "Tower A, Slot 6"),
-                  SizedBox(height: AppSpacing.sm),
-                  DetailRow(Icons.gps_fixed, "GPS Tracked • Live"),
-                  SizedBox(height: AppSpacing.sm),
-                  DetailRow(Icons.calendar_today, "Interior Deep Clean"),
+                children: [
+                  DetailRow(Icons.phone, "Phone: ${job.user.phone}"),
+                  const SizedBox(height: AppSpacing.sm),
+                  DetailRow(Icons.calendar_today, "Scheduled: ${job.scheduledDate}"),
+                  const SizedBox(height: AppSpacing.sm),
+                  DetailRow(Icons.access_time, "Slot: ${job.scheduledSlotStart} - ${job.scheduledSlotEnd}"),
+                  const SizedBox(height: AppSpacing.sm),
+                  DetailRow(Icons.build, "Service: ${job.addonService.name}"),
+                  const SizedBox(height: AppSpacing.sm),
+                  DetailRow(Icons.timer, "Duration: ${job.addonService.estimatedDurationMinutes} mins"),
+                  const SizedBox(height: AppSpacing.sm),
+                  DetailRow(Icons.description, "Description: ${job.addonService.description}"),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: AppSpacing.lg),
+
+            const Text("Parking Information", style: AppStyles.bodyMedium),
+            const SizedBox(height: AppSpacing.xs),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(AppSpacing.md),
+              decoration: BoxDecoration(
+                color: AppColors.backgroundLight,
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Building: ${job.vehicle.building ?? 'N/A'}", style: AppStyles.caption),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text("Flat/Door: ${job.vehicle.flatNo ?? 'N/A'}", style: AppStyles.caption),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text("Locality: ${job.vehicle.locality ?? 'N/A'}", style: AppStyles.caption),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text("Landmark: ${job.vehicle.landmark ?? 'N/A'}", style: AppStyles.caption),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text("Parking Notes: ${job.vehicle.parkingNotes ?? 'N/A'}", style: AppStyles.caption),
                 ],
               ),
             ),
@@ -110,7 +149,7 @@ class JobDetailsSheet extends StatelessWidget {
               children: [
                 const Text("Status", style: AppStyles.caption),
                 const SizedBox(width: AppSpacing.xs),
-                Text("• Pending", style: AppStyles.warningButton),
+                Text("• ${job.status}", style: AppStyles.warningButton),
               ],
             ),
 

@@ -15,4 +15,9 @@ abstract class ISpecialistTasksRepository {
     required int page,
     required int limit,
   });
+  Future<bool> acceptSpecialistJob(String id);
+  Future<bool> startSpecialistJob(String id, List<Map<String, dynamic>> beforePhotos);
+  Future<bool> uploadSpecialistBeforePhotos(String id, List<String> photos);
+  Future<bool> uploadSpecialistAfterPhotos(String id, List<String> photos);
+  Future<bool> completeSpecialistJob(String id, List<Map<String, dynamic>> afterPhotos, String notes);
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../core/interfaces/specialist_tasks_repository_interface.dart';
 import '../../data/models/task_model.dart';
 import '../../data/models/addon_service.dart';
@@ -222,6 +223,285 @@ class SpecialistTasksViewModel extends ChangeNotifier {
       tasks[i].completedTime = "01:15:10";
       notifyListeners();
     }
+  }
+
+  Future<bool> acceptSpecialistJob(String id) async {
+    _isLoadingJobs = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final success = await _repository.acceptSpecialistJob(id);
+      if (success) {
+        final index = _specialistJobs.indexWhere((job) => job.id == id);
+        if (index != -1) {
+          final old = _specialistJobs[index];
+          _specialistJobs[index] = SpecialistJobModel(
+            id: old.id,
+            userId: old.userId,
+            vehicleId: old.vehicleId,
+            addonServiceId: old.addonServiceId,
+            specialistId: old.specialistId,
+            status: "ACCEPTED",
+            scheduledDate: old.scheduledDate,
+            scheduledSlotStart: old.scheduledSlotStart,
+            scheduledSlotEnd: old.scheduledSlotEnd,
+            addonService: old.addonService,
+            vehicle: old.vehicle,
+            user: old.user,
+            supervisorAuditStatus: old.supervisorAuditStatus,
+            disputeWindowEnd: old.disputeWindowEnd,
+            beforePhotos: old.beforePhotos,
+            afterPhotos: old.afterPhotos,
+          );
+        }
+        return true;
+      }
+    } catch (e) {
+      _errorMessage = e.toString();
+      _showError = true;
+    } finally {
+      _isLoadingJobs = false;
+      notifyListeners();
+    }
+    return false;
+  }
+
+  Future<bool> startSpecialistJob(String id, String beforePhotoUrl) async {
+    _isLoadingJobs = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      // 1. Request GPS permission and capture coordinates
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        throw Exception("Location services are disabled.");
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          throw Exception("Location permissions are denied.");
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        throw Exception("Location permissions are permanently denied.");
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      // 2. Prepare photos payload
+      final beforePhotosPayload = [
+        {
+          "url": beforePhotoUrl,
+          "timestamp": DateTime.now().toUtc().toIso8601String(),
+          "lat": position.latitude,
+          "lng": position.longitude,
+        }
+      ];
+
+      // 3. Call repository
+      final success = await _repository.startSpecialistJob(id, beforePhotosPayload);
+      if (success) {
+        final index = _specialistJobs.indexWhere((job) => job.id == id);
+        if (index != -1) {
+          final old = _specialistJobs[index];
+          _specialistJobs[index] = SpecialistJobModel(
+            id: old.id,
+            userId: old.userId,
+            vehicleId: old.vehicleId,
+            addonServiceId: old.addonServiceId,
+            specialistId: old.specialistId,
+            status: "IN_PROGRESS",
+            scheduledDate: old.scheduledDate,
+            scheduledSlotStart: old.scheduledSlotStart,
+            scheduledSlotEnd: old.scheduledSlotEnd,
+            addonService: old.addonService,
+            vehicle: old.vehicle,
+            user: old.user,
+            supervisorAuditStatus: old.supervisorAuditStatus,
+            disputeWindowEnd: old.disputeWindowEnd,
+            beforePhotos: beforePhotosPayload.map((p) => SpecialistPhoto.fromJson(p)).toList(),
+            afterPhotos: old.afterPhotos,
+          );
+        }
+        await fetchSpecialistJobs();
+        return true;
+      }
+    } catch (e) {
+      _errorMessage = e.toString();
+      _showError = true;
+    } finally {
+      _isLoadingJobs = false;
+      notifyListeners();
+    }
+    return false;
+  }
+
+  Future<bool> uploadBeforePhotos(String id, List<String> photos) async {
+    _isLoadingJobs = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final success = await _repository.uploadSpecialistBeforePhotos(id, photos);
+      if (success) {
+        final index = _specialistJobs.indexWhere((job) => job.id == id);
+        if (index != -1) {
+          final old = _specialistJobs[index];
+          _specialistJobs[index] = SpecialistJobModel(
+            id: old.id,
+            userId: old.userId,
+            vehicleId: old.vehicleId,
+            addonServiceId: old.addonServiceId,
+            specialistId: old.specialistId,
+            status: old.status,
+            scheduledDate: old.scheduledDate,
+            scheduledSlotStart: old.scheduledSlotStart,
+            scheduledSlotEnd: old.scheduledSlotEnd,
+            addonService: old.addonService,
+            vehicle: old.vehicle,
+            user: old.user,
+            supervisorAuditStatus: old.supervisorAuditStatus,
+            disputeWindowEnd: old.disputeWindowEnd,
+            beforePhotos: photos,
+            afterPhotos: old.afterPhotos,
+          );
+        }
+        return true;
+      }
+    } catch (e) {
+      _errorMessage = e.toString();
+      _showError = true;
+    } finally {
+      _isLoadingJobs = false;
+      notifyListeners();
+    }
+    return false;
+  }
+
+  Future<bool> uploadAfterPhotos(String id, List<String> photos) async {
+    _isLoadingJobs = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final success = await _repository.uploadSpecialistAfterPhotos(id, photos);
+      if (success) {
+        final index = _specialistJobs.indexWhere((job) => job.id == id);
+        if (index != -1) {
+          final old = _specialistJobs[index];
+          _specialistJobs[index] = SpecialistJobModel(
+            id: old.id,
+            userId: old.userId,
+            vehicleId: old.vehicleId,
+            addonServiceId: old.addonServiceId,
+            specialistId: old.specialistId,
+            status: old.status,
+            scheduledDate: old.scheduledDate,
+            scheduledSlotStart: old.scheduledSlotStart,
+            scheduledSlotEnd: old.scheduledSlotEnd,
+            addonService: old.addonService,
+            vehicle: old.vehicle,
+            user: old.user,
+            supervisorAuditStatus: old.supervisorAuditStatus,
+            disputeWindowEnd: old.disputeWindowEnd,
+            beforePhotos: old.beforePhotos,
+            afterPhotos: photos,
+          );
+        }
+        return true;
+      }
+    } catch (e) {
+      _errorMessage = e.toString();
+      _showError = true;
+    } finally {
+      _isLoadingJobs = false;
+      notifyListeners();
+    }
+    return false;
+  }
+
+  Future<bool> completeSpecialistJob(String id, String afterPhotoUrl, String notes) async {
+    _isLoadingJobs = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      // 1. Request GPS permission and capture coordinates
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        throw Exception("Location services are disabled.");
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          throw Exception("Location permissions are denied.");
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        throw Exception("Location permissions are permanently denied.");
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      // 2. Prepare photos payload
+      final afterPhotosPayload = [
+        {
+          "url": afterPhotoUrl,
+          "timestamp": DateTime.now().toUtc().toIso8601String(),
+          "lat": position.latitude,
+          "lng": position.longitude,
+        }
+      ];
+
+      // 3. Call repository
+      final success = await _repository.completeSpecialistJob(id, afterPhotosPayload, notes);
+      if (success) {
+        final index = _specialistJobs.indexWhere((job) => job.id == id);
+        if (index != -1) {
+          final old = _specialistJobs[index];
+          _specialistJobs[index] = SpecialistJobModel(
+            id: old.id,
+            userId: old.userId,
+            vehicleId: old.vehicleId,
+            addonServiceId: old.addonServiceId,
+            specialistId: old.specialistId,
+            status: "COMPLETED",
+            scheduledDate: old.scheduledDate,
+            scheduledSlotStart: old.scheduledSlotStart,
+            scheduledSlotEnd: old.scheduledSlotEnd,
+            addonService: old.addonService,
+            vehicle: old.vehicle,
+            user: old.user,
+            supervisorAuditStatus: old.supervisorAuditStatus,
+            disputeWindowEnd: old.disputeWindowEnd,
+            beforePhotos: old.beforePhotos,
+            afterPhotos: afterPhotosPayload.map((p) => SpecialistPhoto.fromJson(p)).toList(),
+            specialistNotes: notes,
+          );
+        }
+        await fetchSpecialistJobs();
+        return true;
+      }
+    } catch (e) {
+      _errorMessage = e.toString();
+      _showError = true;
+    } finally {
+      _isLoadingJobs = false;
+      notifyListeners();
+    }
+    return false;
   }
 
   Future<void> toggleStep(int taskIndex, int stepIndex) async {

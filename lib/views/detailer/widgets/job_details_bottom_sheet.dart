@@ -44,6 +44,7 @@ class _JobDetailsBottomSheetState extends State<JobDetailsBottomSheet> {
   String? _errorMessage;
   String? _selectedRemarkReason;
   final TextEditingController _additionalNotesController = TextEditingController();
+  String? _editingRemarkId;
 
   @override
   void dispose() {
@@ -680,6 +681,7 @@ class _JobDetailsBottomSheetState extends State<JobDetailsBottomSheet> {
 
   Widget _buildRemarksSection(BuildContext context, JobModel job, DashboardViewModel dashboardVm) {
     final showInputs = job.status == JobStatus.pending || job.status == JobStatus.cleaning;
+    final isEditing = _editingRemarkId != null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -694,13 +696,14 @@ class _JobDetailsBottomSheetState extends State<JobDetailsBottomSheet> {
           DropdownButtonFormField<String>(
             value: _selectedRemarkReason,
             decoration: InputDecoration(
-              labelText: "Select Reason / Remark",
+              labelText: "Select Predefined Reason (Optional)",
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             ),
             items: const [
+              DropdownMenuItem(value: "", child: Text("None")),
               DropdownMenuItem(value: "Customer Unavailable", child: Text("Customer Unavailable")),
               DropdownMenuItem(value: "Vehicle Locked", child: Text("Vehicle Locked")),
               DropdownMenuItem(value: "Vehicle Not Found", child: Text("Vehicle Not Found")),
@@ -708,7 +711,7 @@ class _JobDetailsBottomSheetState extends State<JobDetailsBottomSheet> {
             ],
             onChanged: (val) {
               setState(() {
-                _selectedRemarkReason = val;
+                _selectedRemarkReason = (val == null || val.isEmpty) ? null : val;
               });
             },
           ),
@@ -716,35 +719,61 @@ class _JobDetailsBottomSheetState extends State<JobDetailsBottomSheet> {
           TextField(
             controller: _additionalNotesController,
             decoration: InputDecoration(
-              labelText: "Additional Notes",
+              labelText: "Add Service Remarks",
+              hintText: "Enter observations, requests, or conditions...",
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              counterText: "${_additionalNotesController.text.length}/250",
             ),
+            maxLength: 250,
             maxLines: 2,
+            onChanged: (val) {
+              setState(() {});
+            },
           ),
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
               Expanded(
                 child: ElevatedButton(
-                  onPressed: _selectedRemarkReason != null
-                      ? () {
-                          final reason = _selectedRemarkReason!;
+                  onPressed: (_selectedRemarkReason != null || _additionalNotesController.text.trim().isNotEmpty)
+                      ? () async {
+                          final reason = _selectedRemarkReason;
                           final comment = _additionalNotesController.text.trim();
                           
-                          dashboardVm.addJobRemark(widget.index!, reason, comment);
-
-                          context.read<InspectorViewModel>().addRemarkFromDetailer(widget.vehicle, reason, comment);
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Remarks saved successfully.")),
-                          );
+                          if (isEditing) {
+                            // Find the old remark to update inspector timeline correctly
+                            final oldRemark = job.remarks!.firstWhere((r) => r.id == _editingRemarkId);
+                            
+                            final success = await dashboardVm.updateJobRemark(widget.index!, _editingRemarkId!, reason, comment.isEmpty ? null : comment);
+                            if (success) {
+                              context.read<InspectorViewModel>().updateRemarkFromDetailer(
+                                widget.vehicle,
+                                oldRemark.reason,
+                                oldRemark.additionalComment ?? '',
+                                reason,
+                                comment,
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("Remarks updated successfully.")),
+                              );
+                            }
+                          } else {
+                            final newRemark = await dashboardVm.addJobRemark(widget.index!, reason, comment.isEmpty ? null : comment);
+                            if (newRemark != null) {
+                              context.read<InspectorViewModel>().addRemarkFromDetailer(widget.vehicle, reason, comment);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("Remarks saved successfully.")),
+                              );
+                            }
+                          }
 
                           setState(() {
                             _selectedRemarkReason = null;
                             _additionalNotesController.clear();
+                            _editingRemarkId = null;
                           });
                         }
                       : null,
@@ -753,45 +782,67 @@ class _JobDetailsBottomSheetState extends State<JobDetailsBottomSheet> {
                     disabledBackgroundColor: AppColors.border,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: const Text("Save Remark", style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                  child: Text(
+                    isEditing ? "Update Remark" : "Save Remark",
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  ),
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: _selectedRemarkReason != null
-                      ? () async {
-                          final reason = _selectedRemarkReason!;
-                          final comment = _additionalNotesController.text.trim();
-
-                          context.read<InspectorViewModel>().reportIssueFromDetailer(widget.vehicle, reason, comment);
-
-                          final scaffoldMessenger = ScaffoldMessenger.of(context);
-                          final navigator = Navigator.of(context);
-
-                          final success = await dashboardVm.markJobCNAWithRemark(widget.index!, reason, comment);
-                          
-                          if (success) {
-                            scaffoldMessenger.showSnackBar(
-                              const SnackBar(content: Text("Service Issue reported successfully.")),
-                            );
-                            navigator.pop();
-                          }
-                        }
-                      : null,
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: _selectedRemarkReason != null ? Colors.red : AppColors.border),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              if (isEditing) ...[
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectedRemarkReason = null;
+                        _additionalNotesController.clear();
+                        _editingRemarkId = null;
+                      });
+                    },
+                    style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: const Text("Cancel", style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
-                  child: Text(
-                    "Report Issue",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: _selectedRemarkReason != null ? Colors.red : AppColors.textSecondary,
+                ),
+              ] else ...[
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: (_selectedRemarkReason != null || _additionalNotesController.text.trim().isNotEmpty)
+                        ? () async {
+                            final reason = _selectedRemarkReason ?? "Custom Remark";
+                            final comment = _additionalNotesController.text.trim();
+
+                            context.read<InspectorViewModel>().reportIssueFromDetailer(widget.vehicle, reason, comment);
+
+                            final scaffoldMessenger = ScaffoldMessenger.of(context);
+                            final navigator = Navigator.of(context);
+
+                            final success = await dashboardVm.markJobCNAWithRemark(widget.index!, reason, comment.isEmpty ? null : comment);
+                            
+                            if (success) {
+                              scaffoldMessenger.showSnackBar(
+                                const SnackBar(content: Text("Service Issue reported successfully.")),
+                              );
+                              navigator.pop();
+                            }
+                          }
+                        : null,
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: (_selectedRemarkReason != null || _additionalNotesController.text.trim().isNotEmpty) ? Colors.red : AppColors.border),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: Text(
+                      "Report Issue",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: (_selectedRemarkReason != null || _additionalNotesController.text.trim().isNotEmpty) ? Colors.red : AppColors.textSecondary,
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ],
           ),
         ],
@@ -801,6 +852,9 @@ class _JobDetailsBottomSheetState extends State<JobDetailsBottomSheet> {
           const Text("Remarks History", style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
           const SizedBox(height: AppSpacing.sm),
           ...job.remarks!.map((remark) {
+            final hasPredefined = remark.reason != null && remark.reason!.isNotEmpty;
+            final titleText = hasPredefined ? remark.reason! : "Custom Remark";
+
             return Card(
               margin: const EdgeInsets.only(bottom: 8),
               shape: RoundedRectangleBorder(
@@ -816,12 +870,29 @@ class _JobDetailsBottomSheetState extends State<JobDetailsBottomSheet> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          remark.reason,
+                          titleText,
                           style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.warning),
                         ),
-                        Text(
-                          remark.createdAt,
-                          style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                        Row(
+                          children: [
+                            Text(
+                              remark.createdAt,
+                              style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                            ),
+                            if (showInputs) ...[
+                              const SizedBox(width: 8),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _editingRemarkId = remark.id;
+                                    _selectedRemarkReason = hasPredefined ? remark.reason : null;
+                                    _additionalNotesController.text = remark.additionalComment ?? '';
+                                  });
+                                },
+                                child: const Icon(Icons.edit, size: 16, color: AppColors.primary),
+                              ),
+                            ],
+                          ],
                         ),
                       ],
                     ),
@@ -834,7 +905,7 @@ class _JobDetailsBottomSheetState extends State<JobDetailsBottomSheet> {
                     ],
                     const SizedBox(height: 4),
                     Text(
-                      "By ${remark.createdBy}",
+                      "By ${remark.createdBy} (${remark.userRole})",
                       style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: AppColors.textSecondary),
                     ),
                   ],
