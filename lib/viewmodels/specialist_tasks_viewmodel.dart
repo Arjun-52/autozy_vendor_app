@@ -369,7 +369,7 @@ class SpecialistTasksViewModel extends ChangeNotifier {
             user: old.user,
             supervisorAuditStatus: old.supervisorAuditStatus,
             disputeWindowEnd: old.disputeWindowEnd,
-            beforePhotos: photos,
+            beforePhotos: photos.map((url) => SpecialistPhoto(url: url, timestamp: DateTime.now().toUtc().toIso8601String(), lat: 0.0, lng: 0.0)).toList(),
             afterPhotos: old.afterPhotos,
           );
         }
@@ -412,7 +412,7 @@ class SpecialistTasksViewModel extends ChangeNotifier {
             supervisorAuditStatus: old.supervisorAuditStatus,
             disputeWindowEnd: old.disputeWindowEnd,
             beforePhotos: old.beforePhotos,
-            afterPhotos: photos,
+            afterPhotos: photos.map((url) => SpecialistPhoto(url: url, timestamp: DateTime.now().toUtc().toIso8601String(), lat: 0.0, lng: 0.0)).toList(),
           );
         }
         return true;
