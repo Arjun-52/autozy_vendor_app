@@ -91,57 +91,97 @@ class InspectorRepository implements IInspectorRepository {
   Future<List<InspectionModel>> getInspections() async {
     if (kDebugMode) {
       print('API request start: getInspectionQueue');
-      // Debug authentication info
+      print('Endpoint: GET /api/v1/inspections/queue');
       final token = ApiClient().token;
       final role = ApiClient().staffRole;
       print('Inspector token exists: ${token != null}');
       print('Inspector role: $role');
-      print('Authorization header: Bearer ${token?.substring(0, 10)}...');
     }
     try {
-      final response = await _apiService.getInspectionQueue('PENDING');
+      final response = await _apiService.getInspectionQueue();
       if (kDebugMode) {
         print('API response received: $response');
-        // Detailed debug: pretty print JSON if response is a map
-        try {
-          final jsonString = response is Map ? response.toString() : response;
-          print('🔍 Inspection Queue Raw JSON: $jsonString');
-        } catch (e) {
-          print('Error printing response: $e');
-        }
       }
 
       if (response == null) {
-        // Log full response for debugging if available
         print('Response is null.');
-
         throw Exception("Null response received");
       }
 
-      try {
-        final Map<String, dynamic> respMap = response as Map<String, dynamic>;
-        final List<dynamic> rawList = respMap['data'] ?? [];
-        if (rawList.isNotEmpty) {
-          print('DEBUG KEYS IN QUEUE ITEM: ${(rawList.first as Map<String, dynamic>).keys.toList()}');
-          print('DEBUG FIRST QUEUE ITEM JSON: ${rawList.first}');
+      final Map<String, dynamic> respMap = response as Map<String, dynamic>;
+
+      final List<dynamic> assignedRaw = respMap['assigned'] ?? respMap['data'] ?? [];
+      final List<dynamic> unassignedRaw = respMap['unassigned'] ?? [];
+
+      if (kDebugMode) {
+        print('Assigned inspections count: ${assignedRaw.length}');
+        print('Unassigned inspections count: ${unassignedRaw.length}');
+        if (assignedRaw.isNotEmpty) {
+          print('DEBUG KEYS (assigned): ${(assignedRaw.first as Map<String, dynamic>).keys.toList()}');
         }
-        final List<InspectionModel> inspections = rawList
-            .map((e) => InspectionModel.fromQueueJson(e as Map<String, dynamic>))
-            .toList();
-        if (kDebugMode) {
-          print('Parsed ${inspections.length} inspections from queue');
-          print('Parsing success: getInspectionQueue');
+        if (unassignedRaw.isNotEmpty) {
+          print('DEBUG KEYS (unassigned): ${(unassignedRaw.first as Map<String, dynamic>).keys.toList()}');
         }
-        return inspections;
-      } catch (e) {
-        if (kDebugMode) {
-          print('Parsing failure: $e');
-        }
-        throw Exception("Failed to parse response: $e");
       }
+
+      final List<InspectionModel> assigned = assignedRaw
+          .map((e) => InspectionModel.fromQueueJson(e as Map<String, dynamic>))
+          .toList();
+      final List<InspectionModel> unassigned = unassignedRaw
+          .map((e) => InspectionModel.fromQueueJson(e as Map<String, dynamic>))
+          .toList();
+
+      if (kDebugMode) {
+        print('Parsed ${assigned.length} assigned + ${unassigned.length} unassigned inspections');
+      }
+
+      // Return combined list; ViewModel separates them via getAssigned/getUnassigned
+      return [...assigned, ...unassigned];
     } catch (e) {
       if (kDebugMode) {
-        print('API request error: $e');
+        print('API request error (getInspectionQueue): $e');
+      }
+      return [];
+    }
+  }
+
+  /// Returns only the assigned inspections for this inspector from the queue endpoint
+  Future<List<InspectionModel>> getAssignedInspections() async {
+    if (kDebugMode) {
+      print('API request start: getAssignedInspections');
+    }
+    try {
+      final response = await _apiService.getInspectionQueue();
+      if (response == null) return [];
+      final Map<String, dynamic> respMap = response as Map<String, dynamic>;
+      final List<dynamic> raw = respMap['assigned'] ?? [];
+      return raw
+          .map((e) => InspectionModel.fromQueueJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      if (kDebugMode) {
+        print('getAssignedInspections error: $e');
+      }
+      return [];
+    }
+  }
+
+  /// Returns only the unassigned (claimable) inspections from the queue endpoint
+  Future<List<InspectionModel>> getUnassignedInspections() async {
+    if (kDebugMode) {
+      print('API request start: getUnassignedInspections');
+    }
+    try {
+      final response = await _apiService.getInspectionQueue();
+      if (response == null) return [];
+      final Map<String, dynamic> respMap = response as Map<String, dynamic>;
+      final List<dynamic> raw = respMap['unassigned'] ?? [];
+      return raw
+          .map((e) => InspectionModel.fromQueueJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      if (kDebugMode) {
+        print('getUnassignedInspections error: $e');
       }
       return [];
     }

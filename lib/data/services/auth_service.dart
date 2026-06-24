@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../../core/interfaces/auth_service_interface.dart';
 import '../../core/network/api_client.dart';
@@ -106,7 +107,12 @@ class AuthService implements IAuthService {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('API request error: $e');
+        if (e is DioError) {
+          print('verifyOtp API error status: ${e.response?.statusCode}');
+          print('verifyOtp API error body: ${e.response?.data}');
+        } else {
+          print('verifyOtp API error: $e');
+        }
         print('Authentication failure');
       }
       rethrow;

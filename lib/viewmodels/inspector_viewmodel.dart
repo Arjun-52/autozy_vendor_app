@@ -15,8 +15,12 @@ class InspectorViewModel extends BaseViewModel {
   }
 
   List<InspectionModel> _inspections = [];
+  List<InspectionModel> _assignedInspections = [];
+  List<InspectionModel> _unassignedInspections = [];
 
   List<InspectionModel> get inspections => _inspections;
+  List<InspectionModel> get assignedInspections => _assignedInspections;
+  List<InspectionModel> get unassignedInspections => _unassignedInspections;
 
   // Pending verifications fetched separately
   List<InspectionModel> _pendingVerifications = [];
@@ -648,21 +652,33 @@ class InspectorViewModel extends BaseViewModel {
 
   Future<void> loadInspections() async {
     if (kDebugMode) {
-      print('Controller fetch start: loadInspections');
+      print('Controller fetch start: loadInspections (queue endpoint)');
     }
     await executeOperation(
       () async {
-        _inspections = await _repository.getInspections();
-        print('--- Inspection List API response ---');
-        for (final item in _inspections) {
-          print('Inspection ID: ${item.id}, Service ID (booking_id): ${item.bookingId}, Vehicle ID: ${item.vehicleId}');
+        // One API call — repository splits into assigned/unassigned internally
+        final assigned = await _repository.getAssignedInspections();
+        final unassigned = await _repository.getUnassignedInspections();
+
+        _assignedInspections = assigned;
+        _unassignedInspections = unassigned;
+        _inspections = [...assigned, ...unassigned];
+
+        print('--- Queue API Response: GET /api/v1/inspections/queue ---');
+        print('Assigned (${_assignedInspections.length}):');
+        for (final item in _assignedInspections) {
+          print('  [ASSIGNED] ID: ${item.id}, Vehicle: ${item.vehicle}, Status: ${item.status}');
         }
-        print('------------------------------------');
+        print('Unassigned (${_unassignedInspections.length}):');
+        for (final item in _unassignedInspections) {
+          print('  [UNASSIGNED] ID: ${item.id}, Vehicle: ${item.vehicle}, Status: ${item.status}');
+        }
+        print('----------------------------------------------------------');
       },
       onError: "Failed to load inspections",
       onSuccess: () {
         if (kDebugMode) {
-          print('Controller fetch success: loaded ${_inspections.length} inspections');
+          print('Controller fetch success: ${_assignedInspections.length} assigned, ${_unassignedInspections.length} unassigned');
         }
       },
     );
@@ -671,6 +687,36 @@ class InspectorViewModel extends BaseViewModel {
         print('Controller fetch failure: $errorMessage');
       }
     }
+  }
+
+  /// Claim an unassigned inspection — moves it from queue to assigned
+  Future<bool> claimInspection(String inspectionId) async {
+    if (kDebugMode) {
+      print('Controller action start: claimInspection');
+      print('Inspection ID being claimed: $inspectionId');
+    }
+    bool success = false;
+    await executeOperation(
+      () async {
+        success = await _repository.startInspection(inspectionId);
+        if (success) {
+          // Move from unassigned to assigned locally
+          final idx = _unassignedInspections.indexWhere((e) => e.id == inspectionId);
+          if (idx != -1) {
+            final claimed = _unassignedInspections.removeAt(idx);
+            claimed.status = InspectionStatus.inProgress;
+            _assignedInspections.insert(0, claimed);
+            _inspections = [..._assignedInspections, ..._unassignedInspections];
+          }
+          notifyListeners();
+          if (kDebugMode) {
+            print('claimInspection success — moved to assigned list');
+          }
+        }
+      },
+      onError: "Failed to claim inspection",
+    );
+    return success;
   }
 
   void approveInspection(int index) {

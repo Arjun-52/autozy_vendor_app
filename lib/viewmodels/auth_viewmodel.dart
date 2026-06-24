@@ -121,15 +121,17 @@ class AuthViewModel extends BaseViewModel {
       print('Verify OTP button tapped');
       print('Phone number received: $phoneNumber');
       print('OTP submitted: $otp');
-      print('Device ID used: ldplayer-5554');
       print('API request start');
     }
 
-    await executeOperation(() async {
+    setError(null);
+    notifyListeners();
+
+    try {
       final success = await repo.verifyOtp(
         phone: phoneNumber,
         otp: otp,
-        deviceId: "ldplayer-5554",
+        deviceId: "autozy-vendor-app",
       );
       if (success) {
         isOtpVerified = true;
@@ -137,18 +139,29 @@ class AuthViewModel extends BaseViewModel {
           print('Token storage success');
           print('Authentication success');
         }
-        // Navigate to role-based dashboard automatically
         final role = ApiClient().staffRole ?? "";
         NavigationService.goToDashboardByRole(role);
       } else {
-        throw Exception("Invalid OTP. Try again.");
+        setError("Invalid OTP. Please try again.");
+        if (kDebugMode) {
+          print('Authentication failure: success=false');
+        }
       }
-    }, onError: "Something went wrong while verifying OTP");
-
-    if (errorMessage != null) {
+    } on DioError catch (e) {
       if (kDebugMode) {
-        print('Authentication failure: $errorMessage');
+        print('verifyOtp DioError status: ${e.response?.statusCode}');
+        print('verifyOtp DioError body: ${e.response?.data}');
       }
+      final friendlyError = _parseDioError(e);
+      setError(friendlyError);
+      if (kDebugMode) {
+        print('Authentication failure: $friendlyError');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('verifyOtp unexpected error: $e');
+      }
+      setError("Something went wrong. Please try again.");
     }
   }
 

@@ -85,6 +85,7 @@ class InspectorCard extends StatelessWidget {
               isApproved: isApproved,
               vehicle: inspection.vehicle,
               name: inspection.name,
+              vehicleName: inspection.vehicleName,
             ),
 
             const SizedBox(height: AppSpacing.sm),

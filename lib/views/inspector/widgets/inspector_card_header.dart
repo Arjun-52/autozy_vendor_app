@@ -7,6 +7,7 @@ class InspectorCardHeader extends StatelessWidget {
   final bool isApproved;
   final String vehicle;
   final String name;
+  final String? vehicleName;
 
   const InspectorCardHeader({
     super.key,
@@ -14,6 +15,7 @@ class InspectorCardHeader extends StatelessWidget {
     required this.isApproved,
     required this.vehicle,
     required this.name,
+    this.vehicleName,
   });
 
   @override
@@ -48,41 +50,52 @@ class InspectorCardHeader extends StatelessWidget {
 
         const SizedBox(width: 10),
 
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              vehicle,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-                color: isFlagged
-                    ? AppColors.textSecondary
-                    : AppColors.textPrimary,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                vehicle,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  color: isFlagged
+                      ? AppColors.textSecondary
+                      : AppColors.textPrimary,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(color: AppColors.textSecondary),
-                ),
-                const SizedBox(width: 6),
-                const Text(
-                  "• SUV",
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      name,
+                      style: const TextStyle(color: AppColors.textSecondary),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                  if (vehicleName != null && vehicleName!.isNotEmpty) ...[
+                    const SizedBox(width: 6),
+                    const Text("•",
+                        style: TextStyle(color: AppColors.textSecondary)),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        vehicleName!,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
         ),
-
-        const Spacer(),
 
         if (!isFlagged) const Icon(Icons.arrow_forward_ios, size: 16),
       ],

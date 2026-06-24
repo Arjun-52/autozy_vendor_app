@@ -4,6 +4,7 @@ import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
 import 'package:autozy_vendor_app/views/inspector/widgets/inspector_card.dart';
 import 'package:autozy_vendor_app/views/inspector/screens/area_management_screen.dart';
 import 'package:autozy_vendor_app/views/detailer/widgets/status_card.dart';
+import 'package:autozy_vendor_app/data/models/inspection_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/svg.dart';
@@ -21,14 +22,14 @@ class InspectorDashboard extends StatefulWidget {
   State<InspectorDashboard> createState() => _InspectorDashboardState();
 }
 
-class _InspectorDashboardState extends State<InspectorDashboard> with WidgetsBindingObserver {
+class _InspectorDashboardState extends State<InspectorDashboard>
+    with WidgetsBindingObserver {
   bool isOnline = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<InspectorViewModel>().loadInspections();
     });
@@ -58,9 +59,7 @@ class _InspectorDashboardState extends State<InspectorDashboard> with WidgetsBin
         backgroundColor: AppColors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.black),
-          onPressed: () {
-            NavigationService.goToLogin();
-          },
+          onPressed: () => NavigationService.goToLogin(),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,10 +71,7 @@ class _InspectorDashboardState extends State<InspectorDashboard> with WidgetsBin
         actions: [
           GestureDetector(
             onTap: () {
-              setState(() {
-                isOnline = !isOnline;
-              });
-
+              setState(() => isOnline = !isOnline);
               handleOnlineToggle(context, isOnline);
             },
             child: AnimatedContainer(
@@ -102,600 +98,448 @@ class _InspectorDashboardState extends State<InspectorDashboard> with WidgetsBin
           ),
           IconButton(
             icon: const Icon(Icons.person_outline, color: AppColors.black),
-            onPressed: () {
-              context.push('/profile');
-            },
+            onPressed: () => context.push('/profile'),
           ),
           IconButton(
             icon: const Icon(Icons.logout, color: AppColors.black),
-            onPressed: () {
-              NavigationService.goToLogin();
-            },
+            onPressed: () => NavigationService.goToLogin(),
           ),
         ],
       ),
-      body: Padding(
-        padding: AppSpacing.all16,
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: StatusCard(
-                    icon: SvgPicture.asset(
-                      "assets/images/Car.svg",
-                      height: AppSpacing.iconMd,
-                      width: AppSpacing.iconMd,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.black,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                    title: vm.approvedCount.toString(),
-                    subtitle: "Approved",
-                    iconColor: AppColors.black,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: StatusCard(
-                    icon: SvgPicture.asset(
-                      "assets/images/Car.svg",
-                      height: AppSpacing.iconMd,
-                      width: AppSpacing.iconMd,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.black,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                    title: vm.pendingCount.toString(),
-                    subtitle: "Pending",
-                    iconColor: AppColors.black,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: StatusCard(
-                    icon: const Icon(Icons.warning),
-                    title: vm.flaggedCount.toString(),
-                    subtitle: "Flagged",
-                    iconColor: AppColors.error,
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: AppSpacing.lg),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text("Inspection Queue", style: AppStyles.sectionTitle),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.map,
-                        color: AppColors.black,
-                      ),
-                      tooltip: "Area Master",
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ChangeNotifierProvider.value(
-                              value: vm,
-                              child: const AreaMasterManagementScreen(),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.filter_list,
-                        color: vm.hasActiveFilters ? AppColors.warning : AppColors.black,
-                      ),
-                      onPressed: () {
-                        _showFilterBottomSheet(context, vm);
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            if (vm.hasActiveFilters) ...[
-              const SizedBox(height: AppSpacing.xs),
-              Row(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
+      body: vm.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: () => vm.loadInspections(),
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  // ── Stats Row ──────────────────────────────────────────
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: AppSpacing.all16,
                       child: Row(
                         children: [
-                          if (vm.selectedArea != null)
-                            _buildFilterChip(
-                              label: 'Area: ${vm.selectedArea}',
-                              onDeleted: () => vm.removeAreaFilter(),
+                          Expanded(
+                            child: StatusCard(
+                              icon: SvgPicture.asset(
+                                "assets/images/Car.svg",
+                                height: AppSpacing.iconMd,
+                                width: AppSpacing.iconMd,
+                                colorFilter: const ColorFilter.mode(
+                                  AppColors.black,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                              title: vm.assignedInspections.length.toString(),
+                              subtitle: "Assigned",
+                              iconColor: AppColors.black,
                             ),
-                          if (vm.selectedCommunity != null)
-                            _buildFilterChip(
-                              label: 'Community: ${vm.selectedCommunity}',
-                              onDeleted: () => vm.removeCommunityFilter(),
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: StatusCard(
+                              icon: SvgPicture.asset(
+                                "assets/images/Car.svg",
+                                height: AppSpacing.iconMd,
+                                width: AppSpacing.iconMd,
+                                colorFilter: const ColorFilter.mode(
+                                  AppColors.black,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                              title: vm.unassignedInspections.length.toString(),
+                              subtitle: "In Queue",
+                              iconColor: AppColors.black,
                             ),
-                          if (vm.selectedBuilding != null)
-                            _buildFilterChip(
-                              label: 'Building: ${vm.selectedBuilding}',
-                              onDeleted: () => vm.removeBuildingFilter(),
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: StatusCard(
+                              icon: const Icon(Icons.warning),
+                              title: vm.flaggedCount.toString(),
+                              subtitle: "Flagged",
+                              iconColor: AppColors.error,
                             ),
-                          if (vm.selectedStreet != null)
-                            _buildFilterChip(
-                              label: 'Street: ${vm.selectedStreet}',
-                              onDeleted: () => vm.removeStreetFilter(),
-                            ),
+                          ),
                         ],
                       ),
                     ),
                   ),
-                  TextButton(
-                    onPressed: () => vm.clearFilters(),
-                    child: const Text(
-                      'Clear All',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
+
+                  // ── Error Banner ───────────────────────────────────────
+                  if (vm.errorMessage != null)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Column(
+                          children: [
+                            Text(
+                              vm.errorMessage!,
+                              style: const TextStyle(color: AppColors.error),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            ElevatedButton(
+                              onPressed: () => vm.loadInspections(),
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary),
+                              child: const Text("Retry",
+                                  style: TextStyle(color: AppColors.black)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                  // ── Section: Assigned Jobs ──────────────────────────────
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.assignment_ind_outlined,
+                                  size: 18, color: AppColors.black),
+                              const SizedBox(width: 6),
+                              Text(
+                                "Assigned Jobs (${vm.assignedInspections.length})",
+                                style: AppStyles.sectionTitle,
+                              ),
+                            ],
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.map, color: AppColors.black),
+                            tooltip: "Area Master",
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      ChangeNotifierProvider.value(
+                                    value: vm,
+                                    child: const AreaMasterManagementScreen(),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ),
-            ],
 
-            const SizedBox(height: AppSpacing.sm),
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: () => vm.loadInspections(),
-                child: vm.isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : vm.errorMessage != null
-                        ? SingleChildScrollView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            child: SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.6,
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      vm.errorMessage!,
-                                      style: const TextStyle(color: AppColors.error),
-                                      textAlign: TextAlign.center,
+                  if (vm.assignedInspections.isEmpty)
+                    const SliverToBoxAdapter(
+                      child: _EmptyState(
+                        icon: Icons.assignment_outlined,
+                        message: "No assigned inspections.",
+                      ),
+                    )
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) => InspectorCard(
+                            inspection: vm.assignedInspections[index],
+                            index: index,
+                          ),
+                          childCount: vm.assignedInspections.length,
+                        ),
+                      ),
+                    ),
+
+                  // ── Section: Unassigned Queue ───────────────────────────
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.inbox_outlined,
+                              size: 18, color: AppColors.black),
+                          const SizedBox(width: 6),
+                          Text(
+                            "Available Queue (${vm.unassignedInspections.length})",
+                            style: AppStyles.sectionTitle,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  if (vm.unassignedInspections.isEmpty)
+                    const SliverToBoxAdapter(
+                      child: _EmptyState(
+                        icon: Icons.inbox,
+                        message: "No inspections available in queue.",
+                      ),
+                    )
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) => _QueueCard(
+                            inspection: vm.unassignedInspections[index],
+                            onClaim: () async {
+                              final confirmed = await showDialog<bool>(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: const Text("Claim Inspection"),
+                                  content: Text(
+                                    "Claim vehicle ${vm.unassignedInspections[index].vehicle}?",
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(ctx, false),
+                                      child: const Text("Cancel"),
                                     ),
-                                    const SizedBox(height: 10),
                                     ElevatedButton(
-                                      onPressed: () => vm.loadInspections(),
+                                      onPressed: () =>
+                                          Navigator.pop(ctx, true),
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.primary,
-                                      ),
-                                      child: const Text(
-                                        "Retry",
-                                        style: TextStyle(color: AppColors.black),
-                                      ),
+                                          backgroundColor: AppColors.primary),
+                                      child: const Text("Claim",
+                                          style: TextStyle(
+                                              color: AppColors.black)),
                                     ),
                                   ],
                                 ),
-                              ),
-                            ),
-                          )
-                        : vm.inspections.isEmpty
-                            ? const SingleChildScrollView(
-                                physics: AlwaysScrollableScrollPhysics(),
-                                child: SizedBox(
-                                  height: 300,
-                                  child: Center(
-                                    child: Text(
-                                      "No inspections in queue",
-                                      style: AppStyles.body,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : vm.filteredInspections.isEmpty
-                                ? SingleChildScrollView(
-                                    physics: const AlwaysScrollableScrollPhysics(),
-                                    child: SizedBox(
-                                      height: 300,
-                                      child: Center(
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            const Icon(
-                                              Icons.filter_list_off,
-                                              size: 48,
-                                              color: AppColors.grey600,
-                                            ),
-                                            const SizedBox(height: 16),
-                                            const Text(
-                                              "No jobs found for selected filters.",
-                                              style: AppStyles.body,
-                                              textAlign: TextAlign.center,
-                                            ),
-                                            const SizedBox(height: 16),
-                                            ElevatedButton(
-                                              onPressed: () => vm.clearFilters(),
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: AppColors.primary,
-                                                foregroundColor: AppColors.textPrimary,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                              ),
-                                              child: const Text(
-                                                "Clear Filters",
-                                                style: TextStyle(fontWeight: FontWeight.bold),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : ListView.builder(
-                                    physics: const AlwaysScrollableScrollPhysics(),
-                                    itemCount: vm.filteredInspections.length,
-                                    itemBuilder: (context, index) {
-                                      return InspectorCard(
-                                        inspection: vm.filteredInspections[index],
-                                        index: index,
-                                      );
-                                    },
-                                  ),
+                              );
+                              if (confirmed == true) {
+                                final id =
+                                    vm.unassignedInspections[index].id;
+                                final success =
+                                    await vm.claimInspection(id);
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
+                                    content: Text(success
+                                        ? 'Inspection claimed successfully'
+                                        : 'Failed to claim inspection'),
+                                  ));
+                                }
+                              }
+                            },
+                          ),
+                          childCount: vm.unassignedInspections.length,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
+    );
+  }
+}
+
+// ── Empty State Widget ──────────────────────────────────────────────────────
+
+class _EmptyState extends StatelessWidget {
+  final IconData icon;
+  final String message;
+
+  const _EmptyState({required this.icon, required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 40, color: AppColors.grey600),
+            const SizedBox(height: 8),
+            Text(message,
+                style: const TextStyle(color: AppColors.textSecondary),
+                textAlign: TextAlign.center),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildFilterChip({required String label, required VoidCallback onDeleted}) {
+// ── Unassigned Queue Card ───────────────────────────────────────────────────
+
+class _QueueCard extends StatelessWidget {
+  final InspectionModel inspection;
+  final VoidCallback onClaim;
+
+  const _QueueCard({required this.inspection, required this.onClaim});
+
+  @override
+  Widget build(BuildContext context) {
+    final vm = context.read<InspectorViewModel>();
+    final isClaiming =
+        vm.isLoading; // shows spinner during claim operation
+
     return Container(
-      margin: const EdgeInsets.only(right: 8),
-      child: Chip(
-        label: Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w500,
+      margin: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE9E9E9)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF161616).withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
-        ),
-        backgroundColor: AppColors.primary,
-        deleteIcon: const Icon(Icons.close, size: 14, color: AppColors.textPrimary),
-        onDeleted: onDeleted,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        ],
       ),
-    );
-  }
-
-  void _showFilterBottomSheet(BuildContext context, InspectorViewModel vm) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        final searchController = TextEditingController();
-
-        return StatefulBuilder(
-          builder: (context, setBottomSheetState) {
-            final query = searchController.text.trim().toLowerCase();
-
-            final filteredAreas = vm.uniqueAreas
-                .where((e) => e.toLowerCase().contains(query))
-                .toList();
-            final filteredCommunities = vm.uniqueCommunities
-                .where((e) => e.toLowerCase().contains(query))
-                .toList();
-            final filteredBuildings = vm.uniqueBuildings
-                .where((e) => e.toLowerCase().contains(query))
-                .toList();
-            final filteredStreets = vm.uniqueStreets
-                .where((e) => e.toLowerCase().contains(query))
-                .toList();
-
-            final hasMatches = filteredAreas.isNotEmpty ||
-                filteredCommunities.isNotEmpty ||
-                filteredBuildings.isNotEmpty ||
-                filteredStreets.isNotEmpty;
-
-            return DraggableScrollableSheet(
-              initialChildSize: 0.75,
-              minChildSize: 0.5,
-              maxChildSize: 0.95,
-              builder: (context, scrollController) {
-                return Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header row
+          Row(
+            children: [
+              Container(
+                height: 45,
+                width: 45,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: SvgPicture.asset(
+                    "assets/images/car2.svg",
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.textPrimary,
+                      BlendMode.srcIn,
                     ),
                   ),
-                  child: Column(
-                    children: [
-                      Center(
-                        child: Container(
-                          margin: const EdgeInsets.only(top: 8, bottom: 8),
-                          width: 40,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      inspection.vehicle.isNotEmpty
+                          ? inspection.vehicle
+                          : 'N/A',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: AppColors.textPrimary,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Filter Jobs",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            if (vm.hasActiveFilters)
-                              TextButton(
-                                onPressed: () {
-                                  vm.clearFilters();
-                                  setBottomSheetState(() {});
-                                },
-                                child: const Text(
-                                  "Clear All",
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      inspection.vehicleName ?? inspection.name,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
                       ),
-                      const Divider(),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: TextField(
-                          controller: searchController,
-                          decoration: InputDecoration(
-                            hintText: "Search within filters...",
-                            prefixIcon: const Icon(Icons.search, color: AppColors.grey600),
-                            suffixIcon: searchController.text.isNotEmpty
-                                ? IconButton(
-                                    icon: const Icon(Icons.clear, size: 18),
-                                    onPressed: () {
-                                      searchController.clear();
-                                      setBottomSheetState(() {});
-                                    },
-                                  )
-                                : null,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: AppColors.border),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          ),
-                          onChanged: (val) {
-                            setBottomSheetState(() {});
-                          },
-                        ),
-                      ),
-                      Expanded(
-                        child: ListView(
-                          controller: scrollController,
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          children: [
-                            if (!hasMatches)
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 32.0),
-                                child: Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(Icons.search_off, size: 48, color: Colors.grey),
-                                      const SizedBox(height: 16),
-                                      Text(
-                                        "No filter options match \"${searchController.text}\"",
-                                        style: const TextStyle(color: Colors.grey),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            
-                            if (filteredAreas.isNotEmpty) ...[
-                              _buildCategoryHeader("Area"),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: filteredAreas.map((area) {
-                                  final isSelected = vm.selectedArea == area;
-                                  return ChoiceChip(
-                                    label: Text(area),
-                                    selected: isSelected,
-                                    onSelected: (selected) {
-                                      vm.setFilters(
-                                        area: selected ? area : null,
-                                        building: vm.selectedBuilding,
-                                        street: vm.selectedStreet,
-                                        community: vm.selectedCommunity,
-                                      );
-                                      setBottomSheetState(() {});
-                                    },
-                                    selectedColor: AppColors.primary,
-                                    backgroundColor: AppColors.greyLight,
-                                    labelStyle: TextStyle(
-                                      color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                              const SizedBox(height: 16),
-                            ],
-
-                            if (filteredCommunities.isNotEmpty) ...[
-                              _buildCategoryHeader("Community"),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: filteredCommunities.map((community) {
-                                  final isSelected = vm.selectedCommunity == community;
-                                  return ChoiceChip(
-                                    label: Text(community),
-                                    selected: isSelected,
-                                    onSelected: (selected) {
-                                      vm.setFilters(
-                                        area: vm.selectedArea,
-                                        building: vm.selectedBuilding,
-                                        street: vm.selectedStreet,
-                                        community: selected ? community : null,
-                                      );
-                                      setBottomSheetState(() {});
-                                    },
-                                    selectedColor: AppColors.primary,
-                                    backgroundColor: AppColors.greyLight,
-                                    labelStyle: TextStyle(
-                                      color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                              const SizedBox(height: 16),
-                            ],
-
-                            if (filteredBuildings.isNotEmpty) ...[
-                              _buildCategoryHeader("Building"),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: filteredBuildings.map((building) {
-                                  final isSelected = vm.selectedBuilding == building;
-                                  return ChoiceChip(
-                                    label: Text(building),
-                                    selected: isSelected,
-                                    onSelected: (selected) {
-                                      vm.setFilters(
-                                        area: vm.selectedArea,
-                                        building: selected ? building : null,
-                                        street: vm.selectedStreet,
-                                        community: vm.selectedCommunity,
-                                      );
-                                      setBottomSheetState(() {});
-                                    },
-                                    selectedColor: AppColors.primary,
-                                    backgroundColor: AppColors.greyLight,
-                                    labelStyle: TextStyle(
-                                      color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                              const SizedBox(height: 16),
-                            ],
-
-                            if (filteredStreets.isNotEmpty) ...[
-                              _buildCategoryHeader("Street"),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: filteredStreets.map((street) {
-                                  final isSelected = vm.selectedStreet == street;
-                                  return ChoiceChip(
-                                    label: Text(street),
-                                    selected: isSelected,
-                                    onSelected: (selected) {
-                                      vm.setFilters(
-                                        area: vm.selectedArea,
-                                        building: vm.selectedBuilding,
-                                        street: selected ? street : null,
-                                        community: vm.selectedCommunity,
-                                      );
-                                      setBottomSheetState(() {});
-                                    },
-                                    selectedColor: AppColors.primary,
-                                    backgroundColor: AppColors.greyLight,
-                                    labelStyle: TextStyle(
-                                      color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                              const SizedBox(height: 24),
-                            ],
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: 48,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: AppColors.textPrimary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: const Text(
-                              "Apply Filters",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
+                  ],
+                ),
+              ),
+              // Pending badge
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text(
+                  "Pending",
+                  style: TextStyle(
+                    color: Colors.orange,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
                   ),
-                );
-              },
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildCategoryHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0, top: 8.0),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textSecondary,
+                ),
+              ),
+            ],
           ),
-        ),
+
+          const SizedBox(height: 8),
+
+          // Location
+          if (inspection.location.isNotEmpty)
+            Row(
+              children: [
+                const Icon(Icons.location_on_outlined,
+                    size: 14, color: AppColors.textSecondary),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    inspection.location,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+
+          // Scheduled date if available
+          if (inspection.serviceDate != null &&
+              inspection.serviceDate!.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Icons.schedule,
+                    size: 14, color: AppColors.textSecondary),
+                const SizedBox(width: 4),
+                Text(
+                  inspection.serviceDate!,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ],
+
+          const SizedBox(height: 12),
+
+          // Claim button
+          SizedBox(
+            width: double.infinity,
+            height: 44,
+            child: ElevatedButton.icon(
+              onPressed: isClaiming ? null : onClaim,
+              icon: isClaiming
+                  ? const SizedBox(
+                      height: 16,
+                      width: 16,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: AppColors.black),
+                    )
+                  : const Icon(Icons.add_task,
+                      size: 18, color: AppColors.black),
+              label: Text(
+                isClaiming ? "Claiming..." : "Claim Inspection",
+                style: const TextStyle(
+                  color: AppColors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

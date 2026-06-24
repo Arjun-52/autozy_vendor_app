@@ -7,8 +7,14 @@ import '../../data/models/upload_image_response.dart';
 abstract class IInspectorRepository {
   /// Upload image
   Future<UploadImageResponse> uploadImage(File file);
-  /// Get all inspections
+  /// Get all inspections (combined assigned + unassigned)
   Future<List<InspectionModel>> getInspections();
+
+  /// Get only assigned inspections for this inspector
+  Future<List<InspectionModel>> getAssignedInspections();
+
+  /// Get only unassigned (claimable) inspections in the queue
+  Future<List<InspectionModel>> getUnassignedInspections();
 
   /// Approve an inspection
   Future<bool> approveInspection(String inspectionId);

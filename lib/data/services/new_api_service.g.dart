@@ -162,9 +162,9 @@ class _NewApiService implements NewApiService {
   }
 
   @override
-  Future<dynamic> getInspectionQueue(status) async {
+  Future<dynamic> getInspectionQueue() async {
     const _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'status': status};
+    final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     final _result = await _dio.fetch(_setStreamType<dynamic>(Options(
@@ -174,7 +174,7 @@ class _NewApiService implements NewApiService {
     )
         .compose(
           _dio.options,
-          '/api/v1/admin/inspections',
+          '/api/v1/inspections/queue',
           queryParameters: queryParameters,
           data: _data,
         )
