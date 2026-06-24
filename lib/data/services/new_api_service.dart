@@ -99,9 +99,6 @@ abstract class NewApiService {
     @Body() Map<String, dynamic> data,
   );
 
-  @POST('/inspections/{id}/approve')
-  Future<dynamic> approveInspection(@Path('id') String id);
-
   @POST('/inspections/{id}/flag')
   Future<dynamic> flagInspection(@Path('id') String id);
 
@@ -123,7 +120,7 @@ abstract class NewApiService {
     @Body() Map<String, dynamic> body,
   );
 
-  @POST('/service/{id}/comments')
+  @POST('/api/v1/service/{id}/comments')
   Future<dynamic> addComment(
     @Path('id') String id,
     @Body() Map<String, dynamic> body,

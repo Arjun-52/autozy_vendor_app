@@ -5,8 +5,10 @@ import 'package:autozy_vendor_app/views/inspector/widgets/inspector_card.dart';
 import 'package:autozy_vendor_app/views/inspector/screens/area_management_screen.dart';
 import 'package:autozy_vendor_app/views/detailer/widgets/status_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
@@ -97,6 +99,12 @@ class _InspectorDashboardState extends State<InspectorDashboard> with WidgetsBin
                 ),
               ),
             ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.person_outline, color: AppColors.black),
+            onPressed: () {
+              context.push('/profile');
+            },
           ),
           IconButton(
             icon: const Icon(Icons.logout, color: AppColors.black),

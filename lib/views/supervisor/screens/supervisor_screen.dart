@@ -6,6 +6,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../widgets/service_record_card.dart';
+
 import '../widgets/team_status_card.dart';
 import '../widgets/tab_button.dart';
 import '../widgets/member_card.dart';
@@ -53,7 +55,7 @@ class _SupervisorScreenState extends State<SupervisorScreen> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: AppColors.black),
             onPressed: () {
-              context.go('/role');
+              NavigationService.goToLogin();
             },
           ),
           title: Column(
@@ -93,6 +95,12 @@ class _SupervisorScreenState extends State<SupervisorScreen> {
                   ),
                 ),
               ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.person_outline, color: AppColors.black),
+              onPressed: () {
+                context.push('/profile');
+              },
             ),
             IconButton(
               icon: const Icon(Icons.logout, color: AppColors.black),
@@ -281,13 +289,7 @@ class _SupervisorScreenState extends State<SupervisorScreen> {
       itemCount: vm.serviceRecords.length,
       itemBuilder: (context, index) {
         final record = vm.serviceRecords[index];
-        return Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          child: ListTile(
-            title: Text("Record #${index + 1}"),
-            subtitle: Text(record.toString()),
-          ),
-        );
+        return ServiceRecordCard(record: Map<String, dynamic>.from(record));
       },
     );
   }

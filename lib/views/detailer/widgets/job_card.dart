@@ -16,6 +16,7 @@ class JobCard extends StatelessWidget {
   final bool isCNA;
   final JobStatus status;
   final String? beforeImage;
+  final String? vehicleImage;
   final VoidCallback? onTap;
 
   const JobCard({
@@ -28,6 +29,7 @@ class JobCard extends StatelessWidget {
     this.isCNA = false,
     this.status = JobStatus.pending,
     this.beforeImage,
+    this.vehicleImage,
     this.onTap,
   });
 
@@ -75,6 +77,7 @@ class JobCard extends StatelessWidget {
               name: name,
               isCompleted: isCompleted,
               isCNA: isCNA,
+              vehicleImage: vehicleImage,
             ),
 
             const SizedBox(height: 10),

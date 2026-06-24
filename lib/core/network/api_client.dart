@@ -17,6 +17,7 @@ class ApiClient {
   String? _token = kDebugMode ? "mock_development_access_token_jwt" : null;
   String? _refreshToken = kDebugMode ? "mock_development_refresh_token_jwt" : null;
   String? _staffRole;
+  String? _profilePictureUrl;
 
   File get _sessionFile => File('${Directory.systemTemp.path}/autozy_session.json');
 
@@ -26,6 +27,7 @@ class ApiClient {
         'token': _token,
         'refreshToken': _refreshToken,
         'staffRole': _staffRole,
+        'profilePictureUrl': _profilePictureUrl,
       }));
     } catch (e) {
       if (kDebugMode) {
@@ -42,8 +44,9 @@ class ApiClient {
         _token = data['token'];
         _refreshToken = data['refreshToken'];
         _staffRole = data['staffRole'];
+        _profilePictureUrl = data['profilePictureUrl'];
         if (kDebugMode) {
-          print('Loaded session: token=$_token, role=$_staffRole');
+          print('Loaded session: token=$_token, role=$_staffRole, profilePictureUrl=$_profilePictureUrl');
         }
       }
     } catch (e) {
@@ -115,6 +118,18 @@ class ApiClient {
 
   /// Get current staff role
   String? get staffRole => _staffRole;
+
+  /// Get current profile picture URL
+  String? get profilePictureUrl => _profilePictureUrl;
+
+  /// Store profile picture URL
+  void setProfilePictureUrl(String? url) {
+    _profilePictureUrl = url;
+    _saveSession();
+    if (kDebugMode) {
+      print('Profile picture URL updated in ApiClient: $url');
+    }
+  }
 
   /// Initialize the HTTP client
   void initialize() {

@@ -84,6 +84,27 @@ class SpecialistTasksViewModel extends ChangeNotifier {
   String? _errorMessage;
   bool _showError = false;
 
+  bool _isBooking = false;
+  bool get isBooking => _isBooking;
+
+  Future<bool> bookAddon(String pricingId) async {
+    _isBooking = true;
+    notifyListeners();
+    try {
+      // Simulate booking API call (POST /addons/book)
+      await Future.delayed(const Duration(milliseconds: 1200));
+      _isBooking = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _isBooking = false;
+      _errorMessage = e.toString();
+      _showError = true;
+      notifyListeners();
+      return false;
+    }
+  }
+
   String? get errorMessage => _errorMessage;
   bool get showError => _showError;
 

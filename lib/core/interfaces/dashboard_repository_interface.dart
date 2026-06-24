@@ -8,4 +8,5 @@ abstract class IDashboardRepository {
   Future<bool> undoJobStatus(String vehicleId);
   Future<bool> saveJobRemark(String vehicleId, String? reason, String? comment);
   Future<bool> updateJobRemark(String remarkId, String? reason, String? comment);
+  Future<Map<String, dynamic>> getDashboardStats();
 }

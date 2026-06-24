@@ -91,6 +91,8 @@ Object? _readId(Map json, String key) {
 class InspectionModel {
   @JsonKey(readValue: _readId)
   final String id;
+  @JsonKey(name: 'booking_id')
+  final String? bookingId;
   @JsonKey(name: 'vehicle_number')
   final String vehicle;
   final String name;
@@ -159,6 +161,7 @@ class InspectionModel {
 
   InspectionModel({
     required this.id,
+    this.bookingId,
     required this.vehicle,
     required this.name,
     required this.location,
@@ -193,8 +196,42 @@ class InspectionModel {
   }) {
     uploadedPhotos = [];
   }
-  factory InspectionModel.fromJson(Map<String, dynamic> json) =>
-      _$InspectionModelFromJson(json);
+  factory InspectionModel.fromJson(Map<String, dynamic> json) {
+    final model = _$InspectionModelFromJson(json);
+    final extraPhotos = _parsePhotos(json);
+    if (extraPhotos != null && extraPhotos.isNotEmpty) {
+      model.photos ??= [];
+      for (final p in extraPhotos) {
+        if (!model.photos!.any((existing) => existing.url == p.url)) {
+          model.photos!.add(p);
+        }
+      }
+    }
+    return model;
+  }
+
+  static List<InspectionPhoto>? _parsePhotos(Map<String, dynamic> json) {
+    final List<InspectionPhoto> parsedPhotos = [];
+    if (json['photos'] != null) {
+      parsedPhotos.addAll((json['photos'] as List)
+          .map((e) => InspectionPhoto.fromJson(e as Map<String, dynamic>)));
+    }
+    if (json['before_photos'] != null) {
+      parsedPhotos.addAll((json['before_photos'] as List).map((e) => InspectionPhoto(
+            url: e['url']?.toString() ?? '',
+            type: 'BEFORE',
+            timestamp: e['timestamp']?.toString() ?? '',
+          )));
+    }
+    if (json['after_photos'] != null) {
+      parsedPhotos.addAll((json['after_photos'] as List).map((e) => InspectionPhoto(
+            url: e['url']?.toString() ?? '',
+            type: 'AFTER',
+            timestamp: e['timestamp']?.toString() ?? '',
+          )));
+    }
+    return parsedPhotos.isEmpty ? null : parsedPhotos;
+  }
 
   /// Queue‑specific constructor – parses the payload returned by /api/v1/inspections/queue
   /// The backend schema differs from the UI model, so we map fields safely.
@@ -267,19 +304,18 @@ class InspectionModel {
     final cityVal = json['city']?.toString() ?? '';
     final createdDateVal = json['created_at']?.toString() ?? json['created_date']?.toString() ?? json['createdAt']?.toString() ?? json['completed_at']?.toString() ?? '';
 
+    final bookingIdVal = json['booking_id']?.toString() ?? json['bookingId']?.toString();
+
     return InspectionModel(
       id: inspectionId,
+      bookingId: bookingIdVal,
       vehicle: vehicleNumber,
       name: custName,
       location: addr.isNotEmpty ? addr : 'Tower A, Slot 6',
       photoCount: (json['photo_count'] as int?) ?? 0,
       status: currentStatus,
       completedAt: json['completed_at']?.toString(),
-      photos: json['photos'] != null
-          ? (json['photos'] as List)
-              .map((e) => InspectionPhoto.fromJson(e as Map<String, dynamic>))
-              .toList()
-          : null,
+      photos: _parsePhotos(json),
       notes: json['notes']?.toString(),
       verifierId: json['inspector_id']?.toString(),
       verificationNotes: json['inspector_comments']?.toString(),

@@ -121,6 +121,10 @@ class InspectorRepository implements IInspectorRepository {
       try {
         final Map<String, dynamic> respMap = response as Map<String, dynamic>;
         final List<dynamic> rawList = respMap['data'] ?? [];
+        if (rawList.isNotEmpty) {
+          print('DEBUG KEYS IN QUEUE ITEM: ${(rawList.first as Map<String, dynamic>).keys.toList()}');
+          print('DEBUG FIRST QUEUE ITEM JSON: ${rawList.first}');
+        }
         final List<InspectionModel> inspections = rawList
             .map((e) => InspectionModel.fromQueueJson(e as Map<String, dynamic>))
             .toList();
@@ -205,14 +209,18 @@ class InspectorRepository implements IInspectorRepository {
   }
 
   @override
-  Future<InspectionModel> completeInspection(String inspectionId, List<Map<String, dynamic>> photos) async {
+  Future<InspectionModel> completeInspection(String inspectionId, List<Map<String, dynamic>> photos, {String? notes}) async {
     if (kDebugMode) {
       print('Complete Inspection request start');
       print('Inspection ID being sent: $inspectionId');
       print('Photos payload being sent: $photos');
+      print('Notes being sent: $notes');
     }
     try {
-      final response = await _apiService.completeInspection(inspectionId, {'photos': photos});
+      final response = await _apiService.completeInspection(inspectionId, {
+        'photos': photos,
+        if (notes != null) 'notes': notes,
+      });
       if (kDebugMode) {
         print('API response received: $response');
       }
@@ -247,17 +255,19 @@ class InspectorRepository implements IInspectorRepository {
   }
 
   @override
-  Future<InspectionModel> failInspection(String inspectionId, String reason, List<String> photos) async {
+  Future<InspectionModel> failInspection(String inspectionId, String reason, List<String> photos, {String? notes}) async {
     if (kDebugMode) {
       print('Fail Inspection request start');
       print('Inspection ID being sent: $inspectionId');
       print('Reason being sent: $reason');
       print('Photos payload being sent: $photos');
+      print('Notes being sent: $notes');
     }
     try {
       final response = await _apiService.failInspection(inspectionId, {
         'reason': reason,
         'photos': photos,
+        if (notes != null) 'notes': notes,
       });
       if (kDebugMode) {
         print('API response received: $response');
@@ -343,37 +353,147 @@ class InspectorRepository implements IInspectorRepository {
   }
 
   @override
-  Future<void> approveVerification(String inspectionId) async {
+  Future<void> approveVerification(String inspectionId, {String? remarks, List<Map<String, dynamic>>? photos}) async {
     if (kDebugMode) {
       print('Approve verification request for $inspectionId');
     }
-    final response = await _apiService.approveInspection(inspectionId);
-    if (kDebugMode) {
-      print('Approve response: $response');
+
+    // Build photos payload — backend only accepts: url, type, timestamp.
+    // lat and lng are NOT accepted and will cause a 400 Validation failed error.
+    final formattedPhotos = (photos ?? []).map((p) {
+      return {
+        'url': p['url'] ?? '',
+        'type': 'FRONT',
+        'timestamp': p['timestamp'] ?? DateTime.now().toUtc().toIso8601String(),
+      };
+    }).toList();
+
+    final payload = {
+      'photos': formattedPhotos,
+      'notes': remarks ?? '',
+    };
+
+    final dio = ApiClient().dio;
+    final baseUrl = dio.options.baseUrl;
+    final claimUrl = '$baseUrl/api/v1/inspections/$inspectionId/claim';
+
+    print('=== CLAIM REQUEST ===');
+    print('Inspection ID: $inspectionId');
+    print('URL: $claimUrl');
+
+    try {
+      final claimResponse = await dio.post(claimUrl);
+      print('=== CLAIM RESPONSE ===');
+      print('Status Code: ${claimResponse.statusCode}');
+      print('Response Body: ${claimResponse.data}');
+    } on DioError catch (e) {
+      final statusCode = e.response?.statusCode;
+      final responseBody = e.response?.data;
+
+      print('=== CLAIM RESPONSE ===');
+      print('Status Code: $statusCode');
+      print('Response Body: $responseBody');
+
+      final bodyStr = responseBody != null ? responseBody.toString().toLowerCase() : '';
+      final isAlreadyClaimed = bodyStr.contains('already claimed') ||
+          bodyStr.contains('already assigned') ||
+          statusCode == 409 ||
+          statusCode == 400;
+
+      if (isAlreadyClaimed) {
+        print('Inspection already claimed or assigned. Proceeding to Complete API.');
+      } else {
+        rethrow;
+      }
+    } catch (e) {
+      print('=== CLAIM RESPONSE ===');
+      print('Status Code: Error');
+      print('Response Body: $e');
+      rethrow;
+    }
+
+    final completeUrl = '$baseUrl/api/v1/inspections/$inspectionId/complete';
+    print('=== COMPLETE REQUEST ===');
+    print('Inspection ID: $inspectionId');
+    print('URL: $completeUrl');
+    print('=== COMPLETE PAYLOAD ===');
+    print(payload.toString());
+
+    try {
+      final completeResponse = await dio.post(completeUrl, data: payload);
+      print('=== COMPLETE RESPONSE ===');
+      print('Status Code: ${completeResponse.statusCode}');
+      print('Response Body: ${completeResponse.data}');
+    } on DioError catch (e) {
+      final statusCode = e.response?.statusCode;
+      final responseBody = e.response?.data;
+
+      print('=== COMPLETE RESPONSE ===');
+      print('Status Code: $statusCode');
+      print('Response Body: $responseBody');
+      rethrow;
+    } catch (e) {
+      print('=== COMPLETE RESPONSE ===');
+      print('Status Code: Error');
+      print('Response Body: $e');
+      rethrow;
     }
   }
 
   @override
-  Future<void> rejectVerification(String inspectionId, String reason, List<File> photos) async {
+  Future<void> rejectVerification(String inspectionId, String reason, List<String> photoUrls) async {
     if (kDebugMode) {
       print('Reject verification request for $inspectionId with reason $reason');
     }
     await _apiService.failInspection(inspectionId, {
       'reason': reason,
-      'photos': photos,
+      'photos': photoUrls,
     });
   }
 
   @override
   Future<void> addComment(String serviceId, String comment) async {
+    final payload = {
+      'comments': comment,
+    };
+
     if (kDebugMode) {
-      print('Add comment to service $serviceId: $comment');
+      print('--- Add Comment API Request ---');
+      print('Service ID: $serviceId');
+      print('Request Payload: $payload');
+      print('-------------------------------');
     }
-    await _apiService.addComment(serviceId, {
-      'service_id': serviceId,
-      'remark': comment,
-      'action': 'review',
-    });
+
+    try {
+      final response = await _apiService.addComment(serviceId, payload);
+      
+      if (kDebugMode) {
+        print('--- Add Comment API Success Response ---');
+        print('Service ID: $serviceId');
+        print('Response Data: $response');
+        print('Status Code: 201');
+        print('-----------------------------------------');
+      }
+    } on DioError catch (dioError) {
+      final response = dioError.response;
+      if (kDebugMode) {
+        print('--- Add Comment API Failure Response ---');
+        print('Service ID: $serviceId');
+        print('Status Code: ${response?.statusCode}');
+        print('Response Data: ${response?.data}');
+        print('Error Message: ${dioError.message}');
+        print('-----------------------------------------');
+      }
+      rethrow;
+    } catch (e) {
+      if (kDebugMode) {
+        print('--- Add Comment API Unknown Error ---');
+        print('Service ID: $serviceId');
+        print('Error: $e');
+        print('---------------------------------------');
+      }
+      rethrow;
+    }
   }
 
 }

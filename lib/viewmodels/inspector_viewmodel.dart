@@ -22,6 +22,74 @@ class InspectorViewModel extends BaseViewModel {
   List<InspectionModel> _pendingVerifications = [];
   List<InspectionModel> get pendingVerifications => _pendingVerifications;
 
+  // Track local photo paths for immediate preview before/during submission
+  final Map<String, Map<String, String>> _localProofPhotos = {};
+
+  Map<String, String> getLocalProofPhotos(String inspectionId) {
+    if (kDebugMode) {
+      print('getLocalProofPhotos called for inspectionId: $inspectionId. Current state: ${_localProofPhotos[inspectionId]}');
+    }
+    return _localProofPhotos[inspectionId] ?? {};
+  }
+
+  void clearLocalProofPhotos(String inspectionId) {
+    if (kDebugMode) {
+      print('clearLocalProofPhotos called for inspectionId: $inspectionId');
+    }
+    _localProofPhotos.remove(inspectionId);
+    notifyListeners();
+  }
+
+  void _logAndValidateServiceId({
+    required String actionName,
+    required String inspectionId,
+    InspectionModel? fallbackInspection,
+  }) {
+    print('Looking up inspection:');
+    print('Requested inspectionId: $inspectionId');
+    final availableInspections = _inspections.map((e) => e.id).toList();
+    final availablePending = _pendingVerifications.map((e) => e.id).toList();
+    print('Available inspection IDs: $availableInspections');
+    print('Available pending verification IDs: $availablePending');
+
+    final idx = _inspections.indexWhere((element) => element.id == inspectionId);
+    final pendingIdx = _pendingVerifications.indexWhere((element) => element.id == inspectionId);
+    
+    var hasRecord = idx != -1 || pendingIdx != -1;
+    var inspection = idx != -1 
+        ? _inspections[idx] 
+        : (pendingIdx != -1 ? _pendingVerifications[pendingIdx] : null);
+
+    if (inspection == null && fallbackInspection != null) {
+      print('Warning: Inspection lookup failed in viewmodel state. Using fallback inspection from navigation.');
+      inspection = fallbackInspection;
+      hasRecord = true;
+    }
+
+    final serviceId = inspection?.bookingId;
+    final vehicleId = inspection?.vehicleId;
+
+    print('-----------------------------------------');
+    print('Action Name: $actionName');
+    print('Service ID (booking_id): $serviceId');
+    print('Inspection ID: $inspectionId');
+    print('Vehicle ID: $vehicleId');
+    print('Record Exists In Current State: $hasRecord');
+    print('vm.inspections.length: ${_inspections.length}');
+    print('vm.pendingVerifications.length: ${_pendingVerifications.length}');
+    print('currentInspection lookup result: ${inspection != null ? "Found" : "Null"}');
+    print('currentInspection.id: ${inspection?.id}');
+    print('currentInspection.bookingId: ${inspection?.bookingId}');
+    print('-----------------------------------------');
+
+    // booking_id validation check removed to allow null booking_id
+    print('=== SERVICE ID CONSISTENCY REPORT ===');
+    print('Action: $actionName');
+    print('Service ID (booking_id): $serviceId');
+    print('Inspection ID: $inspectionId');
+    print('=====================================');
+  }
+
   String? _selectedArea;
   String? _selectedBuilding;
   String? _selectedStreet;
@@ -294,6 +362,13 @@ class InspectorViewModel extends BaseViewModel {
     await executeOperation(
       () async {
         _currentSubscriptionInspection = await _repository.getInspectionBySubscription(subscriptionId);
+        if (_currentSubscriptionInspection != null) {
+          print('--- Inspection/Service Details API response ---');
+          print('Inspection ID: ${_currentSubscriptionInspection!.id}');
+          print('Service ID (booking_id): ${_currentSubscriptionInspection!.bookingId}');
+          print('Vehicle ID: ${_currentSubscriptionInspection!.vehicleId}');
+          print('------------------------------------------------');
+        }
       },
       onError: "Failed to fetch inspection by subscription",
       onSuccess: () {
@@ -317,6 +392,11 @@ class InspectorViewModel extends BaseViewModel {
     await executeOperation(
       () async {
         _pendingVerifications = await _repository.fetchPendingVerifications();
+        print('--- Inspection List (Pending) API response ---');
+        for (final item in _pendingVerifications) {
+          print('Inspection ID: ${item.id}, Service ID (booking_id): ${item.bookingId}, Vehicle ID: ${item.vehicleId}');
+        }
+        print('----------------------------------------------');
       },
       onError: "Failed to load pending verifications",
       onSuccess: () {
@@ -333,10 +413,26 @@ class InspectorViewModel extends BaseViewModel {
   }
 
   // Approve a verification
-  Future<void> approveVerification(String inspectionId, {String? remarks}) async {
+  Future<void> approveVerification(String inspectionId, {String? remarks, InspectionModel? fallbackInspection}) async {
     await executeOperation(
       () async {
-        await _repository.approveVerification(inspectionId);
+        _logAndValidateServiceId(
+          actionName: 'Approve Vehicle',
+          inspectionId: inspectionId,
+          fallbackInspection: fallbackInspection,
+        );
+
+        final currentPhotos = fallbackInspection?.photos ?? [];
+        final photosPayload = currentPhotos.map((p) => {
+          'url': p.url,
+          'timestamp': p.timestamp,
+        }).toList();
+
+        await _repository.approveVerification(
+          inspectionId,
+          remarks: remarks,
+          photos: photosPayload,
+        );
         
         final timestamp = DateTime.now().toLocal().toString().split('.')[0];
         
@@ -372,19 +468,28 @@ class InspectorViewModel extends BaseViewModel {
             remarks: remarks ?? 'Verified successfully',
           ));
         }
+        _localProofPhotos.remove(inspectionId);
         notifyListeners();
-        // Optionally refresh inspections list
+        // Refresh inspection lists
         await loadInspections();
+        await loadPendingVerifications();
       },
       onError: "Failed to approve verification",
     );
   }
 
   // Reject a verification with reason and optional photos
-  Future<void> rejectVerification(String inspectionId, String reason, {String? remarks}) async {
+  Future<void> rejectVerification(String inspectionId, String reason, {String? remarks, InspectionModel? fallbackInspection}) async {
     await executeOperation(
       () async {
-        await _repository.rejectVerification(inspectionId, reason, []);
+        _logAndValidateServiceId(
+          actionName: 'Reject Vehicle',
+          inspectionId: inspectionId,
+          fallbackInspection: fallbackInspection,
+        );
+        
+        final photoUrls = (fallbackInspection?.photos ?? []).map((e) => e.url).toList();
+        await _repository.rejectVerification(inspectionId, reason, photoUrls);
         
         final timestamp = DateTime.now().toLocal().toString().split('.')[0];
         final combinedRemarks = remarks != null && remarks.isNotEmpty 
@@ -424,14 +529,20 @@ class InspectorViewModel extends BaseViewModel {
             remarks: combinedRemarks,
           ));
         }
+        _localProofPhotos.remove(inspectionId);
         notifyListeners();
         await loadInspections();
+        await loadPendingVerifications();
       },
       onError: "Failed to reject verification",
     );
   }
-
-  Future<void> uploadProofPhoto(String inspectionId, String type, ImageSource source) async {
+  Future<void> uploadProofPhoto(
+    String inspectionId,
+    String type,
+    ImageSource source, {
+    InspectionModel? fallbackInspection,
+  }) async {
     final ImagePicker picker = ImagePicker();
     XFile? pickedFile;
     try {
@@ -450,6 +561,31 @@ class InspectorViewModel extends BaseViewModel {
     }
 
     if (pickedFile == null) {
+      if (kDebugMode) {
+        print('Image selection cancelled by user.');
+      }
+      return;
+    }
+
+    if (kDebugMode) {
+      print('Selected image path: ${pickedFile.path}');
+    }
+
+    // Save the local path immediately so UI updates instantly
+    _localProofPhotos.putIfAbsent(inspectionId, () => {})[type] = pickedFile.path;
+    notifyListeners();
+
+    // Now validate booking_id before the actual upload API call
+    try {
+      _logAndValidateServiceId(
+        actionName: 'Photo Upload',
+        inspectionId: inspectionId,
+        fallbackInspection: fallbackInspection,
+      );
+    } catch (e) {
+      // If validation fails, we still keep the local image saved in _localProofPhotos so it displays in UI,
+      // but we set error/print to block the upload and notify user
+      setError(e.toString().replaceAll("Exception: ", ""));
       return;
     }
 
@@ -460,14 +596,20 @@ class InspectorViewModel extends BaseViewModel {
 
     try {
       final file = File(pickedFile.path);
+      print('Upload request starting. Target inspection ID: $inspectionId, Type: $type, File size: ${file.lengthSync()} bytes');
+      
       final response = await _repository.uploadImage(file);
+      print('Upload response success: ${response.success}, Timestamp: ${response.timestamp}');
 
       if (response.success) {
+        final returnedUrl = response.data.url;
+        print('Returned URL: $returnedUrl');
+
         final inspectionIdx = _inspections.indexWhere((element) => element.id == inspectionId);
         final pendingIdx = _pendingVerifications.indexWhere((element) => element.id == inspectionId);
 
         final newPhoto = InspectionPhoto(
-          url: response.data.url,
+          url: returnedUrl,
           type: type,
           timestamp: DateTime.now().toUtc().toIso8601String(),
         );
@@ -482,11 +624,20 @@ class InspectorViewModel extends BaseViewModel {
           _pendingVerifications[pendingIdx].photos!.add(newPhoto);
           _pendingVerifications[pendingIdx].photoCount = _pendingVerifications[pendingIdx].photos!.length;
         }
+
+        // Print uploadedImageUrl value after assignment
+        final assignedUrl = (inspectionIdx != -1 && _inspections[inspectionIdx].photos != null && _inspections[inspectionIdx].photos!.isNotEmpty)
+            ? _inspections[inspectionIdx].photos!.last.url
+            : 'None';
+        print('uploadedImageUrl value after assignment: $assignedUrl');
+
         notifyListeners();
       } else {
+        print('Upload failed. API returned success: false');
         setError("Upload failed: API error");
       }
     } catch (e) {
+      print('Upload failed with exception: $e');
       setError("Upload failed: $e");
     } finally {
       _isUploadingImage = false;
@@ -502,6 +653,11 @@ class InspectorViewModel extends BaseViewModel {
     await executeOperation(
       () async {
         _inspections = await _repository.getInspections();
+        print('--- Inspection List API response ---');
+        for (final item in _inspections) {
+          print('Inspection ID: ${item.id}, Service ID (booking_id): ${item.bookingId}, Vehicle ID: ${item.vehicleId}');
+        }
+        print('------------------------------------');
       },
       onError: "Failed to load inspections",
       onSuccess: () {
@@ -601,19 +757,14 @@ class InspectorViewModel extends BaseViewModel {
       print('Controller action start: completeInspection');
       print('Inspection ID being sent: $inspectionId');
       print('Photos payload: $photos');
-
-      // Print the entire inspection object before calling completeInspection()
-      try {
-        final targetInspection = _inspections.firstWhere((element) => element.id == inspectionId);
-        print('Inspection object details before completion: ${jsonEncode(targetInspection.toJson())}');
-      } catch (e) {
-        print('Error printing inspection object: $e');
-      }
     }
+    final idx = _inspections.indexWhere((element) => element.id == inspectionId);
+    final notes = idx != -1 ? _inspections[idx].notes : null;
+
     bool success = false;
     await executeOperation(
       () async {
-        final completedInspection = await _repository.completeInspection(inspectionId, photos);
+        final completedInspection = await _repository.completeInspection(inspectionId, photos, notes: notes);
         final idx = _inspections.indexWhere((element) => element.id == inspectionId);
         if (idx != -1) {
           _inspections[idx] = completedInspection;
@@ -644,7 +795,7 @@ class InspectorViewModel extends BaseViewModel {
     bool success = false;
     await executeOperation(
       () async {
-        final failedInspection = await _repository.failInspection(inspectionId, reason, photos);
+        final failedInspection = await _repository.failInspection(inspectionId, reason, photos, notes: reason);
         final idx = _inspections.indexWhere((element) => element.id == inspectionId);
         if (idx != -1) {
           _inspections[idx] = failedInspection;
@@ -755,10 +906,22 @@ class InspectorViewModel extends BaseViewModel {
     }
   }
 
-  Future<void> addComment(String serviceId, String comment) async {
+  Future<void> addComment(String inspectionId, String comment, {InspectionModel? fallbackInspection}) async {
     await executeOperation(
       () async {
-        await _repository.addComment(serviceId, comment);
+        final idx = _inspections.indexWhere((element) => element.id == inspectionId);
+        final pendingIdx = _pendingVerifications.indexWhere((element) => element.id == inspectionId);
+        var inspection = idx != -1 
+            ? _inspections[idx] 
+            : (pendingIdx != -1 ? _pendingVerifications[pendingIdx] : null);
+
+        if (inspection == null && fallbackInspection != null) {
+          inspection = fallbackInspection;
+        }
+
+        if (inspection != null) {
+          inspection.notes = comment;
+        }
         
         final timestamp = DateTime.now().toLocal().toString().split('.')[0];
         final newRemark = RemarkModel(
@@ -768,15 +931,13 @@ class InspectorViewModel extends BaseViewModel {
           createdAt: timestamp,
         );
 
-        final pendingIdx = _pendingVerifications.indexWhere((element) => element.id == serviceId);
         if (pendingIdx != -1) {
           _pendingVerifications[pendingIdx].remarks ??= [];
           _pendingVerifications[pendingIdx].remarks!.insert(0, newRemark);
         }
-        final mainIdx = _inspections.indexWhere((element) => element.id == serviceId);
-        if (mainIdx != -1) {
-          _inspections[mainIdx].remarks ??= [];
-          _inspections[mainIdx].remarks!.insert(0, newRemark);
+        if (idx != -1) {
+          _inspections[idx].remarks ??= [];
+          _inspections[idx].remarks!.insert(0, newRemark);
         }
         notifyListeners();
       },

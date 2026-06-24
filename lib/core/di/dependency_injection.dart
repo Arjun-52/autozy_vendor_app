@@ -45,16 +45,17 @@ class DependencyInjection {
 
   /// Initialize all dependencies
   void initialize() {
-    // Initialize services (singletons)
-    _apiService = ApiService();
-    _authService = AuthService();
-    _authRepository = AuthRepository(_authService);
-    _dashboardRepository = DashboardRepository(_apiService);
-
     // Initialize new API-ready services
     _apiClient = ApiClient();
     _apiClient.initialize();
     final newApiService = NewApiService();
+
+    // Initialize services (singletons)
+    _apiService = ApiService();
+    _authService = AuthService();
+    _authRepository = AuthRepository(_authService);
+    _dashboardRepository = DashboardRepository(newApiService);
+
     _inspectorRepository = InspectorRepository(newApiService);
     _supervisorRepository = SupervisorRepository(newApiService);
     _washHistoryRepository = WashHistoryRepository(newApiService);

@@ -58,6 +58,8 @@ class JobModel {
 
   @JsonKey(name: 'remarks')
   final List<JobRemarkModel>? remarks;
+  @JsonKey(name: 'vehicle_image')
+  final String? vehicleImage;
 
   // Existing constructor - KEEP UNCHANGED for backward compatibility
   JobModel({
@@ -71,6 +73,7 @@ class JobModel {
     this.afterImage,
     this.afterImageCapturedAt,
     this.remarks,
+    this.vehicleImage,
   });
 
   // New factory for JSON parsing

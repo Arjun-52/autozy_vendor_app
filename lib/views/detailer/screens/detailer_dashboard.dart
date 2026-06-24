@@ -64,7 +64,7 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.black),
           onPressed: () {
-            context.pop();
+            NavigationService.goToLogin();
           },
         ),
         title: Column(
@@ -76,6 +76,12 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
         ),
 
         actions: [
+          IconButton(
+            icon: const Icon(Icons.person_outline, color: AppColors.black),
+            onPressed: () {
+              context.push('/profile');
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.history, color: AppColors.black),
             onPressed: () {

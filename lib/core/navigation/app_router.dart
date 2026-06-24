@@ -3,6 +3,7 @@ import 'package:autozy_vendor_app/viewmodels/supervisor_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/specialist_tasks_viewmodel.dart';
 import 'package:autozy_vendor_app/views/specialist/screens/specialist_mode_screen.dart';
 import 'package:autozy_vendor_app/views/supervisor/screens/supervisor_screen.dart';
+import 'package:autozy_vendor_app/views/profile/profile_screen.dart';
 import 'package:autozy_vendor_app/widgets/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -72,30 +73,28 @@ class AppRouter {
       GoRoute(
         path: '/supervisor',
         name: 'supervisor',
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (_) => SupervisorViewModel(di.supervisorRepository),
-          child: const SupervisorScreen(),
-        ),
+        builder: (context, state) => const SupervisorScreen(),
       ),
 
       /// INSPECTOR
       GoRoute(
         path: '/inspector',
         name: 'inspector',
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (_) => InspectorViewModel(di.inspectorRepository),
-          child: const InspectorDashboard(),
-        ),
+        builder: (context, state) => const InspectorDashboard(),
       ),
 
       /// SPECIALIST
       GoRoute(
         path: '/specialist',
         name: 'specialist',
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (_) => SpecialistTasksViewModel(di.specialistTasksRepository),
-          child: const SpecialistModeScreen(),
-        ),
+        builder: (context, state) => const SpecialistModeScreen(),
+      ),
+
+      /// PROFILE
+      GoRoute(
+        path: '/profile',
+        name: 'profile',
+        builder: (context, state) => const ProfileScreen(),
       ),
     ],
   );
@@ -122,4 +121,7 @@ extension GoRouterExtension on GoRouter {
 
   void goToSpecialist() => go('/specialist');
   void pushSpecialist() => push('/specialist');
+
+  void goToProfile() => go('/profile');
+  void pushProfile() => push('/profile');
 }

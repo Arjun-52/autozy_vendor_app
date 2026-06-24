@@ -7,6 +7,7 @@ class JobCardHeader extends StatelessWidget {
   final String name;
   final bool isCompleted;
   final bool isCNA;
+  final String? vehicleImage;
 
   const JobCardHeader({
     super.key,
@@ -14,6 +15,7 @@ class JobCardHeader extends StatelessWidget {
     required this.name,
     required this.isCompleted,
     required this.isCNA,
+    this.vehicleImage,
   });
 
   @override
@@ -29,15 +31,33 @@ class JobCardHeader extends StatelessWidget {
             color: isMuted ? const Color(0xffD1D1D1CC) : AppColors.primary,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: SvgPicture.asset(
-              "assets/images/car2.svg",
-              colorFilter: ColorFilter.mode(
-                isCNA ? Colors.red : AppColors.textPrimary,
-                BlendMode.srcIn,
-              ),
-            ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: vehicleImage != null && vehicleImage!.isNotEmpty
+                ? Image.network(
+                    vehicleImage!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: SvgPicture.asset(
+                        "assets/images/car2.svg",
+                        colorFilter: ColorFilter.mode(
+                          isCNA ? Colors.red : AppColors.textPrimary,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: SvgPicture.asset(
+                      "assets/images/car2.svg",
+                      colorFilter: ColorFilter.mode(
+                        isCNA ? Colors.red : AppColors.textPrimary,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ),
           ),
         ),
 

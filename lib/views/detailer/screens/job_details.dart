@@ -73,18 +73,41 @@ class _JobDetailsScreenState extends State<JobDetailsScreen> {
           Row(
             children: [
               Container(
-                padding: AppSpacing.all14,
+                height: 48,
+                width: 48,
                 decoration: BoxDecoration(
                   color: AppColors.accentYellow,
                   borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                 ),
-                child: SvgPicture.asset(
-                  "assets/images/car2.svg",
-                  fit: BoxFit.contain,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.black,
-                    BlendMode.srcIn,
-                  ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                  child: vm.vehicleImage != null && vm.vehicleImage!.isNotEmpty
+                      ? Image.network(
+                          vm.vehicleImage!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Padding(
+                            padding: AppSpacing.all14,
+                            child: SvgPicture.asset(
+                              "assets/images/car2.svg",
+                              fit: BoxFit.contain,
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.black,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
+                        )
+                      : Padding(
+                          padding: AppSpacing.all14,
+                          child: SvgPicture.asset(
+                            "assets/images/car2.svg",
+                            fit: BoxFit.contain,
+                            colorFilter: const ColorFilter.mode(
+                              AppColors.black,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(width: AppSpacing.md),

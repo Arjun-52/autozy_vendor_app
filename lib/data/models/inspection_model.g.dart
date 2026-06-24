@@ -56,6 +56,7 @@ Map<String, dynamic> _$RemarkModelToJson(RemarkModel instance) =>
 InspectionModel _$InspectionModelFromJson(Map<String, dynamic> json) =>
     InspectionModel(
       id: _readId(json, 'id') as String,
+      bookingId: json['booking_id'] as String?,
       vehicle: json['vehicle_number'] as String,
       name: json['name'] as String,
       location: json['location'] as String,
@@ -100,6 +101,7 @@ InspectionModel _$InspectionModelFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$InspectionModelToJson(InspectionModel instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'booking_id': instance.bookingId,
       'vehicle_number': instance.vehicle,
       'name': instance.name,
       'location': instance.location,

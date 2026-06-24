@@ -27,17 +27,18 @@ class JobsListView extends StatelessWidget {
           itemBuilder: (context, index) {
             final job = viewModel.jobs[index];
             return JobCard(
-              key: ValueKey(job.vehicle),
-              vehicle: job.vehicle,
-              name: job.name,
-              location: job.location,
-              isCompleted: job.isCompleted,
-              isCNA: job.isCNA,
-              status: job.status,
-              beforeImage: job.beforeImage,
-              index: index,
-              onTap: () => onTap(index),
-            );
+               key: ValueKey(job.vehicle),
+               vehicle: job.vehicle,
+               name: job.name,
+               location: job.location,
+               isCompleted: job.isCompleted,
+               isCNA: job.isCNA,
+               status: job.status,
+               beforeImage: job.beforeImage,
+               vehicleImage: job.vehicleImage,
+               index: index,
+               onTap: () => onTap(index),
+             );
           },
         );
       },

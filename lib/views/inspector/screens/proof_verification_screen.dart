@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -30,6 +31,11 @@ class _ProofVerificationScreenState extends State<ProofVerificationScreen> with 
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _commentController.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -50,6 +56,15 @@ class _ProofVerificationScreenState extends State<ProofVerificationScreen> with 
   }
 
   Future<void> _handleUpload(String type) async {
+    final vm = context.read<InspectorViewModel>();
+    final currentInspection = vm.pendingVerifications.firstWhere(
+      (element) => element.id == widget.inspection.id,
+      orElse: () => vm.inspections.firstWhere(
+        (element) => element.id == widget.inspection.id,
+        orElse: () => widget.inspection,
+      ),
+    );
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -67,6 +82,7 @@ class _ProofVerificationScreenState extends State<ProofVerificationScreen> with 
                   widget.inspection.id,
                   type,
                   ImageSource.camera,
+                  fallbackInspection: currentInspection,
                 );
               },
             ),
@@ -79,6 +95,7 @@ class _ProofVerificationScreenState extends State<ProofVerificationScreen> with 
                   widget.inspection.id,
                   type,
                   ImageSource.gallery,
+                  fallbackInspection: currentInspection,
                 );
               },
             ),
@@ -193,10 +210,19 @@ class _ProofVerificationScreenState extends State<ProofVerificationScreen> with 
                       builder: (context) => const Center(child: CircularProgressIndicator()),
                     );
 
+                    final currentInspection = vm.pendingVerifications.firstWhere(
+                      (element) => element.id == widget.inspection.id,
+                      orElse: () => vm.inspections.firstWhere(
+                        (element) => element.id == widget.inspection.id,
+                        orElse: () => widget.inspection,
+                      ),
+                    );
+
                     await vm.rejectVerification(
                       widget.inspection.id,
                       reason,
                       remarks: remarks,
+                      fallbackInspection: currentInspection,
                     );
 
                     // Pop loading indicator
@@ -249,9 +275,20 @@ class _ProofVerificationScreenState extends State<ProofVerificationScreen> with 
                 builder: (context) => const Center(child: CircularProgressIndicator()),
               );
 
+              final currentInspection = vm.pendingVerifications.firstWhere(
+                (element) => element.id == widget.inspection.id,
+                orElse: () => vm.inspections.firstWhere(
+                  (element) => element.id == widget.inspection.id,
+                  orElse: () => widget.inspection,
+                ),
+              );
+
               await vm.approveVerification(
                 widget.inspection.id,
-                remarks: _remarksController.text.trim(),
+                remarks: _commentController.text.trim().isNotEmpty
+                    ? _commentController.text.trim()
+                    : _remarksController.text.trim(),
+                fallbackInspection: currentInspection,
               );
 
               // Pop loading
@@ -279,24 +316,83 @@ class _ProofVerificationScreenState extends State<ProofVerificationScreen> with 
     );
   }
 
-  Widget _buildPhotoContainer(String type, List<InspectionPhoto> photos, bool isUploading) {
+  Widget _buildPhotoContainer(String type, List<InspectionPhoto> photos, bool isUploading, InspectorViewModel vm) {
     final typePhotos = photos.where((p) => p.type.toUpperCase() == type.toUpperCase()).toList();
+    final localPhotos = vm.getLocalProofPhotos(widget.inspection.id);
+    final localPath = localPhotos[type];
 
-    if (isUploading) {
-      return Container(
-        height: 200,
-        decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: const Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
-        ),
-      );
+    if (kDebugMode) {
+      print('--- _buildPhotoContainer Debug Log ---');
+      print('Type: $type');
+      print('Local Path: $localPath');
+      if (localPath != null && localPath.isNotEmpty) {
+        final fileExists = File(localPath).existsSync();
+        print('Local File Exists: $fileExists');
+      }
+      print('Network photos count: ${typePhotos.length}');
+      print('--------------------------------------');
     }
 
-    if (typePhotos.isEmpty) {
+    Widget imageWidget;
+    bool hasImage = false;
+    String? imageUrlToDisplay;
+
+    if (localPath != null && localPath.isNotEmpty && File(localPath).existsSync()) {
+      hasImage = true;
+      imageWidget = Image.file(
+        File(localPath),
+        fit: BoxFit.cover,
+        errorBuilder: (ctx, err, st) {
+          if (kDebugMode) {
+            print('Error rendering local Image.file: $err');
+          }
+          return Container(
+            color: Colors.grey.shade100,
+            child: const Center(child: Icon(Icons.broken_image, size: 50, color: Colors.grey)),
+          );
+        },
+      );
+    } else if (typePhotos.isNotEmpty) {
+      hasImage = true;
+      final photo = typePhotos.first;
+      imageUrlToDisplay = photo.url;
+      imageWidget = Image.network(
+        photo.url,
+        fit: BoxFit.cover,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Container(
+            color: Colors.grey.shade100,
+            child: const Center(child: CircularProgressIndicator()),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          if (kDebugMode) {
+            print('Error loading network image: $error');
+          }
+          // Fallback if URL is actually a local path or invalid network url
+          if (photo.url.startsWith('/') || photo.url.contains(':') || !photo.url.startsWith('http')) {
+            return Image.file(
+              File(photo.url),
+              fit: BoxFit.cover,
+              errorBuilder: (ctx, err, st) => Container(
+                color: Colors.grey.shade100,
+                child: const Center(child: Icon(Icons.broken_image, size: 50, color: Colors.grey)),
+              ),
+            );
+          }
+          return Container(
+            color: Colors.grey.shade100,
+            child: const Center(child: Icon(Icons.broken_image, size: 50, color: Colors.grey)),
+          );
+        },
+      );
+    } else {
+      imageWidget = const SizedBox.shrink();
+    }
+
+    if (!hasImage) {
+      // Show upload placeholder when no image is selected/exists
       return GestureDetector(
         onTap: () => _handleUpload(type),
         child: Container(
@@ -330,50 +426,45 @@ class _ProofVerificationScreenState extends State<ProofVerificationScreen> with 
       );
     }
 
-    final photo = typePhotos.first;
+    // Display image preview
     return Stack(
       children: [
         GestureDetector(
-          onTap: () => _openFullScreenImage(
-            context,
-            photo.url,
-            '${type.toUpperCase() == 'BEFORE' ? 'Before' : 'After'} Service Photo',
-          ),
+          onTap: () {
+            if (localPath != null && localPath.isNotEmpty) {
+              _openFullScreenImage(
+                context,
+                localPath,
+                '${type.toUpperCase() == 'BEFORE' ? 'Before' : 'After'} Service Photo (Local)',
+              );
+            } else if (imageUrlToDisplay != null) {
+              _openFullScreenImage(
+                context,
+                imageUrlToDisplay,
+                '${type.toUpperCase() == 'BEFORE' ? 'Before' : 'After'} Service Photo',
+              );
+            }
+          },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: AspectRatio(
               aspectRatio: 16 / 9,
-              child: Image.network(
-                photo.url,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Container(
-                    color: Colors.grey.shade100,
-                    child: const Center(child: CircularProgressIndicator()),
-                  );
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  // Fallback for local files if they were picked
-                  if (photo.url.startsWith('/') || photo.url.contains(':') || !photo.url.startsWith('http')) {
-                    return Image.file(
-                      File(photo.url),
-                      fit: BoxFit.cover,
-                      errorBuilder: (ctx, err, st) => Container(
-                        color: Colors.grey.shade100,
-                        child: const Center(child: Icon(Icons.broken_image, size: 50)),
-                      ),
-                    );
-                  }
-                  return Container(
-                    color: Colors.grey.shade100,
-                    child: const Center(child: Icon(Icons.broken_image, size: 50)),
-                  );
-                },
-              ),
+              child: imageWidget,
             ),
           ),
         ),
+        if (isUploading)
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                color: Colors.black45,
+                child: const Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                ),
+              ),
+            ),
+          ),
         Positioned(
           bottom: 8,
           right: 8,
@@ -410,7 +501,10 @@ class _ProofVerificationScreenState extends State<ProofVerificationScreen> with 
     // Find current state of the inspection (to support updating UI live)
     final currentInspection = vm.pendingVerifications.firstWhere(
       (element) => element.id == widget.inspection.id,
-      orElse: () => widget.inspection,
+      orElse: () => vm.inspections.firstWhere(
+        (element) => element.id == widget.inspection.id,
+        orElse: () => widget.inspection,
+      ),
     );
 
     final photos = currentInspection.photos ?? [];
@@ -568,16 +662,16 @@ class _ProofVerificationScreenState extends State<ProofVerificationScreen> with 
                     physics: const NeverScrollableScrollPhysics(), // Prevent conflict with pinch-to-zoom gestures
                     children: [
                       // BEFORE TAB
-                      _buildPhotoContainer('BEFORE', photos, vm.isUploadingImage && vm.uploadingInspectionId == widget.inspection.id),
+                      _buildPhotoContainer('BEFORE', photos, vm.isUploadingImage && vm.uploadingInspectionId == widget.inspection.id, vm),
                       // AFTER TAB
-                      _buildPhotoContainer('AFTER', photos, vm.isUploadingImage && vm.uploadingInspectionId == widget.inspection.id),
+                      _buildPhotoContainer('AFTER', photos, vm.isUploadingImage && vm.uploadingInspectionId == widget.inspection.id, vm),
                       // COMPARE SIDE-BY-SIDE TAB
                       Row(
                         children: [
                           Expanded(
                             child: Column(
                               children: [
-                                Expanded(child: _buildPhotoContainer('BEFORE', photos, vm.isUploadingImage && vm.uploadingInspectionId == widget.inspection.id)),
+                                Expanded(child: _buildPhotoContainer('BEFORE', photos, vm.isUploadingImage && vm.uploadingInspectionId == widget.inspection.id, vm)),
                                 const SizedBox(height: 4),
                                 const Text('Before Service', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                               ],
@@ -587,7 +681,7 @@ class _ProofVerificationScreenState extends State<ProofVerificationScreen> with 
                           Expanded(
                             child: Column(
                               children: [
-                                Expanded(child: _buildPhotoContainer('AFTER', photos, vm.isUploadingImage && vm.uploadingInspectionId == widget.inspection.id)),
+                                Expanded(child: _buildPhotoContainer('AFTER', photos, vm.isUploadingImage && vm.uploadingInspectionId == widget.inspection.id, vm)),
                                 const SizedBox(height: 4),
                                 const Text('After Service', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                               ],
@@ -710,21 +804,19 @@ class _ProofVerificationScreenState extends State<ProofVerificationScreen> with 
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: vm.isLoading
+                    onPressed: (vm.isLoading || _commentController.text.trim().isEmpty)
                         ? null
                         : () async {
                             final text = _commentController.text.trim();
-                            if (text.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Please enter a comment before saving')),
-                              );
-                              return;
-                            }
-                            await vm.addComment(currentInspection.id, text);
-                            _commentController.clear();
+                            await vm.addComment(
+                              currentInspection.id,
+                              text,
+                              fallbackInspection: currentInspection,
+                            );
                             if (vm.errorMessage != null) {
                               if (mounted) TopBanner(context, vm.errorMessage!);
                             } else {
+                              _commentController.clear();
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(content: Text('Comment added successfully.')),
@@ -732,8 +824,20 @@ class _ProofVerificationScreenState extends State<ProofVerificationScreen> with 
                               }
                             }
                           },
-                    icon: const Icon(Icons.send, size: 16, color: Colors.black),
-                    label: const Text('Save Comment', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                    icon: vm.isLoading
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.black54),
+                            ),
+                          )
+                        : const Icon(Icons.send, size: 16, color: Colors.black),
+                    label: Text(
+                      vm.isLoading ? 'Saving...' : 'Save Comment',
+                      style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -773,14 +877,45 @@ class _ProofVerificationScreenState extends State<ProofVerificationScreen> with 
                             onPressed: vm.isLoading
                                 ? null
                                 : () {
-                                    if (beforePhotos.isEmpty || afterPhotos.isEmpty) {
+                                    final localPhotos = vm.getLocalProofPhotos(widget.inspection.id);
+                                    final selectedImagePathBefore = localPhotos['BEFORE'] ?? '';
+                                    final selectedImagePathAfter = localPhotos['AFTER'] ?? '';
+                                    final selectedImagePath = selectedImagePathBefore.isNotEmpty 
+                                        ? selectedImagePathBefore 
+                                        : selectedImagePathAfter;
+
+                                    final uploadedImageUrlBefore = beforePhotos.isNotEmpty ? beforePhotos.first.url : '';
+                                    final uploadedImageUrlAfter = afterPhotos.isNotEmpty ? afterPhotos.first.url : '';
+                                    final uploadedImageUrl = uploadedImageUrlBefore.isNotEmpty 
+                                        ? uploadedImageUrlBefore 
+                                        : uploadedImageUrlAfter;
+
+                                    print('Selected image path: $selectedImagePath');
+                                    print('Uploaded image URL: $uploadedImageUrl');
+                                    print('Comment text: ${_commentController.text}');
+                                    print('Approval validation running');
+
+                                    if (vm.isUploadingImage) {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(
-                                          content: Text('Warning: Proof is incomplete. Consider uploading photos first.'),
-                                          duration: Duration(seconds: 3),
+                                          content: Text('Upload is in progress. Please wait for the upload to complete.'),
                                         ),
                                       );
+                                      return;
                                     }
+
+                                    final hasBefore = beforePhotos.isNotEmpty || (selectedImagePathBefore.isNotEmpty && File(selectedImagePathBefore).existsSync());
+                                    final hasAfter = afterPhotos.isNotEmpty || (selectedImagePathAfter.isNotEmpty && File(selectedImagePathAfter).existsSync());
+
+                                    if (!hasBefore || !hasAfter) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Please upload photo before approving vehicle'),
+                                        ),
+                                      );
+                                      return;
+                                    }
+
                                     _handleApprove(vm);
                                   },
                             icon: const Icon(Icons.check, color: Colors.white),

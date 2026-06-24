@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../viewmodels/dashboard_viewmodel.dart';
 import 'status_card.dart';
 
 class DashboardStatusRow extends StatelessWidget {
@@ -10,6 +12,14 @@ class DashboardStatusRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final vm = context.watch<DashboardViewModel>();
+    final stats = vm.stats;
+
+    final completed = stats['completed'] ?? 0;
+    final total = stats['total'] ?? 0;
+    final remaining = stats['remaining'] ?? 0;
+    final cna = stats['cna'] ?? 0;
+
     return Row(
       children: [
         Expanded(
@@ -19,7 +29,7 @@ class DashboardStatusRow extends StatelessWidget {
               height: AppSpacing.iconMd,
               width: AppSpacing.iconMd,
             ),
-            title: "3/40",
+            title: "$completed/$total",
             subtitle: "Completed",
           ),
         ),
@@ -32,7 +42,7 @@ class DashboardStatusRow extends StatelessWidget {
               height: AppSpacing.iconMd,
               width: AppSpacing.iconMd,
             ),
-            title: "37",
+            title: "$remaining",
             subtitle: "Remaining",
           ),
         ),
@@ -45,7 +55,7 @@ class DashboardStatusRow extends StatelessWidget {
               height: AppSpacing.iconMd,
               width: AppSpacing.iconMd,
             ),
-            title: "0",
+            title: "$cna",
             subtitle: "CNA",
             iconColor: AppColors.primary,
           ),

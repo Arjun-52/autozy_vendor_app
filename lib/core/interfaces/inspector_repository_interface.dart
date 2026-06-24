@@ -26,10 +26,10 @@ abstract class IInspectorRepository {
   Future<bool> startInspection(String inspectionId);
 
   /// Complete inspection status
-  Future<InspectionModel> completeInspection(String inspectionId, List<Map<String, dynamic>> photos);
+  Future<InspectionModel> completeInspection(String inspectionId, List<Map<String, dynamic>> photos, {String? notes});
 
   /// Fail inspection status
-  Future<InspectionModel> failInspection(String inspectionId, String reason, List<String> photos);
+  Future<InspectionModel> failInspection(String inspectionId, String reason, List<String> photos, {String? notes});
 
   /// Get inspection by subscription ID
   Future<InspectionModel?> getInspectionBySubscription(String subscriptionId);
@@ -38,10 +38,10 @@ abstract class IInspectorRepository {
   Future<List<InspectionModel>> fetchPendingVerifications();
 
   /// Approve a verification
-  Future<void> approveVerification(String inspectionId);
+  Future<void> approveVerification(String inspectionId, {String? remarks, List<Map<String, dynamic>>? photos});
 
   /// Reject a verification with reason and optional photos
-  Future<void> rejectVerification(String inspectionId, String reason, List<File> photos);
+  Future<void> rejectVerification(String inspectionId, String reason, List<String> photoUrls);
 
   /// Add comment to service
   Future<void> addComment(String serviceId, String comment);

@@ -13,6 +13,7 @@ class JobDetailsViewModel extends ChangeNotifier {
   String location = "";
   String phone = "";
   String status = "";
+  String? vehicleImage = "";
 
   /// Load job details from repository
   Future<void> loadJobDetails(String vehicleNumber) async {
@@ -23,6 +24,7 @@ class JobDetailsViewModel extends ChangeNotifier {
       location = details['location'] ?? "";
       phone = details['phone'] ?? "";
       status = details['status'] ?? "";
+      vehicleImage = details['vehicleImage'] ?? "";
       notifyListeners();
     } catch (e) {
       // Keep fallback values if repository fails
@@ -31,6 +33,7 @@ class JobDetailsViewModel extends ChangeNotifier {
       location = "Tower A, Slot 6";
       phone = "9145679913";
       status = "Pending";
+      vehicleImage = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=500";
       notifyListeners();
     }
   }

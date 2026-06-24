@@ -1,6 +1,7 @@
 import '../../data/models/job_model.dart';
 import '../../core/base/base_viewmodel.dart';
 import '../../core/interfaces/dashboard_repository_interface.dart';
+import 'package:flutter/foundation.dart';
 
 class DashboardViewModel extends BaseViewModel {
   final IDashboardRepository _repository;
@@ -9,6 +10,12 @@ class DashboardViewModel extends BaseViewModel {
 
   List<JobModel> _jobs = [];
   bool _isLoggedOut = false;
+  Map<String, dynamic> _stats = {
+    'completed': 0,
+    'total': 0,
+    'remaining': 0,
+    'cna': 0,
+  };
 
   void undoCNA(int index) {
     if (_isValidIndex(index)) {
@@ -18,10 +25,23 @@ class DashboardViewModel extends BaseViewModel {
 
   List<JobModel> get jobs => List.unmodifiable(_jobs);
   bool get isLoggedOut => _isLoggedOut;
+  Map<String, dynamic> get stats => _stats;
+
+  Future<void> loadStats() async {
+    try {
+      _stats = await _repository.getDashboardStats();
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to load stats: $e');
+      }
+    }
+  }
 
   Future<void> loadJobs() async {
     await executeOperation(() async {
       _jobs = await _repository.getJobs();
+      await loadStats();
     }, onError: 'Failed to load jobs');
   }
 

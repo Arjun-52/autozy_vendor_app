@@ -44,6 +44,7 @@ JobModel _$JobModelFromJson(Map<String, dynamic> json) => JobModel(
       remarks: (json['remarks'] as List<dynamic>?)
           ?.map((e) => JobRemarkModel.fromJson(e as Map<String, dynamic>))
           .toList(),
+      vehicleImage: json['vehicle_image'] as String?,
     );
 
 Map<String, dynamic> _$JobModelToJson(JobModel instance) => <String, dynamic>{
@@ -57,6 +58,7 @@ Map<String, dynamic> _$JobModelToJson(JobModel instance) => <String, dynamic>{
       'after_image': instance.afterImage,
       'after_captured_at': instance.afterImageCapturedAt,
       'remarks': instance.remarks,
+      'vehicle_image': instance.vehicleImage,
     };
 
 const _$JobStatusEnumMap = {

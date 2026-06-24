@@ -502,28 +502,6 @@ class _NewApiService implements NewApiService {
   }
 
   @override
-  Future<dynamic> approveInspection(id) async {
-    const _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    final _result = await _dio.fetch(_setStreamType<dynamic>(Options(
-      method: 'POST',
-      headers: _headers,
-      extra: _extra,
-    )
-        .compose(
-          _dio.options,
-          '/inspections/${id}/approve',
-          queryParameters: queryParameters,
-          data: _data,
-        )
-        .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
-    final value = _result.data;
-    return value;
-  }
-
-  @override
   Future<dynamic> flagInspection(id) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
@@ -658,7 +636,7 @@ class _NewApiService implements NewApiService {
     )
         .compose(
           _dio.options,
-          '/service/${id}/comments',
+          '/api/v1/service/${id}/comments',
           queryParameters: queryParameters,
           data: _data,
         )

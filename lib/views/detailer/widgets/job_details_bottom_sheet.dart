@@ -301,16 +301,35 @@ class _JobDetailsBottomSheetState extends State<JobDetailsBottomSheet> {
                             AppSpacing.radiusMd,
                           ),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: SvgPicture.asset(
-                            "assets/images/car2.svg",
-                            fit: BoxFit.contain,
-                            colorFilter: ColorFilter.mode(
-                              job.isCNA ? AppColors.error : AppColors.black,
-                              BlendMode.srcIn,
-                            ),
-                          ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                          child: job.vehicleImage != null && job.vehicleImage!.isNotEmpty
+                              ? Image.network(
+                                  job.vehicleImage!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) => Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: SvgPicture.asset(
+                                      "assets/images/car2.svg",
+                                      fit: BoxFit.contain,
+                                      colorFilter: ColorFilter.mode(
+                                        job.isCNA ? AppColors.error : AppColors.black,
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: SvgPicture.asset(
+                                    "assets/images/car2.svg",
+                                    fit: BoxFit.contain,
+                                    colorFilter: ColorFilter.mode(
+                                      job.isCNA ? AppColors.error : AppColors.black,
+                                      BlendMode.srcIn,
+                                    ),
+                                  ),
+                                ),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
