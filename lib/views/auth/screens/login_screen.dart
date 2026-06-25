@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     padding: AppSpacing.horizontal24,
                     child: Column(
                       children: [
-                        const Spacer(flex: 3),
+                        const Spacer(flex: 2),
                         const LoginLogo(),
                         const SizedBox(height: AppSpacing.custom40),
                         const Text("Log in or Sign Up", style: AppStyles.heading),
@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             }
                           },
                         ),
-                        const Spacer(flex: 2),
+                        const Spacer(flex: 4),
                         const Text(
                           "By continuing, you agree to our Terms and Conditions\n& Privacy Policy",
                           textAlign: TextAlign.center,

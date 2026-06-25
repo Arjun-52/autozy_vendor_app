@@ -177,9 +177,13 @@ void showJobDetailsSheet(BuildContext context, InspectionModel inspection) {
                                     color: Colors.grey,
                                   ),
                                   const SizedBox(width: 6),
-                                  Text(
-                                    inspection.location,
-                                    style: const TextStyle(color: Colors.grey),
+                                  Expanded(
+                                    child: Text(
+                                      inspection.location,
+                                      style: const TextStyle(color: Colors.grey),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                    ),
                                   ),
                                 ],
                               ),

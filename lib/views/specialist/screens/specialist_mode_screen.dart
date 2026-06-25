@@ -155,7 +155,12 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
             children: [
               Icon(Icons.check_circle, color: AppColors.success, size: 28),
               SizedBox(width: 8),
-              Text("Booking Confirmed!", style: TextStyle(fontWeight: FontWeight.bold)),
+              Expanded(
+                child: Text(
+                  "Booking Confirmed!",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
             ],
           ),
           content: Text("Your booking for '$serviceName' has been successfully created. Specialist will start work shortly."),

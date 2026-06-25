@@ -12,6 +12,7 @@ class OtpVerifyButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
+      height: 54,
       child: ElevatedButton(
         onPressed: vm.isLoading
             ? null
@@ -20,11 +21,11 @@ class OtpVerifyButton extends StatelessWidget {
                 vm.verifyOtp(otp);
               },
         style: ElevatedButton.styleFrom(
+          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
           backgroundColor: AppColors.primary,
-          padding: const EdgeInsets.symmetric(vertical: 16),
         ),
         child: vm.isLoading
             ? const SizedBox(
@@ -37,7 +38,7 @@ class OtpVerifyButton extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.w600,
-                  fontSize: 18,
+                  fontSize: 16,
                 ),
               ),
       ),

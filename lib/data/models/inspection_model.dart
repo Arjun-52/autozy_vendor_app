@@ -198,8 +198,60 @@ class InspectionModel {
     uploadedPhotos = [];
   }
   factory InspectionModel.fromJson(Map<String, dynamic> json) {
-    final model = _$InspectionModelFromJson(json);
-    final extraPhotos = _parsePhotos(json);
+    // Preprocess json to ensure customer_name / name and address / location are parsed correctly
+    final Map<String, dynamic> processedJson = Map<String, dynamic>.from(json);
+    final vehicleMap = processedJson['vehicle'] as Map<String, dynamic>?;
+    
+    if (processedJson['name'] == null || processedJson['name'].toString().trim().isEmpty) {
+      String custName;
+      if (processedJson['customer_name'] != null && processedJson['customer_name'].toString().trim().isNotEmpty) {
+        custName = processedJson['customer_name'].toString().trim();
+      } else if (processedJson['user'] is Map && processedJson['user']['name'] != null && processedJson['user']['name'].toString().trim().isNotEmpty) {
+        custName = processedJson['user']['name'].toString().trim();
+      } else if (processedJson['customer'] is Map && processedJson['customer']['name'] != null && processedJson['customer']['name'].toString().trim().isNotEmpty) {
+        custName = processedJson['customer']['name'].toString().trim();
+      } else if (vehicleMap != null && vehicleMap['user'] is Map && vehicleMap['user']['name'] != null && vehicleMap['user']['name'].toString().trim().isNotEmpty) {
+        custName = vehicleMap['user']['name'].toString().trim();
+      } else {
+        custName = 'Rohit A.';
+      }
+      processedJson['name'] = custName;
+    }
+
+    if (processedJson['location'] == null || processedJson['location'].toString().trim().isEmpty) {
+      String addr = '';
+      final targetMap = vehicleMap ?? processedJson;
+      final flat = targetMap['flat_no']?.toString() ?? targetMap['flatNo']?.toString();
+      final buildingVal = targetMap['building']?.toString();
+      final localityVal = targetMap['locality']?.toString() ?? targetMap['area']?.toString() ?? targetMap['community']?.toString() ?? targetMap['street']?.toString();
+      final landmarkVal = targetMap['landmark']?.toString();
+
+      final components = <String>[];
+      if (flat != null && flat.isNotEmpty) components.add(flat);
+      if (buildingVal != null && buildingVal.isNotEmpty) components.add(buildingVal);
+      if (localityVal != null && localityVal.isNotEmpty) components.add(localityVal);
+      if (landmarkVal != null && landmarkVal.isNotEmpty) {
+        if (landmarkVal.toLowerCase().trim().startsWith('near')) {
+          components.add(landmarkVal);
+        } else {
+          components.add('near $landmarkVal');
+        }
+      }
+
+      if (components.isNotEmpty) {
+        addr = components.join(', ');
+      } else {
+        addr = processedJson['address']?.toString() ?? processedJson['location']?.toString() ?? '';
+      }
+
+      if (addr.isEmpty) {
+        addr = 'Tower A, Slot 6';
+      }
+      processedJson['location'] = addr;
+    }
+
+    final model = _$InspectionModelFromJson(processedJson);
+    final extraPhotos = _parsePhotos(processedJson);
     if (extraPhotos != null && extraPhotos.isNotEmpty) {
       model.photos ??= [];
       for (final p in extraPhotos) {
@@ -337,8 +389,51 @@ class InspectionModel {
       }
     }
 
-    final custName = json['customer_name']?.toString() ?? json['name']?.toString() ?? 'Rohit A.';
-    final addr = json['address']?.toString() ?? json['location']?.toString() ?? '';
+    String custName;
+    if (json['customer_name'] != null && json['customer_name'].toString().trim().isNotEmpty) {
+      custName = json['customer_name'].toString().trim();
+    } else if (json['name'] != null && json['name'].toString().trim().isNotEmpty) {
+      custName = json['name'].toString().trim();
+    } else if (json['user'] is Map && json['user']['name'] != null && json['user']['name'].toString().trim().isNotEmpty) {
+      custName = json['user']['name'].toString().trim();
+    } else if (json['customer'] is Map && json['customer']['name'] != null && json['customer']['name'].toString().trim().isNotEmpty) {
+      custName = json['customer']['name'].toString().trim();
+    } else if (vehicleMap != null && vehicleMap['user'] is Map && vehicleMap['user']['name'] != null && vehicleMap['user']['name'].toString().trim().isNotEmpty) {
+      custName = vehicleMap['user']['name'].toString().trim();
+    } else {
+      custName = 'Rohit A.';
+    }
+
+    String addr = '';
+    // Try components in vehicle map or main json
+    final targetMap = vehicleMap ?? json;
+    final flat = targetMap['flat_no']?.toString() ?? targetMap['flatNo']?.toString();
+    final buildingVal = targetMap['building']?.toString();
+    final localityVal = targetMap['locality']?.toString() ?? targetMap['area']?.toString() ?? targetMap['community']?.toString() ?? targetMap['street']?.toString();
+    final landmarkVal = targetMap['landmark']?.toString();
+
+    final components = <String>[];
+    if (flat != null && flat.isNotEmpty) components.add(flat);
+    if (buildingVal != null && buildingVal.isNotEmpty) components.add(buildingVal);
+    if (localityVal != null && localityVal.isNotEmpty) components.add(localityVal);
+    if (landmarkVal != null && landmarkVal.isNotEmpty) {
+      if (landmarkVal.toLowerCase().trim().startsWith('near')) {
+        components.add(landmarkVal);
+      } else {
+        components.add('near $landmarkVal');
+      }
+    }
+
+    if (components.isNotEmpty) {
+      addr = components.join(', ');
+    } else {
+      addr = json['address']?.toString() ?? json['location']?.toString() ?? '';
+    }
+
+    if (addr.isEmpty) {
+      addr = 'Tower A, Slot 6';
+    }
+
     final cityVal = json['city']?.toString() ?? '';
     final createdDateVal = json['created_at']?.toString() ?? json['created_date']?.toString() ?? json['createdAt']?.toString() ?? json['completed_at']?.toString() ?? '';
 

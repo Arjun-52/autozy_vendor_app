@@ -868,9 +868,9 @@ class InspectorViewModel extends BaseViewModel {
   String? _uploadingInspectionId;
   String? get uploadingInspectionId => _uploadingInspectionId;
 
-  Future<void> uploadImage(String inspectionId) async {
+  Future<void> uploadImage(String inspectionId, {ImageSource source = ImageSource.camera}) async {
     if (kDebugMode) {
-      print('Take Photo tapped. Inspection ID: $inspectionId');
+      print('Take Photo tapped. Inspection ID: $inspectionId, source: $source');
     }
 
     // Open Camera / Gallery Permission is implicit in picker but we catch denials
@@ -878,7 +878,7 @@ class InspectorViewModel extends BaseViewModel {
     XFile? pickedFile;
     try {
       pickedFile = await picker.pickImage(
-        source: ImageSource.camera,
+        source: source,
         imageQuality: 80,
         maxWidth: 1920,
         maxHeight: 1920,

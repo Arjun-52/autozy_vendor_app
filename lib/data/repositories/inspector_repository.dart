@@ -405,12 +405,50 @@ class InspectorRepository implements IInspectorRepository {
     }
   }
 
+  bool _isUuid(String str) {
+    final regExp = RegExp(
+      r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+    );
+    return regExp.hasMatch(str);
+  }
+
+  String _normalize(String str) {
+    return str.replaceAll(RegExp(r'\s+'), '').toUpperCase();
+  }
+
   @override
   Future<InspectionModel?> getInspectionBySubscription(String subscriptionId) async {
     if (kDebugMode) {
       print('Get Inspection request start');
       print('Subscription ID being sent: $subscriptionId');
     }
+    
+    final normSearch = _normalize(subscriptionId);
+    if (!_isUuid(subscriptionId)) {
+      if (kDebugMode) {
+        print('Subscription ID "$subscriptionId" is not a UUID. Searching queue for vehicle match...');
+      }
+      try {
+        final queue = await getInspections();
+        for (final item in queue) {
+          if (_normalize(item.vehicle) == normSearch) {
+            if (kDebugMode) {
+              print('Found matching inspection in queue for vehicle ${item.vehicle}');
+            }
+            return item;
+          }
+        }
+        if (kDebugMode) {
+          print('No matching inspection found in queue for vehicle "$subscriptionId"');
+        }
+      } catch (queueErr) {
+        if (kDebugMode) {
+          print('Error fetching queue for vehicle search: $queueErr');
+        }
+      }
+      return null;
+    }
+
     try {
       final response = await _apiService.getInspectionBySubscription(subscriptionId);
       if (kDebugMode) {
@@ -443,9 +481,24 @@ class InspectorRepository implements IInspectorRepository {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('API request error: $e');
+        print('API request error: $e. Trying fallback search in queue...');
       }
-      rethrow;
+      try {
+        final queue = await getInspections();
+        for (final item in queue) {
+          if (_normalize(item.vehicle) == normSearch || _normalize(item.id) == normSearch) {
+            if (kDebugMode) {
+              print('Found fallback match in queue: ${item.vehicle}');
+            }
+            return item;
+          }
+        }
+      } catch (fallbackErr) {
+        if (kDebugMode) {
+          print('Error during fallback queue search: $fallbackErr');
+        }
+      }
+      return null;
     }
   }
 

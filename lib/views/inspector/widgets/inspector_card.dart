@@ -1,3 +1,4 @@
+import 'package:image_picker/image_picker.dart';
 import 'package:autozy_vendor_app/core/utils/capture_photo_sheet.dart';
 import 'package:autozy_vendor_app/core/utils/job_details_sheet.dart';
 import 'package:autozy_vendor_app/core/utils/top_banner.dart';
@@ -184,7 +185,8 @@ class InspectorCard extends StatelessWidget {
                 onTakePhoto: () {
                   showCapturePhotoSheet(
                     context: context,
-                    onTakePhoto: () => vm.uploadImage(inspection.id),
+                    onTakePhoto: () => vm.uploadImage(inspection.id, source: ImageSource.camera),
+                    onPickGallery: () => vm.uploadImage(inspection.id, source: ImageSource.gallery),
                   );
                 },
 

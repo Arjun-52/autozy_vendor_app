@@ -9,17 +9,17 @@ class PhoneInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 65,
+      height: 54,
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: Color(0xffC6C6C6)),
+        border: Border.all(color: const Color(0xffE2E8F0)),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Color(0xffC6C6C6).withValues(alpha: 0.1),
-            blurRadius: 4,
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
@@ -34,6 +34,7 @@ class PhoneInputField extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
+                  fontSize: 16,
                 ),
               ),
               SizedBox(width: 4),
@@ -46,15 +47,17 @@ class PhoneInputField extends StatelessWidget {
               controller: controller,
               keyboardType: TextInputType.phone,
               maxLength: 10,
+              style: const TextStyle(fontSize: 16, color: Colors.black),
               decoration: const InputDecoration(
                 counterText: "",
                 hintText: "Enter Mobile number",
                 hintStyle: TextStyle(
                   color: Color(0xff9796A1),
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
                 ),
                 border: InputBorder.none,
+                isDense: true,
               ),
             ),
           ),

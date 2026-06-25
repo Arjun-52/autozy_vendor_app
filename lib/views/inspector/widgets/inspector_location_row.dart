@@ -12,7 +12,14 @@ class InspectorLocationRow extends StatelessWidget {
       children: [
         const Icon(Icons.location_on, size: 16, color: AppColors.textSecondary),
         const SizedBox(width: 5),
-        Text(location, style: const TextStyle(color: AppColors.textSecondary)),
+        Expanded(
+          child: Text(
+            location,
+            style: const TextStyle(color: AppColors.textSecondary),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        ),
       ],
     );
   }

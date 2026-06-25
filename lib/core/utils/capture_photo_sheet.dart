@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 void showCapturePhotoSheet({
   required BuildContext context,
   required VoidCallback onTakePhoto,
+  required VoidCallback onPickGallery,
 }) {
   showModalBottomSheet(
     context: context,
@@ -107,7 +108,7 @@ void showCapturePhotoSheet({
                         ),
                         const SizedBox(width: 8),
                         const Text(
-                          "Take Photo",
+                          "Use Camera",
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             color: Colors.black,
@@ -123,21 +124,29 @@ void showCapturePhotoSheet({
 
               Expanded(
                 child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
+                  onTap: () {
+                    onPickGallery();
+                    Navigator.pop(context);
+                  },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.red),
+                      border: Border.all(color: const Color(0xFFFFC107), width: 1.5),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Center(
-                      child: Text(
-                        "Cancel",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.w500,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.photo_library, color: Colors.black, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          "Use Gallery",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 ),
