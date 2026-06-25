@@ -6,6 +6,8 @@ import '../../core/network/api_client.dart';
 import '../../core/di/dependency_injection.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_styles.dart';
+import 'package:provider/provider.dart';
+import '../../viewmodels/attendance_viewmodel.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -176,42 +178,139 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: const TextStyle(color: AppColors.success, fontWeight: FontWeight.bold),
                 ),
 
-              const SizedBox(height: 30),
-              const Divider(color: AppColors.border),
-              const SizedBox(height: 20),
+              // Attendance Section
+              Consumer<AttendanceViewModel>(
+                builder: (context, attendanceVm, child) {
+                  final isCheckedIn = attendanceVm.attendance != null;
+                  final checkInTime = isCheckedIn ? _formatTime(attendanceVm.attendance!.checkIn) : null;
 
-              // SUBSCRIPTION / PLAN MANAGEMENT SECTION (Feature 9)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Subscription & Plan Details",
-                  style: AppStyles.sectionTitle,
-                ),
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 20),
+                      Text(
+                        "Staff Attendance",
+                        style: AppStyles.sectionTitle,
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.backgroundLight,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.borderLight),
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      isCheckedIn ? "Status: Checked In" : "Status: Not Clocked In",
+                                      style: const TextStyle(
+                                        color: AppColors.textPrimary,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    if (isCheckedIn && checkInTime != null) ...[
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        "Time: $checkInTime",
+                                        style: const TextStyle(
+                                          color: AppColors.textSecondary,
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: isCheckedIn ? Colors.green.shade50 : Colors.orange.shade50,
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: isCheckedIn ? Colors.green.shade200 : Colors.orange.shade200),
+                                  ),
+                                  child: Text(
+                                    isCheckedIn ? "PRESENT" : "ABSENT",
+                                    style: TextStyle(
+                                      color: isCheckedIn ? Colors.green : Colors.orange,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: (attendanceVm.isLoading || isCheckedIn)
+                                    ? null
+                                    : () async {
+                                        await attendanceVm.markAttendance();
+                                        if (context.mounted) {
+                                          if (attendanceVm.errorMessage != null) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text(attendanceVm.errorMessage!),
+                                                backgroundColor: AppColors.error,
+                                              ),
+                                            );
+                                          } else if (attendanceVm.successMessage != null) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text(attendanceVm.successMessage!),
+                                                backgroundColor: AppColors.success,
+                                              ),
+                                            );
+                                          }
+                                        }
+                                      },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: isCheckedIn ? AppColors.greyLight : AppColors.primary,
+                                  foregroundColor: isCheckedIn ? AppColors.textSecondary : AppColors.black,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  disabledBackgroundColor: isCheckedIn ? Colors.green.shade100 : AppColors.greyLight,
+                                ),
+                                icon: attendanceVm.isLoading
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor: AlwaysStoppedAnimation<Color>(AppColors.black),
+                                        ),
+                                      )
+                                    : Icon(isCheckedIn ? Icons.check_circle : Icons.login),
+                                label: Text(
+                                  attendanceVm.isLoading
+                                      ? "Processing..."
+                                      : isCheckedIn
+                                          ? "Checked In"
+                                          : "Clock In",
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
-              const SizedBox(height: 12),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.backgroundLight,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderLight),
-                ),
-                child: Column(
-                  children: [
-                    _buildDetailRow("Active Plan", "Vendor Premium Staff"),
-                    const SizedBox(height: 12),
-                    _buildDetailRow("Service Access", "Detailer, Inspector, Specialist"),
-                    const SizedBox(height: 12),
-                    _buildDetailRow("Tasks Allowance", "Unlimited Daily Jobs"),
-                    const SizedBox(height: 12),
-                    _buildDetailRow("Expiry Date", "Dec 31, 2026"),
-                    const SizedBox(height: 12),
-                    _buildDetailRow("Status", "ACTIVE", isStatus: true),
-                  ],
-                ),
-              ),
-              
+
               const SizedBox(height: 40),
               
               // Logout Button
@@ -242,6 +341,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     );
+  }
+
+  String _formatTime(String? checkInStr) {
+    if (checkInStr == null || checkInStr.isEmpty) return '--:--';
+    try {
+      final dateTime = DateTime.parse(checkInStr).toLocal();
+      final hour = dateTime.hour.toString().padLeft(2, '0');
+      final minute = dateTime.minute.toString().padLeft(2, '0');
+      return '$hour:$minute';
+    } catch (e) {
+      return '--:--';
+    }
   }
 
   Widget _buildFallbackAvatar() {

@@ -16,6 +16,8 @@ import '../interfaces/specialist_tasks_repository_interface.dart';
 import '../interfaces/dashboard_repository_interface.dart';
 import 'package:autozy_vendor_app/data/repositories/wash_history_repository.dart';
 import '../interfaces/wash_history_repository_interface.dart';
+import '../interfaces/attendance_repository_interface.dart';
+import 'package:autozy_vendor_app/data/repositories/attendance_repository.dart';
 import '../network/api_client.dart';
 
 /// Dependency Injection Setup
@@ -36,6 +38,7 @@ class DependencyInjection {
   late final ApiClient _apiClient;
   late final InspectorRepository _inspectorRepository;
   late final SupervisorRepository _supervisorRepository;
+  late final IAttendanceRepository _attendanceRepository;
 
   // NEW: Refactored repositories
   late final IRoleRepository _roleRepository;
@@ -59,6 +62,7 @@ class DependencyInjection {
     _inspectorRepository = InspectorRepository(newApiService);
     _supervisorRepository = SupervisorRepository(newApiService);
     _washHistoryRepository = WashHistoryRepository(newApiService);
+    _attendanceRepository = AttendanceRepository(newApiService);
 
     // Initialize refactored repositories
     _roleRepository = RoleRepository();
@@ -75,6 +79,7 @@ class DependencyInjection {
   // NEW: Getters for API-ready repositories
   InspectorRepository get inspectorRepository => _inspectorRepository;
   SupervisorRepository get supervisorRepository => _supervisorRepository;
+  IAttendanceRepository get attendanceRepository => _attendanceRepository;
 
   // NEW: Getters for refactored repositories
   IRoleRepository get roleRepository => _roleRepository;

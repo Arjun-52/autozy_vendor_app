@@ -20,6 +20,7 @@ import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/supervisor_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/job_details_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/specialist_tasks_viewmodel.dart';
+import 'package:autozy_vendor_app/viewmodels/attendance_viewmodel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -76,6 +77,11 @@ class MyApp extends StatelessWidget {
         /// SPECIALIST TASKS
         ChangeNotifierProvider(
           create: (_) => SpecialistTasksViewModel(di.specialistTasksRepository),
+        ),
+        
+        /// ATTENDANCE
+        ChangeNotifierProvider(
+          create: (_) => AttendanceViewModel(di.attendanceRepository),
         ),
       ],
 

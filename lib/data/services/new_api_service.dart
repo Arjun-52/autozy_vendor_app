@@ -129,6 +129,9 @@ abstract class NewApiService {
     @Body() Map<String, dynamic> body,
   );
 
+  @POST(ApiEndpoints.staffAttendance)
+  Future<dynamic> markAttendance(@Body() Map<String, dynamic> body);
+
   /// Team/Supervisor endpoints
   @GET('/team/members')
   Future<dynamic> getTeamMembers();
