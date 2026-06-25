@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:autozy_vendor_app/core/utils/capture_photo_sheet.dart';
 import 'package:autozy_vendor_app/core/utils/job_details_sheet.dart';
@@ -36,6 +37,9 @@ class InspectorCard extends StatelessWidget {
         inspection.status == InspectionStatus.completed ||
         inspection.status == InspectionStatus.verified;
     final isInProgress = inspection.status == InspectionStatus.inProgress;
+
+    // Use localPhotos map/list from model
+    final List<String> imageUrls = inspection.localPhotos.map((p) => p.url).toList();
 
     return GestureDetector(
       onTap: () {
@@ -115,6 +119,7 @@ class InspectorCard extends StatelessWidget {
                       ? null
                       : () async {
                           final success = await vm.startInspection(inspection.id);
+                          if (!context.mounted) return;
                           if (success) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Inspection started successfully')),
@@ -179,7 +184,8 @@ class InspectorCard extends StatelessWidget {
               )
             else if (isInProgress)
               InspectorActionButtons(
-                photoCount: inspection.photoCount,
+                photoCount: inspection.localPhotos.length,
+                imageUrls: imageUrls,
                 isUploading: vm.isUploadingImage && vm.uploadingInspectionId == inspection.id,
 
                 onTakePhoto: () {
@@ -191,7 +197,7 @@ class InspectorCard extends StatelessWidget {
                 },
 
                 onApprove: () async {
-                  if (inspection.photoCount == 0) {
+                  if (inspection.localPhotos.isEmpty) {
                     TopBanner(
                       context,
                       "Take at least 1 photo before approving",
@@ -199,22 +205,14 @@ class InspectorCard extends StatelessWidget {
                     return;
                   }
 
-                  final photosPayload = inspection.uploadedPhotos.isNotEmpty
-                      ? inspection.uploadedPhotos.map((photo) => {
-                            "url": photo['url'] ?? "",
-                            "type": "BEFORE",
-                            "timestamp": DateTime.now().toUtc().toIso8601String(),
-                          }).toList()
-                      : List.generate(
-                          inspection.photoCount,
-                          (i) => {
-                            "url": "https://api.autozy.com/photos/${inspection.id}_$i.jpg",
-                            "type": "BEFORE",
-                            "timestamp": DateTime.now().toUtc().toIso8601String(),
-                          },
-                        );
+                  final photosPayload = inspection.localPhotos.map((photo) => {
+                        "url": photo.url,
+                        "type": photo.type,
+                        "timestamp": photo.timestamp,
+                      }).toList();
 
                   final success = await vm.completeInspection(inspection.id, photosPayload);
+                  if (!context.mounted) return;
                   if (success) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Inspection completed successfully')),
@@ -250,17 +248,13 @@ class InspectorCard extends StatelessWidget {
                           ElevatedButton(
                             onPressed: () async {
                               Navigator.pop(dialogCtx);
-                              final photosPayload = inspection.uploadedPhotos.isNotEmpty
-                                  ? inspection.uploadedPhotos.map((photo) => photo['url'] ?? "").toList()
-                                  : List.generate(
-                                      inspection.photoCount,
-                                      (i) => "https://api.autozy.com/photos/fail_${inspection.id}_$i.jpg",
-                                    );
+                              final photosPayload = inspection.localPhotos.map((photo) => photo.url).toList();
                               final success = await vm.failInspection(
                                 inspection.id,
                                 reasonController.text.trim(),
                                 photosPayload,
                               );
+                              if (!context.mounted) return;
                               if (success) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(content: Text('Inspection failed successfully')),

@@ -8,9 +8,9 @@ part of 'inspection_model.dart';
 
 InspectionPhoto _$InspectionPhotoFromJson(Map<String, dynamic> json) =>
     InspectionPhoto(
-      url: json['url'] as String,
-      type: json['type'] as String,
-      timestamp: json['timestamp'] as String,
+      url: json['url'] as String? ?? '',
+      type: json['type'] as String? ?? '',
+      timestamp: json['timestamp'] as String? ?? '',
     );
 
 Map<String, dynamic> _$InspectionPhotoToJson(InspectionPhoto instance) =>
@@ -23,10 +23,10 @@ Map<String, dynamic> _$InspectionPhotoToJson(InspectionPhoto instance) =>
 VerificationHistoryItem _$VerificationHistoryItemFromJson(
         Map<String, dynamic> json) =>
     VerificationHistoryItem(
-      verifiedBy: json['verified_by'] as String,
-      verificationDate: json['verification_date'] as String,
-      status: json['status'] as String,
-      remarks: json['remarks'] as String,
+      verifiedBy: json['verified_by'] as String? ?? '',
+      verificationDate: json['verification_date'] as String? ?? '',
+      status: json['status'] as String? ?? '',
+      remarks: json['remarks'] as String? ?? '',
     );
 
 Map<String, dynamic> _$VerificationHistoryItemToJson(
@@ -39,10 +39,10 @@ Map<String, dynamic> _$VerificationHistoryItemToJson(
     };
 
 RemarkModel _$RemarkModelFromJson(Map<String, dynamic> json) => RemarkModel(
-      userName: json['user_name'] as String,
-      role: json['role'] as String,
-      comment: json['comment'] as String,
-      createdAt: json['created_at'] as String,
+      userName: json['user_name'] as String? ?? '',
+      role: json['role'] as String? ?? '',
+      comment: json['comment'] as String? ?? '',
+      createdAt: json['created_at'] as String? ?? '',
     );
 
 Map<String, dynamic> _$RemarkModelToJson(RemarkModel instance) =>
@@ -57,9 +57,9 @@ InspectionModel _$InspectionModelFromJson(Map<String, dynamic> json) =>
     InspectionModel(
       id: _readId(json, 'id') as String,
       bookingId: json['booking_id'] as String?,
-      vehicle: json['vehicle_number'] as String,
-      name: json['name'] as String,
-      location: json['location'] as String,
+      vehicle: json['vehicle_number'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      location: json['location'] as String? ?? '',
       photoCount: (json['photo_count'] as num?)?.toInt() ?? 0,
       status: $enumDecodeNullable(_$InspectionStatusEnumMap, json['status']) ??
           InspectionStatus.pendingVerification,

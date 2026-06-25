@@ -29,6 +29,52 @@ class InspectorViewModel extends BaseViewModel {
   // Track local photo paths for immediate preview before/during submission
   final Map<String, Map<String, String>> _localProofPhotos = {};
 
+  // Keep local uploaded photos in memory keyed by inspectionId
+  final Map<String, List<UploadedPhoto>> _localPhotosMap = {};
+
+  List<UploadedPhoto> getLocalPhotos(String inspectionId) {
+    return _localPhotosMap[inspectionId] ?? [];
+  }
+
+  void addLocalPhoto(String inspectionId, UploadedPhoto photo) {
+    _localPhotosMap.putIfAbsent(inspectionId, () => []).add(photo);
+    _syncLocalPhotos();
+    notifyListeners();
+  }
+
+  void clearLocalPhotos(String inspectionId) {
+    _localPhotosMap.remove(inspectionId);
+    _syncLocalPhotos();
+    notifyListeners();
+  }
+
+  void _syncLocalPhotos() {
+    for (final inspection in _inspections) {
+      if (_localPhotosMap.containsKey(inspection.id)) {
+        inspection.localPhotos = List.from(_localPhotosMap[inspection.id]!);
+        inspection.photoCount = inspection.localPhotos.length;
+      }
+    }
+    for (final inspection in _assignedInspections) {
+      if (_localPhotosMap.containsKey(inspection.id)) {
+        inspection.localPhotos = List.from(_localPhotosMap[inspection.id]!);
+        inspection.photoCount = inspection.localPhotos.length;
+      }
+    }
+    for (final inspection in _unassignedInspections) {
+      if (_localPhotosMap.containsKey(inspection.id)) {
+        inspection.localPhotos = List.from(_localPhotosMap[inspection.id]!);
+        inspection.photoCount = inspection.localPhotos.length;
+      }
+    }
+    for (final inspection in _pendingVerifications) {
+      if (_localPhotosMap.containsKey(inspection.id)) {
+        inspection.localPhotos = List.from(_localPhotosMap[inspection.id]!);
+        inspection.photoCount = inspection.localPhotos.length;
+      }
+    }
+  }
+
   Map<String, String> getLocalProofPhotos(String inspectionId) {
     if (kDebugMode) {
       print('getLocalProofPhotos called for inspectionId: $inspectionId. Current state: ${_localProofPhotos[inspectionId]}');
@@ -396,6 +442,7 @@ class InspectorViewModel extends BaseViewModel {
     await executeOperation(
       () async {
         _pendingVerifications = await _repository.fetchPendingVerifications();
+        _syncLocalPhotos();
         print('--- Inspection List (Pending) API response ---');
         for (final item in _pendingVerifications) {
           print('Inspection ID: ${item.id}, Service ID (booking_id): ${item.bookingId}, Vehicle ID: ${item.vehicleId}');
@@ -663,6 +710,7 @@ class InspectorViewModel extends BaseViewModel {
         _assignedInspections = assigned;
         _unassignedInspections = unassigned;
         _inspections = [...assigned, ...unassigned];
+        _syncLocalPhotos();
 
         print('--- Queue API Response: GET /api/v1/inspections/queue ---');
         print('Assigned (${_assignedInspections.length}):');
@@ -816,6 +864,7 @@ class InspectorViewModel extends BaseViewModel {
     await executeOperation(
       () async {
         final completedInspection = await _repository.completeInspection(inspectionId, photos, notes: notes);
+        clearLocalPhotos(inspectionId);
         final idx = _inspections.indexWhere((element) => element.id == inspectionId);
         if (idx != -1) {
           _inspections[idx] = completedInspection;
@@ -847,6 +896,7 @@ class InspectorViewModel extends BaseViewModel {
     await executeOperation(
       () async {
         final failedInspection = await _repository.failInspection(inspectionId, reason, photos, notes: reason);
+        clearLocalPhotos(inspectionId);
         final idx = _inspections.indexWhere((element) => element.id == inspectionId);
         if (idx != -1) {
           _inspections[idx] = failedInspection;
@@ -925,20 +975,45 @@ class InspectorViewModel extends BaseViewModel {
           print('Upload success. URL received: ${response.data.url}, Key received: ${response.data.key}');
         }
 
+        final newPhoto = UploadedPhoto(
+          url: response.data.url,
+          key: response.data.key,
+          type: "BEFORE",
+          timestamp: DateTime.now().toUtc().toIso8601String(),
+        );
+
+        // Update legacy lists just in case
         final idx = _inspections.indexWhere((element) => element.id == inspectionId);
         if (idx != -1) {
-          // Store returned URL and key
           _inspections[idx].uploadedPhotos.add({
             'url': response.data.url,
             'key': response.data.key,
           });
-          // Update photo count
-          _inspections[idx].photoCount = _inspections[idx].uploadedPhotos.length;
-
-          if (kDebugMode) {
-            print('Controller update success. New count: ${_inspections[idx].photoCount}');
-          }
         }
+        final assignedIdx = _assignedInspections.indexWhere((element) => element.id == inspectionId);
+        if (assignedIdx != -1) {
+          _assignedInspections[assignedIdx].uploadedPhotos.add({
+            'url': response.data.url,
+            'key': response.data.key,
+          });
+        }
+        final unassignedIdx = _unassignedInspections.indexWhere((element) => element.id == inspectionId);
+        if (unassignedIdx != -1) {
+          _unassignedInspections[unassignedIdx].uploadedPhotos.add({
+            'url': response.data.url,
+            'key': response.data.key,
+          });
+        }
+        final pendingIdx = _pendingVerifications.indexWhere((element) => element.id == inspectionId);
+        if (pendingIdx != -1) {
+          _pendingVerifications[pendingIdx].uploadedPhotos.add({
+            'url': response.data.url,
+            'key': response.data.key,
+          });
+        }
+
+        // Add to local photos state (which syncs and notifies)
+        addLocalPhoto(inspectionId, newPhoto);
       } else {
         if (kDebugMode) {
           print('Upload failure: response success field is false');

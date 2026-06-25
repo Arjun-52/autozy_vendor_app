@@ -24,8 +24,11 @@ enum InspectionStatus {
 
 @JsonSerializable()
 class InspectionPhoto {
+  @JsonKey(defaultValue: '')
   final String url;
+  @JsonKey(defaultValue: '')
   final String type;
+  @JsonKey(defaultValue: '')
   final String timestamp;
 
   InspectionPhoto({
@@ -42,11 +45,13 @@ class InspectionPhoto {
 
 @JsonSerializable()
 class VerificationHistoryItem {
-  @JsonKey(name: 'verified_by')
+  @JsonKey(name: 'verified_by', defaultValue: '')
   final String verifiedBy;
-  @JsonKey(name: 'verification_date')
+  @JsonKey(name: 'verification_date', defaultValue: '')
   final String verificationDate;
+  @JsonKey(defaultValue: '')
   final String status;
+  @JsonKey(defaultValue: '')
   final String remarks;
 
   VerificationHistoryItem({
@@ -64,11 +69,13 @@ class VerificationHistoryItem {
 
 @JsonSerializable()
 class RemarkModel {
-  @JsonKey(name: 'user_name')
+  @JsonKey(name: 'user_name', defaultValue: '')
   final String userName;
+  @JsonKey(defaultValue: '')
   final String role;
+  @JsonKey(defaultValue: '')
   final String comment;
-  @JsonKey(name: 'created_at')
+  @JsonKey(name: 'created_at', defaultValue: '')
   final String createdAt;
 
   RemarkModel({
@@ -94,9 +101,11 @@ class InspectionModel {
   final String id;
   @JsonKey(name: 'booking_id')
   final String? bookingId;
-  @JsonKey(name: 'vehicle_number')
+  @JsonKey(name: 'vehicle_number', defaultValue: '')
   final String vehicle;
+  @JsonKey(defaultValue: '')
   final String name;
+  @JsonKey(defaultValue: '')
   final String location;
   @JsonKey(name: 'photo_count')
   int photoCount;
@@ -160,6 +169,9 @@ class InspectionModel {
   @JsonKey(ignore: true)
   List<Map<String, String>> uploadedPhotos = [];
 
+  @JsonKey(ignore: true)
+  List<UploadedPhoto> localPhotos = [];
+
   InspectionModel({
     required this.id,
     this.bookingId,
@@ -196,6 +208,7 @@ class InspectionModel {
     this.securityPermission,
   }) {
     uploadedPhotos = [];
+    localPhotos = [];
   }
   factory InspectionModel.fromJson(Map<String, dynamic> json) {
     // Preprocess json to ensure customer_name / name and address / location are parsed correctly
@@ -507,4 +520,18 @@ class InspectionModel {
   }
 
   Map<String, dynamic> toJson() => _$InspectionModelToJson(this);
+}
+
+class UploadedPhoto {
+  final String url;
+  final String key;
+  final String type;
+  final String timestamp;
+
+  UploadedPhoto({
+    required this.url,
+    required this.key,
+    required this.type,
+    required this.timestamp,
+  });
 }

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -12,6 +13,7 @@ class InspectorActionButtons extends StatelessWidget {
   final VoidCallback onFlag;
   final VoidCallback onTakePhoto;
   final bool isUploading;
+  final List<String> imageUrls;
 
   const InspectorActionButtons({
     super.key,
@@ -19,6 +21,7 @@ class InspectorActionButtons extends StatelessWidget {
     required this.onApprove,
     required this.onFlag,
     required this.onTakePhoto,
+    required this.imageUrls,
     this.isUploading = false,
   });
 
@@ -70,6 +73,67 @@ class InspectorActionButtons extends StatelessWidget {
             ),
           ),
         ),
+
+        if (imageUrls.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.md),
+          SizedBox(
+            height: 70,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: imageUrls.length,
+              separatorBuilder: (context, index) => const SizedBox(width: AppSpacing.sm),
+              itemBuilder: (context, index) {
+                final url = imageUrls[index];
+                final isLocal = !url.startsWith('http') && File(url).existsSync();
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FullScreenImageViewer(
+                          imageUrls: imageUrls,
+                          initialIndex: index,
+                        ),
+                      ),
+                    );
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      width: 70,
+                      height: 70,
+                      color: Colors.grey.shade100,
+                      child: isLocal
+                          ? Image.file(
+                              File(url),
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, color: Colors.grey, size: 20),
+                            )
+                          : Image.network(
+                              url,
+                              fit: BoxFit.cover,
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+                              },
+                              errorBuilder: (context, error, stackTrace) {
+                                if (File(url).existsSync()) {
+                                  return Image.file(
+                                    File(url),
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (ctx, err, st) => const Icon(Icons.broken_image, color: Colors.grey, size: 20),
+                                  );
+                                }
+                                return const Icon(Icons.broken_image, color: Colors.grey, size: 20);
+                              },
+                            ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
 
         const SizedBox(height: AppSpacing.md),
 
@@ -156,6 +220,118 @@ class InspectorActionButtons extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class FullScreenImageViewer extends StatefulWidget {
+  final List<String> imageUrls;
+  final int initialIndex;
+
+  const FullScreenImageViewer({
+    super.key,
+    required this.imageUrls,
+    required this.initialIndex,
+  });
+
+  @override
+  State<FullScreenImageViewer> createState() => _FullScreenImageViewerState();
+}
+
+class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
+  late PageController _pageController;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            itemCount: widget.imageUrls.length,
+            onPageChanged: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            itemBuilder: (context, index) {
+              final url = widget.imageUrls[index];
+              final isLocal = !url.startsWith('http') && File(url).existsSync();
+              return InteractiveViewer(
+                minScale: 0.5,
+                maxScale: 4.0,
+                child: Center(
+                  child: isLocal
+                      ? Image.file(
+                          File(url),
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, color: Colors.white, size: 50),
+                        )
+                      : Image.network(
+                          url,
+                          fit: BoxFit.contain,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            if (File(url).existsSync()) {
+                              return Image.file(
+                                File(url),
+                                fit: BoxFit.contain,
+                              );
+                            }
+                            return const Icon(Icons.broken_image, color: Colors.white, size: 50);
+                          },
+                        ),
+                ),
+              );
+            },
+          ),
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 16,
+            left: 16,
+            right: 16,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                Text(
+                  "${_currentIndex + 1} / ${widget.imageUrls.length}",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 48),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
