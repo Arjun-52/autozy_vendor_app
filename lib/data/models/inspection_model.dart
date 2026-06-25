@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'inspection_model.g.dart';
@@ -212,23 +213,52 @@ class InspectionModel {
 
   static List<InspectionPhoto>? _parsePhotos(Map<String, dynamic> json) {
     final List<InspectionPhoto> parsedPhotos = [];
-    if (json['photos'] != null) {
-      parsedPhotos.addAll((json['photos'] as List)
-          .map((e) => InspectionPhoto.fromJson(e as Map<String, dynamic>)));
+    if (json['photos'] != null && json['photos'] is List) {
+      for (final e in json['photos'] as List) {
+        try {
+          if (e is Map<String, dynamic>) {
+            parsedPhotos.add(InspectionPhoto.fromJson(e));
+          }
+        } catch (err) {
+          if (kDebugMode) {
+            print('Error parsing photo from photos list: $err');
+          }
+        }
+      }
     }
-    if (json['before_photos'] != null) {
-      parsedPhotos.addAll((json['before_photos'] as List).map((e) => InspectionPhoto(
-            url: e['url']?.toString() ?? '',
-            type: 'BEFORE',
-            timestamp: e['timestamp']?.toString() ?? '',
-          )));
+    if (json['before_photos'] != null && json['before_photos'] is List) {
+      for (final e in json['before_photos'] as List) {
+        try {
+          if (e is Map<String, dynamic>) {
+            parsedPhotos.add(InspectionPhoto(
+              url: e['url']?.toString() ?? '',
+              type: 'BEFORE',
+              timestamp: e['timestamp']?.toString() ?? '',
+            ));
+          }
+        } catch (err) {
+          if (kDebugMode) {
+            print('Error parsing photo from before_photos list: $err');
+          }
+        }
+      }
     }
-    if (json['after_photos'] != null) {
-      parsedPhotos.addAll((json['after_photos'] as List).map((e) => InspectionPhoto(
-            url: e['url']?.toString() ?? '',
-            type: 'AFTER',
-            timestamp: e['timestamp']?.toString() ?? '',
-          )));
+    if (json['after_photos'] != null && json['after_photos'] is List) {
+      for (final e in json['after_photos'] as List) {
+        try {
+          if (e is Map<String, dynamic>) {
+            parsedPhotos.add(InspectionPhoto(
+              url: e['url']?.toString() ?? '',
+              type: 'AFTER',
+              timestamp: e['timestamp']?.toString() ?? '',
+            ));
+          }
+        } catch (err) {
+          if (kDebugMode) {
+            print('Error parsing photo from after_photos list: $err');
+          }
+        }
+      }
     }
     return parsedPhotos.isEmpty ? null : parsedPhotos;
   }
@@ -277,10 +307,18 @@ class InspectionModel {
     final currentStatus = mapStatus(json['status'] as String?);
 
     List<VerificationHistoryItem> history = [];
-    if (json['verification_history'] != null) {
-      history = (json['verification_history'] as List)
-          .map((e) => VerificationHistoryItem.fromJson(e as Map<String, dynamic>))
-          .toList();
+    if (json['verification_history'] != null && json['verification_history'] is List) {
+      for (final e in json['verification_history'] as List) {
+        try {
+          if (e is Map<String, dynamic>) {
+            history.add(VerificationHistoryItem.fromJson(e));
+          }
+        } catch (err) {
+          if (kDebugMode) {
+            print('Error parsing verification history item: $err, data: $e');
+          }
+        }
+      }
     } else {
       if (currentStatus == InspectionStatus.approved || currentStatus == InspectionStatus.verified) {
         history.add(VerificationHistoryItem(
@@ -306,13 +344,43 @@ class InspectionModel {
 
     final bookingIdVal = json['booking_id']?.toString() ?? json['bookingId']?.toString();
 
+    bool? parseBool(dynamic val) {
+      if (val == null) return null;
+      if (val is bool) return val;
+      final s = val.toString().toLowerCase();
+      if (s == 'true' || s == '1') return true;
+      if (s == 'false' || s == '0') return false;
+      return null;
+    }
+
+    int parseDoubleOrInt(dynamic val) {
+      if (val == null) return 0;
+      if (val is num) return val.toInt();
+      return int.tryParse(val.toString()) ?? 0;
+    }
+
+    List<RemarkModel> parsedRemarks = [];
+    if (json['remarks'] != null && json['remarks'] is List) {
+      for (final e in json['remarks'] as List) {
+        try {
+          if (e is Map<String, dynamic>) {
+            parsedRemarks.add(RemarkModel.fromJson(e));
+          }
+        } catch (err) {
+          if (kDebugMode) {
+            print('Error parsing remark: $err, data: $e');
+          }
+        }
+      }
+    }
+
     return InspectionModel(
       id: inspectionId,
       bookingId: bookingIdVal,
       vehicle: vehicleNumber,
       name: custName,
       location: addr.isNotEmpty ? addr : 'Tower A, Slot 6',
-      photoCount: (json['photo_count'] as int?) ?? 0,
+      photoCount: parseDoubleOrInt(json['photo_count']),
       status: currentStatus,
       completedAt: json['completed_at']?.toString(),
       photos: _parsePhotos(json),
@@ -328,11 +396,7 @@ class InspectionModel {
       verificationHistory: history,
       customerNotes: json['customer_notes']?.toString() ?? 'Car parked near Gate B. Please avoid using strong chemicals.',
       detailerNotes: json['detailer_notes']?.toString() ?? 'Vehicle was parked in basement. Existing minor scratches on front bumper.',
-      remarks: json['remarks'] != null
-          ? (json['remarks'] as List)
-              .map((e) => RemarkModel.fromJson(e as Map<String, dynamic>))
-              .toList()
-          : [],
+      remarks: parsedRemarks,
       building: json['building']?.toString() ?? (addr.toLowerCase().contains('tower b') == true ? 'Tower B' : 'Tower A'),
       street: json['street']?.toString() ?? 'Street 12',
       area: json['area']?.toString() ?? (inspectionId.hashCode % 2 == 0 ? 'Gachibowli' : 'Financial District'),
@@ -341,9 +405,9 @@ class InspectionModel {
       address: addr,
       city: cityVal,
       createdDate: createdDateVal,
-      parkingAvailable: json['parking_available'] as bool?,
-      keysProvided: json['keys_provided'] as bool?,
-      securityPermission: json['security_permission'] as bool?,
+      parkingAvailable: parseBool(json['parking_available']),
+      keysProvided: parseBool(json['keys_provided']),
+      securityPermission: parseBool(json['security_permission']),
     );
   }
 

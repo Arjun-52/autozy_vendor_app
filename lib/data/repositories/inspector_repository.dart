@@ -110,12 +110,16 @@ class InspectorRepository implements IInspectorRepository {
 
       final Map<String, dynamic> respMap = response as Map<String, dynamic>;
 
-      final List<dynamic> assignedRaw = respMap['assigned'] ?? respMap['data'] ?? [];
-      final List<dynamic> unassignedRaw = respMap['unassigned'] ?? [];
+      final Map<String, dynamic> dataMap = respMap['data'] is Map<String, dynamic>
+          ? respMap['data'] as Map<String, dynamic>
+          : respMap;
+
+      final List<dynamic> assignedRaw = dataMap['assigned'] is List ? dataMap['assigned'] as List : [];
+      final List<dynamic> unassignedRaw = dataMap['unassigned'] is List ? dataMap['unassigned'] as List : [];
 
       if (kDebugMode) {
-        print('Assigned inspections count: ${assignedRaw.length}');
-        print('Unassigned inspections count: ${unassignedRaw.length}');
+        print('Raw data.assigned.length immediately after decoding: ${assignedRaw.length}');
+        print('Raw data.unassigned.length immediately after decoding: ${unassignedRaw.length}');
         if (assignedRaw.isNotEmpty) {
           print('DEBUG KEYS (assigned): ${(assignedRaw.first as Map<String, dynamic>).keys.toList()}');
         }
@@ -124,12 +128,31 @@ class InspectorRepository implements IInspectorRepository {
         }
       }
 
-      final List<InspectionModel> assigned = assignedRaw
-          .map((e) => InspectionModel.fromQueueJson(e as Map<String, dynamic>))
-          .toList();
-      final List<InspectionModel> unassigned = unassignedRaw
-          .map((e) => InspectionModel.fromQueueJson(e as Map<String, dynamic>))
-          .toList();
+      final List<InspectionModel> assigned = [];
+      for (final e in assignedRaw) {
+        try {
+          assigned.add(InspectionModel.fromQueueJson(e as Map<String, dynamic>));
+        } catch (err, stack) {
+          if (kDebugMode) {
+            print('Error parsing assigned element: $err');
+            print('Failed element JSON: $e');
+            print(stack);
+          }
+        }
+      }
+
+      final List<InspectionModel> unassigned = [];
+      for (final e in unassignedRaw) {
+        try {
+          unassigned.add(InspectionModel.fromQueueJson(e as Map<String, dynamic>));
+        } catch (err, stack) {
+          if (kDebugMode) {
+            print('Error parsing unassigned element: $err');
+            print('Failed element JSON: $e');
+            print(stack);
+          }
+        }
+      }
 
       if (kDebugMode) {
         print('Parsed ${assigned.length} assigned + ${unassigned.length} unassigned inspections');
@@ -152,12 +175,32 @@ class InspectorRepository implements IInspectorRepository {
     }
     try {
       final response = await _apiService.getInspectionQueue();
+      if (kDebugMode) {
+        print('getAssignedInspections raw response: $response');
+      }
       if (response == null) return [];
       final Map<String, dynamic> respMap = response as Map<String, dynamic>;
-      final List<dynamic> raw = respMap['assigned'] ?? [];
-      return raw
-          .map((e) => InspectionModel.fromQueueJson(e as Map<String, dynamic>))
-          .toList();
+      final Map<String, dynamic> dataMap = respMap['data'] is Map<String, dynamic>
+          ? respMap['data'] as Map<String, dynamic>
+          : respMap;
+      final List<dynamic> raw = dataMap['assigned'] is List ? dataMap['assigned'] as List : [];
+      if (kDebugMode) {
+        print('getAssignedInspections: raw assigned length = ${raw.length}');
+      }
+      
+      final List<InspectionModel> list = [];
+      for (final e in raw) {
+        try {
+          list.add(InspectionModel.fromQueueJson(e as Map<String, dynamic>));
+        } catch (err, stack) {
+          if (kDebugMode) {
+            print('Error parsing assigned element in getAssignedInspections: $err');
+            print('Element JSON: $e');
+            print(stack);
+          }
+        }
+      }
+      return list;
     } catch (e) {
       if (kDebugMode) {
         print('getAssignedInspections error: $e');
@@ -173,12 +216,32 @@ class InspectorRepository implements IInspectorRepository {
     }
     try {
       final response = await _apiService.getInspectionQueue();
+      if (kDebugMode) {
+        print('getUnassignedInspections raw response: $response');
+      }
       if (response == null) return [];
       final Map<String, dynamic> respMap = response as Map<String, dynamic>;
-      final List<dynamic> raw = respMap['unassigned'] ?? [];
-      return raw
-          .map((e) => InspectionModel.fromQueueJson(e as Map<String, dynamic>))
-          .toList();
+      final Map<String, dynamic> dataMap = respMap['data'] is Map<String, dynamic>
+          ? respMap['data'] as Map<String, dynamic>
+          : respMap;
+      final List<dynamic> raw = dataMap['unassigned'] is List ? dataMap['unassigned'] as List : [];
+      if (kDebugMode) {
+        print('getUnassignedInspections: raw unassigned length = ${raw.length}');
+      }
+      
+      final List<InspectionModel> list = [];
+      for (final e in raw) {
+        try {
+          list.add(InspectionModel.fromQueueJson(e as Map<String, dynamic>));
+        } catch (err, stack) {
+          if (kDebugMode) {
+            print('Error parsing unassigned element in getUnassignedInspections: $err');
+            print('Element JSON: $e');
+            print(stack);
+          }
+        }
+      }
+      return list;
     } catch (e) {
       if (kDebugMode) {
         print('getUnassignedInspections error: $e');
