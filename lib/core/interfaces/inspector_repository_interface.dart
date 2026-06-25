@@ -31,6 +31,9 @@ abstract class IInspectorRepository {
   /// Start inspection status
   Future<bool> startInspection(String inspectionId);
 
+  /// Claim inspection status
+  Future<InspectionModel> claimInspection(String inspectionId);
+
   /// Complete inspection status
   Future<InspectionModel> completeInspection(String inspectionId, List<Map<String, dynamic>> photos, {String? notes});
 

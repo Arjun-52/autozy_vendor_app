@@ -279,6 +279,52 @@ class InspectorRepository implements IInspectorRepository {
   }
 
   @override
+  Future<InspectionModel> claimInspection(String inspectionId) async {
+    if (kDebugMode) {
+      print('Claim Inspection request start');
+      print('Inspection ID being sent: $inspectionId');
+    }
+    try {
+      final response = await _apiService.claimInspection(inspectionId);
+      if (kDebugMode) {
+        print('API response received: $response');
+      }
+
+      if (response == null) {
+        throw Exception("Null response received");
+      }
+
+      final isSuccess = response['success'] == true;
+      if (isSuccess && response['data'] != null) {
+        try {
+          final parsed = InspectionModel.fromJson(response['data'] as Map<String, dynamic>);
+          if (kDebugMode) {
+            print('Parsing success: claimInspection');
+          }
+          return parsed;
+        } catch (e) {
+          if (kDebugMode) {
+            print('Parsing failure with fromJson, attempting fromQueueJson: $e');
+          }
+          try {
+            final parsed = InspectionModel.fromQueueJson(response['data'] as Map<String, dynamic>);
+            return parsed;
+          } catch (e2) {
+            throw Exception("Parsing failure: $e2");
+          }
+        }
+      } else {
+        throw Exception(response['message'] ?? "API returned unsuccessful status");
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('API request error: $e');
+      }
+      rethrow;
+    }
+  }
+
+  @override
   Future<bool> startInspection(String inspectionId) async {
     if (kDebugMode) {
       print('Start Inspection request start');

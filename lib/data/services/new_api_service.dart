@@ -105,6 +105,9 @@ abstract class NewApiService {
   @POST('/inspections/{id}/photos')
   Future<dynamic> addPhoto(@Path('id') String id);
 
+  @POST('/api/v1/inspections/{id}/claim')
+  Future<dynamic> claimInspection(@Path('id') String id);
+
   @POST('/api/v1/inspections/{id}/start')
   Future<dynamic> startInspection(@Path('id') String id);
 

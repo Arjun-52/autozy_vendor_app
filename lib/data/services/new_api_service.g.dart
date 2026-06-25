@@ -546,6 +546,28 @@ class _NewApiService implements NewApiService {
   }
 
   @override
+  Future<dynamic> claimInspection(id) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    final _result = await _dio.fetch(_setStreamType<dynamic>(Options(
+      method: 'POST',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          '/api/v1/inspections/${id}/claim',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = _result.data;
+    return value;
+  }
+
+  @override
   Future<dynamic> startInspection(id) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};

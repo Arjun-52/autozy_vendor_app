@@ -698,21 +698,26 @@ class InspectorViewModel extends BaseViewModel {
     bool success = false;
     await executeOperation(
       () async {
-        success = await _repository.startInspection(inspectionId);
-        if (success) {
-          // Move from unassigned to assigned locally
-          final idx = _unassignedInspections.indexWhere((e) => e.id == inspectionId);
-          if (idx != -1) {
-            final claimed = _unassignedInspections.removeAt(idx);
-            claimed.status = InspectionStatus.inProgress;
-            _assignedInspections.insert(0, claimed);
-            _inspections = [..._assignedInspections, ..._unassignedInspections];
-          }
-          notifyListeners();
-          if (kDebugMode) {
-            print('claimInspection success — moved to assigned list');
-          }
+        final claimedInspection = await _repository.claimInspection(inspectionId);
+        success = true;
+        
+        // Move from unassigned to assigned locally
+        final idx = _unassignedInspections.indexWhere((e) => e.id == inspectionId);
+        if (idx != -1) {
+          _unassignedInspections.removeAt(idx);
         }
+        
+        // Insert the parsed object to the assigned list
+        _assignedInspections.insert(0, claimedInspection);
+        _inspections = [..._assignedInspections, ..._unassignedInspections];
+        notifyListeners();
+        
+        if (kDebugMode) {
+          print('claimInspection success — moved to assigned list. Now refreshing dashboard.');
+        }
+        
+        // Refresh the dashboard after successful claim
+        await loadInspections();
       },
       onError: "Failed to claim inspection",
     );
