@@ -5,61 +5,51 @@ import '../../data/models/admin_service_records_response.dart';
 import '../../data/models/admin_inspections_response.dart';
 import '../services/new_api_service.dart';
 import 'package:flutter/foundation.dart';
-
+import '../models/attendance_model.dart';
+import '../models/attendance_response.dart';
 /// Implementation of SupervisorRepository connecting to NewApiService
 class SupervisorRepository implements ISupervisorRepository {
   final NewApiService _apiService;
 
   SupervisorRepository(this._apiService);
-  @override
-  Future<List<TeamMember>> getTeamMembers() async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 500));
 
-    // Return existing mock data - EXACTLY SAME as before
-    return [
-      TeamMember(
-        id: "1",
-        name: "Raju K.",
-        role: "Detailer",
-        tower: "Tower A",
-        completed: 12,
-        total: 40,
-        status: "Active",
-        phone: "+91 98765 43210",
-      ),
-      TeamMember(
-        id: "2",
-        name: "Sanjay P",
-        role: "Detailer",
-        tower: "Tower B",
-        completed: 8,
-        total: 35,
-        status: "Active",
-        phone: "+91 98765 43211",
-      ),
-      TeamMember(
-        id: "3",
-        name: "Deepak S.",
-        role: "Inspector",
-        tower: "Tower D",
-        completed: 3,
-        total: 5,
-        status: "Active",
-        phone: "+91 98765 43212",
-      ),
-      TeamMember(
-        id: "4",
-        name: "Anil M",
-        role: "Detailer",
-        tower: "Tower B",
-        completed: 16,
-        total: 38,
-        status: "Break",
-        phone: "+91 98765 43213",
-      ),
-    ];
+@override
+Future<List<TeamMember>> getTeamMembers() async {
+  if (kDebugMode) {
+    print('==============================');
+    print('Calling GET /api/v1/workforce/staff');
+    print('Role: DETAILER');
+    print('==============================');
   }
+
+  try {
+    final response = await _apiService.getTeamMembers("DETAILER");
+
+    if (kDebugMode) {
+      print('Raw API Response:');
+      print(response);
+    }
+
+    final items = response['data'] as List<dynamic>;
+
+    final members = items
+        .map((item) => TeamMember.fromJson(item as Map<String, dynamic>))
+        .toList();
+
+    if (kDebugMode) {
+      print('Total Team Members: ${members.length}');
+    }
+
+    return members;
+  } catch (e, stackTrace) {
+    if (kDebugMode) {
+      print('Error fetching Team Members:');
+      print(e);
+      print(stackTrace);
+    }
+    rethrow;
+  }
+}
 
   @override
   Future<List<AlertModel>> getAlerts() async {
@@ -108,44 +98,86 @@ class SupervisorRepository implements ISupervisorRepository {
   }
 
   @override
-  Future<AdminServiceRecordsResponse> getAdminServiceRecords() async {
-    if (kDebugMode) {
-      print('Admin Service Records request start');
-    }
-    try {
-      final response = await _apiService.getAdminServiceRecords();
-      if (kDebugMode) {
-        print('API response received: $response');
-      }
-
-      if (response == null) {
-        throw Exception("Null response received");
-      }
-
-      try {
-        final parsedResponse = AdminServiceRecordsResponse.fromJson(response as Map<String, dynamic>);
-        if (kDebugMode) {
-          print('Parsing success');
-          print('Pagination data received: total=${parsedResponse.meta.total}, page=${parsedResponse.meta.page}, limit=${parsedResponse.meta.limit}, totalPages=${parsedResponse.meta.totalPages}');
-          if (parsedResponse.data.isEmpty) {
-            print('Empty records response received');
-          }
-        }
-        return parsedResponse;
-      } catch (e) {
-        if (kDebugMode) {
-          print('Parsing failure: $e');
-        }
-        throw Exception("Failed to parse response: $e");
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('API request error: $e');
-      }
-      rethrow;
-    }
+  @override
+Future<AdminServiceRecordsResponse> getAdminServiceRecords() async {
+  if (kDebugMode) {
+    print('Admin Service Records request start');
   }
 
+  try {
+    final today = DateTime.now().toIso8601String().split('T').first;
+
+    if (kDebugMode) {
+      print('Fetching Admin Service Records for: $today');
+    }
+
+    final response = await _apiService.getAdminServiceRecords(today);
+
+    if (kDebugMode) {
+      print('Admin Service Records Response: $response');
+    }
+
+    if (response == null) {
+      throw Exception("Null response received");
+    }
+
+    final parsedResponse =
+        AdminServiceRecordsResponse.fromJson(response as Map<String, dynamic>);
+
+    if (kDebugMode) {
+      print('Parsing success');
+      print(
+        'Pagination: total=${parsedResponse.meta.total}, page=${parsedResponse.meta.page}',
+      );
+    }
+
+    return parsedResponse;
+  } catch (e) {
+    if (kDebugMode) {
+      print('Admin Service Records Error: $e');
+    }
+    rethrow;
+  }
+}
+@override
+Future<AttendanceResponse> getAdminAttendance() async {
+  if (kDebugMode) {
+    print('Admin Attendance request start');
+  }
+
+  try {
+    final today = DateTime.now().toIso8601String().split('T').first;
+
+    if (kDebugMode) {
+      print('Fetching Attendance for: $today');
+    }
+
+    final response = await _apiService.getAdminAttendance(today);
+
+    if (kDebugMode) {
+      print('Attendance Response: $response');
+    }
+
+    if (response == null) {
+      throw Exception("Null response received");
+    }
+
+    final parsedResponse =
+        AttendanceResponse.fromJson(response as Map<String, dynamic>);
+
+    if (kDebugMode) {
+      print(
+          'Attendance Parsing Success. Records: ${parsedResponse.data.length}');
+    }
+
+    return parsedResponse;
+  } catch (e) {
+    if (kDebugMode) {
+      print('Attendance Error: $e');
+    }
+    rethrow;
+  }
+}
   @override
   Future<AdminInspectionsResponse> getAdminInspections() async {
     if (kDebugMode) {

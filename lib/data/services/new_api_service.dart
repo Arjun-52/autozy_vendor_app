@@ -105,8 +105,13 @@ abstract class NewApiService {
   );
 
   @GET(ApiEndpoints.adminServiceRecords)
-  Future<dynamic> getAdminServiceRecords();
-
+Future<dynamic> getAdminServiceRecords(
+  @Query('date') String date,
+);
+@GET('/api/v1/admin/attendance')
+Future<dynamic> getAdminAttendance(
+  @Query('date') String date,
+);
   @GET(ApiEndpoints.adminInspections)
   Future<dynamic> getAdminInspections();
 
@@ -160,9 +165,15 @@ abstract class NewApiService {
   @POST(ApiEndpoints.staffAttendance)
   Future<dynamic> markAttendance(@Body() Map<String, dynamic> body);
 
-  /// Team/Supervisor endpoints
-  @GET('/team/members')
-  Future<dynamic> getTeamMembers();
+/// Team/Supervisor endpoints
+
+/// Get all detailers under the supervisor's assigned area
+@GET('/api/v1/admin/staff')
+Future<dynamic> getTeamMembers(
+  @Query('role') String role,
+);
+
+
 
   @POST('/team/members/{id}/status')
   Future<dynamic> updateMemberStatus(

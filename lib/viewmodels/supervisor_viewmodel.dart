@@ -4,7 +4,8 @@ import 'package:autozy_vendor_app/data/models/admin_service_records_response.dar
 import 'package:autozy_vendor_app/data/models/admin_inspections_response.dart';
 import 'package:flutter/foundation.dart';
 import '../core/interfaces/supervisor_repository_interface.dart';
-
+import '../data/models/attendance_model.dart';
+import '../data/models/attendance_response.dart';
 enum SupervisorTab { team, alerts, records }
 
 class SupervisorViewModel extends ChangeNotifier {
@@ -51,7 +52,10 @@ class SupervisorViewModel extends ChangeNotifier {
   String? inspectionsError;
   AdminInspectionsResponse? inspectionsResponse;
   List<AdminInspectionRecord> inspections = [];
-
+bool isLoadingAttendance = false;
+String? attendanceError;
+AttendanceResponse? attendanceResponse;
+List<AttendanceModel> attendanceRecords = [];
   Future<void> fetchInspections() async {
     if (kDebugMode) {
       print('Controller fetch start');
@@ -85,17 +89,14 @@ class SupervisorViewModel extends ChangeNotifier {
         final inspector = firstRecord.inspector!;
 
         members.add(
-          TeamMember(
-            id: inspector.id,
-            name: inspector.name,
-            role: inspector.role, // "Inspector"
-            tower: "Tower A", // Default
-            completed: 0,
-            total: 0,
-            status: "Active", // Default
-            phone: "+91 98765 43210", // Default
-          ),
-        );
+  TeamMember(
+    id: inspector.id,
+    name: inspector.name,
+    role: inspector.role,
+    phone: '',
+    areaId: '',
+  ),
+);
       });
 
       // Process inspections to populate alert cards
@@ -183,117 +184,86 @@ class SupervisorViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+Future<void> fetchAttendance() async {
+  if (kDebugMode) {
+    print('Attendance fetch start');
+  }
 
+  isLoadingAttendance = true;
+  attendanceError = null;
+  notifyListeners();
+
+  try {
+    final response = await _repository.getAdminAttendance();
+
+    attendanceResponse = response;
+    attendanceRecords = response.data;
+
+    if (kDebugMode) {
+      print('Attendance fetch success');
+      print('Attendance records: ${attendanceRecords.length}');
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      print('Attendance fetch failure: $e');
+    }
+    attendanceError = e.toString();
+  } finally {
+    isLoadingAttendance = false;
+    notifyListeners();
+  }
+}
   String _getRelativeTime(String? dateStr) {
-    if (dateStr == null) return "Today";
-    try {
-      final date = DateTime.parse(dateStr);
-      final now = DateTime.now();
-      final difference = now.difference(date);
+  if (dateStr == null) return "Today";
 
-      if (difference.inSeconds < 60) {
-        return "just now";
-      } else if (difference.inMinutes < 60) {
-        final mins = difference.inMinutes;
-        return "$mins min${mins > 1 ? 's' : ''} ago";
-      } else if (difference.inHours < 24) {
-        final hours = difference.inHours;
-        return "$hours hour${hours > 1 ? 's' : ''} ago";
-      } else if (difference.inDays == 1) {
-        return "Yesterday";
-      } else if (difference.inDays < 7) {
-        return "${difference.inDays} days ago";
-      } else {
-        return "Today";
-      }
-    } catch (e) {
+  try {
+    final date = DateTime.parse(dateStr);
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inSeconds < 60) {
+      return "just now";
+    } else if (difference.inMinutes < 60) {
+      final mins = difference.inMinutes;
+      return "$mins min${mins > 1 ? 's' : ''} ago";
+    } else if (difference.inHours < 24) {
+      final hours = difference.inHours;
+      return "$hours hour${hours > 1 ? 's' : ''} ago";
+    } else if (difference.inDays == 1) {
+      return "Yesterday";
+    } else if (difference.inDays < 7) {
+      return "${difference.inDays} days ago";
+    } else {
       return "Today";
     }
-  }
-
-  Future<void> loadData() async {
-    try {
-      // Load data from repository (currently returns same mock data)
-      members = await _repository.getTeamMembers();
-      alerts = await _repository.getAlerts();
-      await fetchServiceRecords();
-      await fetchInspections();
-      notifyListeners();
-    } catch (e) {
-      // Keep existing mock data as fallback
-      if (members.isEmpty) {
-        members = [
-          TeamMember(
-            id: "1",
-            name: "Raju K.",
-            role: "Detailer",
-            tower: "Tower A",
-            completed: 12,
-            total: 40,
-            status: "Active",
-            phone: "+91 98765 43210",
-          ),
-          TeamMember(
-            id: "2",
-            name: "Sanjay P",
-            role: "Detailer",
-            tower: "Tower B",
-            completed: 8,
-            total: 35,
-            status: "Active",
-            phone: "+91 98765 43211",
-          ),
-          TeamMember(
-            id: "3",
-            name: "Deepak S.",
-            role: "Inspector",
-            tower: "Tower D",
-            completed: 3,
-            total: 5,
-            status: "Active",
-            phone: "+91 98765 43212",
-          ),
-          TeamMember(
-            id: "4",
-            name: "Anil M",
-            role: "Detailer",
-            tower: "Tower B",
-            completed: 16,
-            total: 38,
-            status: "Break",
-            phone: "+91 98765 43213",
-          ),
-        ];
-      }
-
-      if (alerts.isEmpty) {
-        alerts = [
-          AlertModel(
-            title: "Raju K. has been idle for 25 mins",
-            time: "10 min ago",
-            type: "idle",
-          ),
-          AlertModel(
-            title: "Fraud flag raised on MH 01 KL 1111",
-            time: "16 min ago",
-            type: "fraud",
-          ),
-          AlertModel(
-            title: "Sanjay P. completed Tower B route",
-            time: "30 min ago",
-            type: "success",
-          ),
-        ];
-      }
-      notifyListeners();
+  } catch (e) {
+    if (kDebugMode) {
+      print(e);
     }
+    return "Today";
   }
+}
+Future<void> loadData() async {
+  try {
+    members = await _repository.getTeamMembers();
+    alerts = await _repository.getAlerts();
+await fetchAttendance();
+    await fetchServiceRecords();
+    await fetchInspections();
 
-  int get activeCount => members.where((e) => e.status == "Active").length;
+    notifyListeners();
+  } catch (e) {
+    if (kDebugMode) {
+      print("LoadData Error: $e");
+    }
+    notifyListeners();
+  }
+}
+  int get activeCount => 0;
 
-  int get breakCount => members.where((e) => e.status == "Break").length;
+int get breakCount => 0;
 
-  int get offlineCount => members.where((e) => e.status == "Offline").length;
+int get offlineCount => 0;
 
   Future<void> updateMemberStatus(String memberName, String newStatus) async {
     final index = members.indexWhere((m) => m.name == memberName);
@@ -306,16 +276,13 @@ class SupervisorViewModel extends ChangeNotifier {
 
       if (success) {
         final member = members[index];
-        members[index] = TeamMember(
-          id: member.id,
-          name: member.name,
-          role: member.role,
-          tower: member.tower,
-          completed: member.completed,
-          total: member.total,
-          status: newStatus,
-          phone: member.phone,
-        );
+       members[index] = TeamMember(
+  id: member.id,
+  name: member.name,
+  role: member.role,
+  phone: member.phone,
+  areaId: member.areaId,
+);
         notifyListeners();
       }
     }

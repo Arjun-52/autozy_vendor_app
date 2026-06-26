@@ -534,9 +534,9 @@ class _NewApiService implements NewApiService {
   }
 
   @override
-  Future<dynamic> getAdminServiceRecords() async {
+  Future<dynamic> getAdminServiceRecords(date) async {
     const _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'date': date};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     final _result = await _dio.fetch(_setStreamType<dynamic>(Options(
@@ -547,6 +547,28 @@ class _NewApiService implements NewApiService {
         .compose(
           _dio.options,
           '/api/v1/admin/services/records',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = _result.data;
+    return value;
+  }
+
+  @override
+  Future<dynamic> getAdminAttendance(date) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'date': date};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    final _result = await _dio.fetch(_setStreamType<dynamic>(Options(
+      method: 'GET',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          '/api/v1/admin/attendance',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -843,9 +865,9 @@ class _NewApiService implements NewApiService {
   }
 
   @override
-  Future<dynamic> getTeamMembers() async {
+  Future<dynamic> getTeamMembers(role) async {
     const _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'role': role};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     final _result = await _dio.fetch(_setStreamType<dynamic>(Options(
@@ -855,7 +877,7 @@ class _NewApiService implements NewApiService {
     )
         .compose(
           _dio.options,
-          '/team/members',
+          '/api/v1/admin/staff',
           queryParameters: queryParameters,
           data: _data,
         )

@@ -6,30 +6,34 @@ part 'team_member.g.dart';
 class TeamMember {
   final String id;
   final String name;
+  final String phone;
   final String role;
+
+@JsonKey(name: 'area_id')
+final String areaId;
+
+  // UI fields (filled later by other APIs)
   final String tower;
   final int completed;
   final int total;
-  @JsonKey(name: 'member_status')
-  final String status; // Active / Break / Offline
-  final String phone;
 
-  // Updated constructor with phone parameter
+  @JsonKey(name: 'member_status')
+  final String status;
+
   TeamMember({
     required this.id,
     required this.name,
-    required this.role,
-    required this.tower,
-    required this.completed,
-    required this.total,
-    required this.status,
     required this.phone,
+    required this.role,
+    this.areaId = '',
+    this.tower = '',
+    this.completed = 0,
+    this.total = 0,
+    this.status = 'Offline',
   });
 
-  // New factory for JSON parsing
   factory TeamMember.fromJson(Map<String, dynamic> json) =>
       _$TeamMemberFromJson(json);
 
-  // New method for JSON serialization
   Map<String, dynamic> toJson() => _$TeamMemberToJson(this);
 }
