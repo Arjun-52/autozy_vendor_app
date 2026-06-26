@@ -41,7 +41,21 @@ class DashboardViewModel extends BaseViewModel {
 
   Future<void> loadJobs() async {
     await executeOperation(() async {
+      final previousCount = _jobs.length;
       _jobs = await _repository.getJobs();
+      if (kDebugMode) {
+        print(
+          'DashboardViewModel replaced jobs list. Previous count: $previousCount, '
+          'New count: ${_jobs.length}',
+        );
+        for (final job in _jobs) {
+          print(
+            'ViewModel status: ${job.status.logLabel} | Vehicle: ${job.vehicle} '
+            '| RecordID: ${job.id}',
+          );
+        }
+      }
+      notifyListeners();
       await loadStats();
     }, onError: 'Failed to load jobs');
   }
@@ -49,9 +63,16 @@ class DashboardViewModel extends BaseViewModel {
   Future<bool> markJobCompleted(int index) async {
     if (!_isValidIndex(index)) return false;
 
-    final jobId = _jobs[index].id ?? _jobs[index].vehicle;
+    final job = _jobs[index];
+    final jobId = _jobRecordId(job);
     
     return await executeOperationWithResult<bool>(() async {
+      if (kDebugMode) {
+        print(
+          'markJobCompleted called with recordId: $jobId | Vehicle: ${job.vehicle} '
+          '| Current status: ${job.status.logLabel}',
+        );
+      }
       final success = await _repository.markJobCompleted(jobId);
       if (success) {
         _updateJobStatus(index, JobStatus.completed);
@@ -64,8 +85,8 @@ class DashboardViewModel extends BaseViewModel {
   Future<bool> markCNA(int index) async {
     if (!_isValidIndex(index)) return false;
 
-    final vehicleId = _jobs[index].vehicle;
-    final success = await _repository.markJobCNA(vehicleId);
+    final recordId = _jobRecordId(_jobs[index]);
+    final success = await _repository.markJobCNA(recordId);
 
     if (success) {
       _updateJobStatus(index, JobStatus.cna);
@@ -77,8 +98,8 @@ class DashboardViewModel extends BaseViewModel {
   Future<bool> undoJob(int index) async {
     if (!_isValidIndex(index)) return false;
 
-    final vehicleId = _jobs[index].vehicle;
-    final success = await _repository.undoJobStatus(vehicleId);
+    final recordId = _jobRecordId(_jobs[index]);
+    final success = await _repository.undoJobStatus(recordId);
 
     if (success) {
       _updateJobStatus(index, JobStatus.pending);
@@ -94,8 +115,8 @@ class DashboardViewModel extends BaseViewModel {
   Future<bool> startJobCleaning(int index) async {
     if (!_isValidIndex(index)) return false;
 
-    final vehicleId = _jobs[index].vehicle;
-    final success = await _repository.startJobCleaning(vehicleId);
+    final recordId = _jobRecordId(_jobs[index]);
+    final success = await _repository.startJobCleaning(recordId);
 
     if (success) {
       _updateJobStatus(index, JobStatus.cleaning);
@@ -106,36 +127,18 @@ class DashboardViewModel extends BaseViewModel {
 
   void updateBeforePhoto(int index, String url, String timestamp) {
     if (!_isValidIndex(index)) return;
-    _jobs[index] = JobModel(
-      vehicle: _jobs[index].vehicle,
-      name: _jobs[index].name,
-      location: _jobs[index].location,
-      phone: _jobs[index].phone,
-      status: _jobs[index].status,
+    _jobs[index] = _jobs[index].copyWith(
       beforeImage: url,
       capturedAt: timestamp,
-      afterImage: _jobs[index].afterImage,
-      afterImageCapturedAt: _jobs[index].afterImageCapturedAt,
-      remarks: _jobs[index].remarks,
     );
     notifyListeners();
   }
 
   void updateAfterPhoto(int index, String url, String timestamp) {
     if (!_isValidIndex(index)) return;
-    _jobs[index] = JobModel(
-      id: _jobs[index].id,
-      vehicle: _jobs[index].vehicle,
-      name: _jobs[index].name,
-      location: _jobs[index].location,
-      phone: _jobs[index].phone,
-      status: _jobs[index].status,
-      beforeImage: _jobs[index].beforeImage,
-      capturedAt: _jobs[index].capturedAt,
+    _jobs[index] = _jobs[index].copyWith(
       afterImage: url,
       afterImageCapturedAt: timestamp,
-      remarks: _jobs[index].remarks,
-      vehicleImage: _jobs[index].vehicleImage,
     );
     notifyListeners();
   }
@@ -144,6 +147,12 @@ class DashboardViewModel extends BaseViewModel {
     if (!_isValidIndex(index)) return false;
     final jobId = _jobs[index].id;
     if (jobId == null || jobId.isEmpty) {
+      if (kDebugMode) {
+        print(
+          'uploadAfterPhoto skipped because job id is missing for vehicle: '
+          '${_jobs[index].vehicle}',
+        );
+      }
       return true;
     }
 
@@ -152,21 +161,17 @@ class DashboardViewModel extends BaseViewModel {
       if (result != null) {
         final photoUrl = result['after_photo_url'] ?? '';
         final uploadedAt = result['after_photo_uploaded_at'] ?? '';
-        
-        _jobs[index] = JobModel(
-          id: _jobs[index].id,
-          vehicle: _jobs[index].vehicle,
-          name: _jobs[index].name,
-          location: _jobs[index].location,
-          phone: _jobs[index].phone,
-          status: _jobs[index].status,
-          beforeImage: _jobs[index].beforeImage,
-          capturedAt: _jobs[index].capturedAt,
+
+        _jobs[index] = _jobs[index].copyWith(
           afterImage: photoUrl,
           afterImageCapturedAt: uploadedAt,
-          remarks: _jobs[index].remarks,
-          vehicleImage: _jobs[index].vehicleImage,
         );
+        if (kDebugMode) {
+          print(
+            'DashboardViewModel uploadAfterPhoto updated job ${_jobs[index].vehicle} '
+            'with after_photo_url: $photoUrl',
+          );
+        }
         notifyListeners();
         return true;
       }
@@ -177,8 +182,8 @@ class DashboardViewModel extends BaseViewModel {
   Future<JobRemarkModel?> addJobRemark(int index, String? reason, String? additionalComment) async {
     if (!_isValidIndex(index)) return null;
 
-    final vehicleId = _jobs[index].vehicle;
-    await _repository.saveJobRemark(vehicleId, reason, additionalComment);
+    final recordId = _jobRecordId(_jobs[index]);
+    await _repository.saveJobRemark(recordId, reason, additionalComment);
 
     final remark = JobRemarkModel(
       reason: reason,
@@ -190,16 +195,7 @@ class DashboardViewModel extends BaseViewModel {
 
     final list = List<JobRemarkModel>.from(_jobs[index].remarks ?? []);
     list.insert(0, remark);
-    _jobs[index] = JobModel(
-      vehicle: _jobs[index].vehicle,
-      name: _jobs[index].name,
-      location: _jobs[index].location,
-      phone: _jobs[index].phone,
-      status: _jobs[index].status,
-      beforeImage: _jobs[index].beforeImage,
-      capturedAt: _jobs[index].capturedAt,
-      afterImage: _jobs[index].afterImage,
-      afterImageCapturedAt: _jobs[index].afterImageCapturedAt,
+    _jobs[index] = _jobs[index].copyWith(
       remarks: list,
     );
     notifyListeners();
@@ -227,16 +223,7 @@ class DashboardViewModel extends BaseViewModel {
           createdAt: DateTime.now().toLocal().toString().split('.')[0],
         );
 
-        _jobs[index] = JobModel(
-          vehicle: _jobs[index].vehicle,
-          name: _jobs[index].name,
-          location: _jobs[index].location,
-          phone: _jobs[index].phone,
-          status: _jobs[index].status,
-          beforeImage: _jobs[index].beforeImage,
-          capturedAt: _jobs[index].capturedAt,
-          afterImage: _jobs[index].afterImage,
-          afterImageCapturedAt: _jobs[index].afterImageCapturedAt,
+        _jobs[index] = _jobs[index].copyWith(
           remarks: list,
         );
         notifyListeners();
@@ -253,8 +240,8 @@ class DashboardViewModel extends BaseViewModel {
     await addJobRemark(index, reason, additionalComment);
     
     // Mark as CNA
-    final vehicleId = _jobs[index].vehicle;
-    final success = await _repository.markJobCNA(vehicleId);
+    final recordId = _jobRecordId(_jobs[index]);
+    final success = await _repository.markJobCNA(recordId);
 
     if (success) {
       _updateJobStatus(index, JobStatus.cna);
@@ -268,19 +255,24 @@ class DashboardViewModel extends BaseViewModel {
     return index >= 0 && index < _jobs.length;
   }
 
+  String _jobRecordId(JobModel job) {
+    final id = job.id;
+    if (id != null && id.isNotEmpty) {
+      return id;
+    }
+    return job.vehicle;
+  }
+
   void _updateJobStatus(int index, JobStatus status) {
-    _jobs[index] = JobModel(
-      vehicle: _jobs[index].vehicle,
-      name: _jobs[index].name,
-      location: _jobs[index].location,
-      phone: _jobs[index].phone,
+    _jobs[index] = _jobs[index].copyWith(
       status: status,
-      beforeImage: _jobs[index].beforeImage,
-      capturedAt: _jobs[index].capturedAt,
-      afterImage: _jobs[index].afterImage,
-      afterImageCapturedAt: _jobs[index].afterImageCapturedAt,
-      remarks: _jobs[index].remarks,
     );
+    if (kDebugMode) {
+      print(
+        'DashboardViewModel local status updated: ${_jobs[index].status.logLabel} '
+        '| Vehicle: ${_jobs[index].vehicle} | RecordID: ${_jobs[index].id}',
+      );
+    }
     notifyListeners();
   }
 

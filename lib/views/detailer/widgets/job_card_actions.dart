@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -10,8 +11,6 @@ import '../../../data/models/job_model.dart';
 
 class JobCardActions extends StatelessWidget {
   final JobStatus status;
-  final bool isCompleted;
-  final bool isCNA;
   final int? index;
   final VoidCallback onClean;
   final VoidCallback? onTapCard;
@@ -19,8 +18,6 @@ class JobCardActions extends StatelessWidget {
   const JobCardActions({
     super.key,
     required this.status,
-    required this.isCompleted,
-    required this.isCNA,
     required this.index,
     required this.onClean,
     this.onTapCard,
@@ -29,6 +26,15 @@ class JobCardActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.read<DashboardViewModel>();
+    final isCompleted = status == JobStatus.completed;
+    final isCNA = status == JobStatus.cna;
+
+    if (kDebugMode) {
+      print(
+        'Widget rendering status: ${status.logLabel} | index: $index '
+        '| state: ${isCompleted ? 'COMPLETED' : isCNA ? 'CNA' : status.logLabel}',
+      );
+    }
 
     if (status == JobStatus.pending && !isCNA) {
       return Row(

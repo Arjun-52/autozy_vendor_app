@@ -1,18 +1,16 @@
-import 'package:autozy_vendor_app/core/utils/top_status_banner.dart';
+import 'package:autozy_vendor_app/core/constants/app_colors.dart';
+import 'package:autozy_vendor_app/core/constants/app_spacing.dart';
+import 'package:autozy_vendor_app/core/constants/app_styles.dart';
+import 'package:autozy_vendor_app/core/services/alert_service.dart';
+import 'package:autozy_vendor_app/core/services/navigation_service.dart';
 import 'package:autozy_vendor_app/viewmodels/attendance_viewmodel.dart';
+import 'package:autozy_vendor_app/viewmodels/specialist_tasks_viewmodel.dart';
+import 'package:autozy_vendor_app/viewmodels/specialist_viewmodel.dart';
+import 'package:autozy_vendor_app/views/specialist/widegts/assigned_job_card.dart';
 import 'package:autozy_vendor_app/views/specialist/widegts/task_status_tile.dart';
-import 'package:autozy_vendor_app/views/specialist/widegts/task_card.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/services/navigation_service.dart';
-
-import '../../../viewmodels/specialist_tasks_viewmodel.dart';
-import '../../../core/services/alert_service.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_spacing.dart';
-import '../../../core/constants/app_styles.dart';
-import '../../../core/di/dependency_injection.dart';
+import 'package:provider/provider.dart';
 
 class SpecialistModeScreen extends StatefulWidget {
   const SpecialistModeScreen({super.key});
@@ -22,8 +20,25 @@ class SpecialistModeScreen extends StatefulWidget {
 }
 
 class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<SpecialistViewModel>().loadAssignedJobs();
 
-  void _simulatePaymentAndBooking(BuildContext context, SpecialistTasksViewModel vm, String pricingId, {String? customName, String? customPrice}) {
+      final tasksVm = context.read<SpecialistTasksViewModel>();
+      tasksVm.fetchAddonServices();
+      tasksVm.fetchAddonBookings();
+    });
+  }
+
+  void _simulatePaymentAndBooking(
+    BuildContext context,
+    SpecialistTasksViewModel vm,
+    String pricingId, {
+    String? customName,
+    String? customPrice,
+  }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -49,12 +64,21 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 6),
-                  Text("Amount: ₹${customPrice ?? '999'}", style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                  Text(
+                    "Amount: Rs. ${customPrice ?? '999'}",
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 20),
-                  const Text("Select Payment Method", style: AppStyles.bodyMedium),
+                  const Text(
+                    "Select Payment Method",
+                    style: AppStyles.bodyMedium,
+                  ),
                   const SizedBox(height: 10),
                   RadioListTile<String>(
-                    title: const Text("UPI / GooglePay / PhonePe"),
+                    title: const Text("UPI / Google Pay / PhonePe"),
                     value: "UPI",
                     groupValue: selectedPayment,
                     onChanged: (val) {
@@ -87,17 +111,29 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () async {
-                        // Close options, show loading/success dialog
+                      onPressed: () {
                         Navigator.pop(context);
-                        _showPaymentProgress(context, vm, pricingId, customName ?? 'Add-on');
+                        _showPaymentProgress(
+                          context,
+                          vm,
+                          pricingId,
+                          customName ?? 'Add-on',
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      child: const Text("Pay & Book Now", style: TextStyle(color: AppColors.black, fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        "Pay and Book Now",
+                        style: TextStyle(
+                          color: AppColors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -109,7 +145,12 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
     );
   }
 
-  void _showPaymentProgress(BuildContext context, SpecialistTasksViewModel vm, String pricingId, String serviceName) {
+  void _showPaymentProgress(
+    BuildContext context,
+    SpecialistTasksViewModel vm,
+    String pricingId,
+    String serviceName,
+  ) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -118,23 +159,35 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
           builder: (context, setState) {
             Future.delayed(const Duration(milliseconds: 1500), () {
               if (Navigator.canPop(context)) {
-                Navigator.pop(context); // close progress dialog
+                Navigator.pop(context);
                 _showSuccessDialog(context, serviceName);
-                vm.fetchAddonBookings(); // refresh list
+                vm.fetchAddonBookings();
               }
             });
             return Dialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: const [
-                    CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary)),
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppColors.primary,
+                      ),
+                    ),
                     SizedBox(height: 20),
-                    Text("Processing Secure Payment...", style: AppStyles.bodyMedium),
+                    Text(
+                      "Processing Secure Payment...",
+                      style: AppStyles.bodyMedium,
+                    ),
                     SizedBox(height: 8),
-                    Text("Please do not press back or close the app", style: AppStyles.caption),
+                    Text(
+                      "Please do not press back or close the app",
+                      style: AppStyles.caption,
+                    ),
                   ],
                 ),
               ),
@@ -150,7 +203,9 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: const Row(
             children: [
               Icon(Icons.check_circle, color: AppColors.success, size: 28),
@@ -163,7 +218,10 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
               ),
             ],
           ),
-          content: Text("Your booking for '$serviceName' has been successfully created. Specialist will start work shortly."),
+          content: Text(
+            "Your booking for '$serviceName' has been successfully created. "
+            "A specialist will start work shortly.",
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -175,28 +233,32 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
     );
   }
 
-  List<Widget> _buildComboPackagesList(BuildContext context, SpecialistTasksViewModel vm) {
+  List<Widget> _buildComboPackagesList(
+    BuildContext context,
+    SpecialistTasksViewModel vm,
+  ) {
     final combos = [
       {
-        "name": "Ultimate Shine & Buff Combo",
-        "description": "Full exterior polish and long-lasting ceramic coat protection.",
+        "name": "Ultimate Shine and Buff Combo",
+        "description":
+            "Full exterior polish and long-lasting ceramic coat protection.",
         "originalPrice": "4000",
         "discountPrice": "3200",
-        "services": ["Ceramic Coating", "Exterior Polish"],
       },
       {
-        "name": "Deep Clean & Hygiene Combo",
-        "description": "Complete interior vacuuming, seat shampooing, AC disinfection.",
+        "name": "Deep Clean and Hygiene Combo",
+        "description":
+            "Complete interior vacuuming, seat shampooing, and AC disinfection.",
         "originalPrice": "2500",
         "discountPrice": "1999",
-        "services": ["Interior Deep Clean", "AC Sanitization"],
-      }
+      },
     ];
 
     return combos.map((combo) {
-      final orig = double.parse(combo["originalPrice"] as String);
-      final disc = double.parse(combo["discountPrice"] as String);
-      final discountPct = (((orig - disc) / orig) * 100).round();
+      final originalPrice = double.parse(combo["originalPrice"]!);
+      final discountPrice = double.parse(combo["discountPrice"]!);
+      final discountPercent =
+          (((originalPrice - discountPrice) / originalPrice) * 100).round();
 
       return Container(
         margin: const EdgeInsets.only(bottom: 16),
@@ -221,27 +283,36 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    combo["name"] as String,
-                    style: AppStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+                    combo["name"]!,
+                    style: AppStyles.bodyMedium.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.green.shade50,
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    "$discountPct% OFF",
-                    style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 10),
+                    "$discountPercent% OFF",
+                    style: const TextStyle(
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 6),
             Text(
-              combo["description"] as String,
-              style: AppStyles.caption.copyWith(color: AppColors.textSecondary),
+              combo["description"]!,
+              style: AppStyles.caption.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
             const SizedBox(height: 12),
             Row(
@@ -251,15 +322,15 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "₹${combo["originalPrice"]}",
+                      "Rs. ${combo["originalPrice"]}",
                       style: const TextStyle(
                         decoration: TextDecoration.lineThrough,
-                        color: AppColors.textMuted,
+                        color: AppColors.textSecondary,
                         fontSize: 12,
                       ),
                     ),
                     Text(
-                      "₹${combo["discountPrice"]}",
+                      "Rs. ${combo["discountPrice"]}",
                       style: AppStyles.bodyMedium.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.bold,
@@ -272,17 +343,26 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
                     context,
                     vm,
                     "combo-id",
-                    customName: combo["name"] as String,
-                    customPrice: combo["discountPrice"] as String,
+                    customName: combo["name"],
+                    customPrice: combo["discountPrice"],
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: const Text(
                     "Book Combo",
-                    style: TextStyle(color: AppColors.black, fontWeight: FontWeight.bold, fontSize: 12),
+                    style: TextStyle(
+                      color: AppColors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ],
@@ -293,158 +373,267 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
     }).toList();
   }
 
+  int _activeCount(SpecialistViewModel vm) {
+    return vm.assignedJobs.where((job) => !job.isCompleted).length;
+  }
+
+  int _inProgressCount(SpecialistViewModel vm) {
+    return vm.assignedJobs.where((job) => job.isInProgress).length;
+  }
+
+  int _queuedCount(SpecialistViewModel vm) {
+    return vm.assignedJobs
+        .where((job) => job.isAssigned || job.isAccepted)
+        .length;
+  }
+
+  Widget _buildAssignedJobsState(SpecialistViewModel specialistVm) {
+    if (specialistVm.isLoading && specialistVm.assignedJobs.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 32),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (specialistVm.errorMessage != null &&
+        specialistVm.assignedJobs.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            const Icon(
+              Icons.error_outline,
+              color: AppColors.error,
+              size: 52,
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              "Unable to load assigned jobs",
+              style: AppStyles.subHeading,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              specialistVm.errorMessage!,
+              style: AppStyles.caption.copyWith(
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: specialistVm.loadAssignedJobs,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.black,
+              ),
+              child: const Text("Retry"),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (specialistVm.assignedJobs.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(28),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Icon(
+              Icons.assignment_outlined,
+              size: 64,
+              color: AppColors.textPrimary.withOpacity(0.45),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              "No Assigned Jobs",
+              style: AppStyles.subHeading,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "You don't have any assigned jobs yet.",
+              style: AppStyles.caption.copyWith(
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: specialistVm.loadAssignedJobs,
+              icon: const Icon(Icons.refresh),
+              label: const Text("Refresh"),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        if (specialistVm.isLoading)
+          const Padding(
+            padding: EdgeInsets.only(bottom: 12),
+            child: LinearProgressIndicator(
+              color: AppColors.primary,
+              minHeight: 3,
+            ),
+          ),
+        ...specialistVm.assignedJobs.map(
+          (job) => AssignedJobCard(job: job),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final attendanceVm = context.watch<AttendanceViewModel>();
     final isOnline = attendanceVm.attendance != null;
 
-    return ChangeNotifierProvider(
-      create: (_) => SpecialistTasksViewModel(di.specialistTasksRepository)
-        ..loadTasks()
-        ..fetchSpecialistJobs()
-        ..fetchAddonServices()
-        ..fetchAddonBookings(),
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        appBar: AppBar(
-          elevation: 2,
-          backgroundColor: AppColors.white,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColors.black),
-            onPressed: () {
-                NavigationService.goBack();
-              },
-          ),
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text("Specialist Mode", style: AppStyles.subHeading),
-              Text("Add-on Tasks", style: AppStyles.caption),
-            ],
-          ),
-          actions: [
-              GestureDetector(
-                onTap: () {
-                  if (!isOnline) {
-                    context.push('/profile');
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please Clock In to go Online')),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please Clock Out from Profile to go Offline')),
-                    );
-                  }
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  margin: AppSpacing.right16,
-                  padding: AppSpacing.horizontal12Vertical6,
-                  decoration: BoxDecoration(
-                    color: isOnline
-                        ? AppColors.onlineBg.withOpacity(0.5)
-                        : Colors.red.withOpacity(0.1),
-                    border: Border.all(
-                      color: isOnline ? AppColors.success : Colors.red,
-                    ),
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-                  ),
-                  child: Text(
-                    isOnline ? "● Online" : "● Offline",
-                    style: TextStyle(
-                      color: isOnline ? AppColors.success : Colors.red,
-                      fontWeight: FontWeight.w600,
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        elevation: 2,
+        backgroundColor: AppColors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.black),
+          onPressed: NavigationService.goBack,
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Text("Specialist Mode", style: AppStyles.subHeading),
+            Text("Assigned Jobs", style: AppStyles.caption),
+          ],
+        ),
+        actions: [
+          GestureDetector(
+            onTap: () {
+              if (!isOnline) {
+                context.push('/profile');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please Clock In to go Online')),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Please Clock Out from Profile to go Offline',
                     ),
                   ),
+                );
+              }
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              margin: AppSpacing.right16,
+              padding: AppSpacing.horizontal12Vertical6,
+              decoration: BoxDecoration(
+                color: isOnline
+                    ? AppColors.onlineBg.withOpacity(0.5)
+                    : Colors.red.withOpacity(0.1),
+                border: Border.all(
+                  color: isOnline ? AppColors.success : Colors.red,
+                ),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+              ),
+              child: Text(
+                isOnline ? "Online" : "Offline",
+                style: TextStyle(
+                  color: isOnline ? AppColors.success : Colors.red,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.person_outline, color: AppColors.black),
-                onPressed: () {
-                  context.push('/profile');
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.logout, color: AppColors.black),
-                onPressed: () {
-                  NavigationService.logout();
-                },
-              ),
-            ]
-        ),
-        body: SafeArea(
-          child: Consumer<SpecialistTasksViewModel>(
-            builder: (context, vm, child) {
-              if (vm.showError && vm.errorMessage != null) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  AlertService.showTopAlert(
-                    context,
-                    message: vm.errorMessage!,
-                    onClose: () => vm.clearError(),
-                  );
-                });
-              }
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.person_outline, color: AppColors.black),
+            onPressed: () => context.push('/profile'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: AppColors.black),
+            onPressed: NavigationService.logout,
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Consumer2<SpecialistViewModel, SpecialistTasksViewModel>(
+          builder: (context, specialistVm, tasksVm, child) {
+            if (tasksVm.showError && tasksVm.errorMessage != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                AlertService.showTopAlert(
+                  context,
+                  message: tasksVm.errorMessage!,
+                  onClose: () => tasksVm.clearError(),
+                );
+              });
+            }
 
-              return Column(
-                children: [
-                  const SizedBox(height: AppSpacing.lg),
-
-                  /// STATUS TILES
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.lg,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        TaskStatusTile(count: "3", label: "Active"),
-                        TaskStatusTile(
-                          count: "1",
-                          label: "In Progress",
-                          highlight: true,
-                        ),
-                        TaskStatusTile(count: "2", label: "Queued"),
-                      ],
-                    ),
+            return Column(
+              children: [
+                const SizedBox(height: AppSpacing.lg),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TaskStatusTile(
+                        count: _activeCount(specialistVm).toString(),
+                        label: "Active",
+                      ),
+                      TaskStatusTile(
+                        count: _inProgressCount(specialistVm).toString(),
+                        label: "In Progress",
+                        highlight: true,
+                      ),
+                      TaskStatusTile(
+                        count: _queuedCount(specialistVm).toString(),
+                        label: "Queued",
+                      ),
+                    ],
                   ),
-
-                  const SizedBox(height: AppSpacing.lg),
-
-                  /// LIST
-                  Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: () => vm.fetchSpecialistJobs(),
-                      child: ListView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.lg,
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: specialistVm.loadAssignedJobs,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                      children: [
+                        const Text(
+                          "Assigned Jobs",
+                          style: AppStyles.sectionTitle,
                         ),
-                        children: [
-                          const Text(
-                            "Add-on Tasks",
-                            style: AppStyles.sectionTitle,
-                          ),
                         const SizedBox(height: AppSpacing.lg),
-                        if (vm.isLoadingJobs)
-                          const Center(child: CircularProgressIndicator())
-                        else if (vm.specialistJobs.isEmpty)
-                          const Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(vertical: 20),
-                              child: Text(
-                                "No specialist jobs available",
-                                style: AppStyles.body,
-                              ),
-                            ),
-                          )
-                        else
-                          ...List.generate(vm.specialistJobs.length, (index) {
-                            final job = vm.specialistJobs[index];
-                            return TaskCard(
-                              job: job,
-                              taskIndex: index,
-                            );
-                          }),
+                        _buildAssignedJobsState(specialistVm),
                         const SizedBox(height: AppSpacing.lg),
                         const Divider(color: AppColors.border),
                         const SizedBox(height: AppSpacing.lg),
@@ -453,9 +642,9 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
                           style: AppStyles.sectionTitle,
                         ),
                         const SizedBox(height: AppSpacing.lg),
-                        if (vm.isLoadingAddonServices)
+                        if (tasksVm.isLoadingAddonServices)
                           const Center(child: CircularProgressIndicator())
-                        else if (vm.addonServices.isEmpty)
+                        else if (tasksVm.addonServices.isEmpty)
                           const Center(
                             child: Padding(
                               padding: EdgeInsets.symmetric(vertical: 20),
@@ -466,8 +655,9 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
                             ),
                           )
                         else
-                          ...vm.addonServices.map((service) {
-                            final isSelected = vm.selectedPricingId == service.pricingId;
+                          ...tasksVm.addonServices.map((service) {
+                            final isSelected =
+                                tasksVm.selectedPricingId == service.pricingId;
                             return Container(
                               margin: const EdgeInsets.only(bottom: 16),
                               padding: const EdgeInsets.all(16),
@@ -475,7 +665,9 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
                                 color: AppColors.white,
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: isSelected ? AppColors.primary : AppColors.borderLight,
+                                  color: isSelected
+                                      ? AppColors.primary
+                                      : AppColors.borderLight,
                                   width: isSelected ? 2 : 1,
                                 ),
                                 boxShadow: const [
@@ -487,12 +679,14 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
                                 ],
                               ),
                               child: InkWell(
-                                onTap: () => vm.selectService(service.pricingId),
+                                onTap: () =>
+                                    tasksVm.selectService(service.pricingId),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Expanded(
                                           child: Text(
@@ -503,7 +697,7 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
                                           ),
                                         ),
                                         Text(
-                                          "₹${service.price}",
+                                          "Rs. ${service.price}",
                                           style: AppStyles.bodyMedium.copyWith(
                                             color: AppColors.primary,
                                             fontWeight: FontWeight.bold,
@@ -514,15 +708,22 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
                                     const SizedBox(height: 6),
                                     Text(
                                       service.description,
-                                      style: AppStyles.caption.copyWith(color: AppColors.textSecondary),
+                                      style: AppStyles.caption.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
                                     ),
                                     const SizedBox(height: 12),
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Row(
                                           children: [
-                                            const Icon(Icons.access_time, size: 16, color: AppColors.grey600),
+                                            const Icon(
+                                              Icons.access_time,
+                                              size: 16,
+                                              color: AppColors.grey600,
+                                            ),
                                             const SizedBox(width: 4),
                                             Text(
                                               "${service.estimatedDuration} mins",
@@ -550,29 +751,40 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
                               ),
                             );
                           }),
-                        if (vm.selectedPricingId != null) ...[
+                        if (tasksVm.selectedPricingId != null) ...[
                           const SizedBox(height: 12),
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () {
-                                final selectedService = vm.addonServices.firstWhere((s) => s.pricingId == vm.selectedPricingId);
+                                final selectedService =
+                                    tasksVm.addonServices.firstWhere(
+                                  (service) =>
+                                      service.pricingId ==
+                                      tasksVm.selectedPricingId,
+                                );
                                 _simulatePaymentAndBooking(
                                   context,
-                                  vm,
-                                  vm.selectedPricingId!,
+                                  tasksVm,
+                                  tasksVm.selectedPricingId!,
                                   customName: selectedService.name,
                                   customPrice: selectedService.price,
                                 );
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primary,
-                                padding: const EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
                               child: const Text(
                                 "Book Selected Service",
-                                style: TextStyle(color: AppColors.black, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  color: AppColors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
@@ -586,7 +798,7 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
                           style: AppStyles.sectionTitle,
                         ),
                         const SizedBox(height: AppSpacing.lg),
-                        ..._buildComboPackagesList(context, vm),
+                        ..._buildComboPackagesList(context, tasksVm),
                         const SizedBox(height: AppSpacing.lg),
                         const Divider(color: AppColors.border),
                         const SizedBox(height: AppSpacing.lg),
@@ -595,9 +807,9 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
                           style: AppStyles.sectionTitle,
                         ),
                         const SizedBox(height: AppSpacing.lg),
-                        if (vm.isLoadingBookings)
+                        if (tasksVm.isLoadingBookings)
                           const Center(child: CircularProgressIndicator())
-                        else if (vm.addonBookings.isEmpty)
+                        else if (tasksVm.addonBookings.isEmpty)
                           const Center(
                             child: Padding(
                               padding: EdgeInsets.symmetric(vertical: 20),
@@ -608,17 +820,16 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
                             ),
                           )
                         else
-                          ...vm.addonBookings.map((booking) {
+                          ...tasksVm.addonBookings.map((booking) {
                             return Container();
                           }),
                       ],
                     ),
                   ),
                 ),
-                ],
-              );
-            },
-          ),
+              ],
+            );
+          },
         ),
       ),
     );

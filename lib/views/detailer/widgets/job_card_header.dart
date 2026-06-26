@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../data/models/job_model.dart';
 
 class JobCardHeader extends StatelessWidget {
   final String vehicle;
   final String name;
-  final bool isCompleted;
-  final bool isCNA;
+  final JobStatus status;
   final String? vehicleImage;
 
   const JobCardHeader({
     super.key,
     required this.vehicle,
     required this.name,
-    required this.isCompleted,
-    required this.isCNA,
+    required this.status,
     this.vehicleImage,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isCompleted = status == JobStatus.completed;
+    final isCNA = status == JobStatus.cna;
     final isMuted = isCNA || isCompleted;
 
     return Row(

@@ -83,8 +83,6 @@ class JobsListView extends StatelessWidget {
                  vehicle: job.vehicle,
                  name: job.name,
                  location: job.location,
-                 isCompleted: job.isCompleted,
-                 isCNA: job.isCNA,
                  status: job.status,
                  beforeImage: job.beforeImage,
                  vehicleImage: job.vehicleImage,

@@ -19,6 +19,7 @@ import 'package:autozy_vendor_app/viewmodels/dashboard_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/supervisor_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/job_details_viewmodel.dart';
+import 'package:autozy_vendor_app/viewmodels/specialist_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/specialist_tasks_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/attendance_viewmodel.dart';
 
@@ -76,9 +77,14 @@ class MyApp extends StatelessWidget {
 
         /// SPECIALIST TASKS
         ChangeNotifierProvider(
+          create: (_) => SpecialistViewModel(di.specialistRepository),
+        ),
+
+        /// SPECIALIST TASKS
+        ChangeNotifierProvider(
           create: (_) => SpecialistTasksViewModel(di.specialistTasksRepository),
         ),
-        
+
         /// ATTENDANCE
         ChangeNotifierProvider(
           create: (_) => AttendanceViewModel(di.attendanceRepository),

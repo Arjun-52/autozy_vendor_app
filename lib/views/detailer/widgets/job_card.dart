@@ -11,9 +11,7 @@ class JobCard extends StatelessWidget {
   final String vehicle;
   final String name;
   final String location;
-  final bool isCompleted;
   final int? index;
-  final bool isCNA;
   final JobStatus status;
   final String? beforeImage;
   final String? vehicleImage;
@@ -24,9 +22,7 @@ class JobCard extends StatelessWidget {
     required this.vehicle,
     required this.name,
     required this.location,
-    this.isCompleted = false,
     this.index,
-    this.isCNA = false,
     this.status = JobStatus.pending,
     this.beforeImage,
     this.vehicleImage,
@@ -46,6 +42,9 @@ class JobCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCompleted = status == JobStatus.completed;
+    final isCNA = status == JobStatus.cna;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -75,8 +74,7 @@ class JobCard extends StatelessWidget {
             JobCardHeader(
               vehicle: vehicle,
               name: name,
-              isCompleted: isCompleted,
-              isCNA: isCNA,
+              status: status,
               vehicleImage: vehicleImage,
             ),
 
@@ -88,8 +86,6 @@ class JobCard extends StatelessWidget {
 
             JobCardActions(
               status: status,
-              isCompleted: isCompleted,
-              isCNA: isCNA,
               index: index,
               onClean: () => _openCapturePhotoBottomSheet(context),
               onTapCard: onTap,

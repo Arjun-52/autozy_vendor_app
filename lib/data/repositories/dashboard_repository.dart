@@ -16,7 +16,9 @@ class DashboardRepository implements IDashboardRepository {
   Future<List<JobModel>> getJobs() async {
     try {
       final response = await _apiService.getDailyRoute();
-      if (response != null && response is Map<String, dynamic> && response['success'] == true) {
+      if (response != null &&
+          response is Map<String, dynamic> &&
+          response['success'] == true) {
         final data = response['data'];
         if (data != null && data is Map<String, dynamic>) {
           final List<dynamic> records = data['records'] ?? [];
@@ -26,56 +28,25 @@ class DashboardRepository implements IDashboardRepository {
           return records.map((recordJson) {
             final map = recordJson as Map<String, dynamic>;
             final vehicleJson = map['vehicle'] as Map<String, dynamic>?;
-            final userJson = vehicleJson?['user'] as Map<String, dynamic>?;
-            
-            // Determine parking/location
-            String location = 'No slot info';
-            if (vehicleJson != null) {
-              if (vehicleJson['pillar_number'] != null && vehicleJson['pillar_number'].toString().isNotEmpty) {
-                location = 'Pillar ${vehicleJson['pillar_number']}';
-              } else if (vehicleJson['parking_notes'] != null && vehicleJson['parking_notes'].toString().isNotEmpty) {
-                location = vehicleJson['parking_notes'].toString();
-              }
+            final rawStatus = map['status']?.toString();
+            if (kDebugMode) {
+              print(
+                'API status received: $rawStatus | completed_at: ${map['completed_at']} '
+                '| after_photo_url: ${map['after_photo_url']} '
+                '| Vehicle: ${vehicleJson?['vehicle_number']} | RecordID: ${map['id']}',
+              );
             }
 
-            // Map status
-            final rawStatus = map['status']?.toString();
-            final backendStatus = rawStatus?.toUpperCase();
-            JobStatus status = JobStatus.pending;
-            if (backendStatus == 'CLEANED') {
-              status = JobStatus.completed;
-            } else if (backendStatus == 'CNA') {
-              status = JobStatus.cna;
-            } else if (backendStatus == 'MISSED') {
-              status = JobStatus.cna;
-            }
+            final job = JobModel.fromDailyRouteRecord(map);
 
             if (kDebugMode) {
-              print('API status: $rawStatus | Parsed model: $status | Vehicle: ${vehicleJson?['vehicle_number']} | RecordID: ${map['id']}');
+              print(
+                'Repository status: ${job.status.logLabel} | Vehicle: ${job.vehicle} '
+                '| RecordID: ${job.id}',
+              );
             }
 
-            // Map photos
-            final List<dynamic> photos = map['photos'] ?? [];
-            String? beforeImage;
-            String? afterImage;
-            if (photos.isNotEmpty) {
-              beforeImage = photos[0]['url'];
-              if (photos.length > 1) {
-                afterImage = photos[1]['url'];
-              }
-            }
-
-            return JobModel(
-              id: map['id']?.toString(),
-              vehicle: vehicleJson?['vehicle_number'] ?? 'Unknown Vehicle',
-              name: userJson?['name'] ?? 'Customer',
-              location: location,
-              phone: userJson?['phone'] ?? '',
-              status: status,
-              beforeImage: beforeImage,
-              afterImage: afterImage,
-              vehicleImage: vehicleJson?['vehicle_image'],
-            );
+            return job;
           }).toList();
         }
       }
@@ -112,9 +83,15 @@ class DashboardRepository implements IDashboardRepository {
   Future<bool> markJobCompleted(String recordId) async {
     try {
       if (recordId.contains(' ') || recordId.length < 15) {
+        if (kDebugMode) {
+          print('Skipping completeJob API call because recordId looks local: $recordId');
+        }
         return true; 
       }
       final response = await _apiService.completeJob(recordId);
+      if (kDebugMode) {
+        print('completeJob response for $recordId: $response');
+      }
       return response != null && response['success'] == true;
     } catch (e) {
       if (kDebugMode) {
@@ -129,6 +106,9 @@ class DashboardRepository implements IDashboardRepository {
   Future<bool> markJobCNA(String recordId) async {
     try {
       if (recordId.contains(' ') || recordId.length < 15) {
+        if (kDebugMode) {
+          print('Skipping markJobCNA API call because recordId looks local: $recordId');
+        }
         return true;
       }
       final response = await _apiService.markJobCNA(
@@ -140,6 +120,9 @@ class DashboardRepository implements IDashboardRepository {
           'notes': 'Car Not Available'
         },
       );
+      if (kDebugMode) {
+        print('markJobCNA response for $recordId: $response');
+      }
       return response != null && response['success'] == true;
     } catch (e) {
       if (kDebugMode) {
@@ -273,7 +256,12 @@ class DashboardRepository implements IDashboardRepository {
   Future<Map<String, dynamic>?> uploadAfterPhoto(String jobId, File file) async {
     try {
       final response = await _apiService.uploadAfterPhoto(jobId, file);
-      if (response != null && response is Map<String, dynamic> && response['success'] == true) {
+      if (response != null &&
+          response is Map<String, dynamic> &&
+          response['success'] == true) {
+        if (kDebugMode) {
+          print('uploadAfterPhoto response for $jobId: $response');
+        }
         return response['data'] ?? response;
       }
       return null;

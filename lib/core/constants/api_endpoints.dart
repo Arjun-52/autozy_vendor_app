@@ -1,5 +1,6 @@
 class ApiEndpoints {
-  static const String specialistJobs = '/api/v1/specialist/jobs';
+  static const String specialistAssignedJobs = '/api/v1/specialist/jobs';
+  static const String specialistJobs = specialistAssignedJobs;
   static const String addonServices = '/api/v1/addons/services';
   static const String myAddonBookings = '/api/v1/addons/my-bookings';
   static const String uploadImage = '/api/v1/upload/image';
@@ -11,4 +12,3 @@ class ApiEndpoints {
   static const String washHistory = '/api/v1/daily-service/history';
   static const String staffAttendance = '/api/v1/staff/attendance';
 }
-

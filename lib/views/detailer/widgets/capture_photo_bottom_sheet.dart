@@ -27,6 +27,7 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
   File? imageFile;
   final ImagePicker picker = ImagePicker();
   bool _isUploading = false;
+  bool _isCompletingJob = false;
   bool _isUploadSuccess = false;
   String? _errorMessage;
   final TextEditingController _completionRemarkController = TextEditingController();
@@ -125,28 +126,51 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
     }
   }
 
-  void _handleJobCompletion() {
+  Future<void> _handleJobCompletion() async {
     if (!mounted) return;
 
     final remarkText = _completionRemarkController.text.trim();
     final dashboardVm = context.read<DashboardViewModel>();
+    final inspectorVm = context.read<InspectorViewModel>();
     final vehicle = dashboardVm.getJob(widget.jobIndex)?.vehicle ?? '';
 
-    if (remarkText.isNotEmpty) {
-      dashboardVm.addJobRemark(widget.jobIndex, "Job Completed", remarkText);
-      context.read<InspectorViewModel>().addRemarkFromDetailer(vehicle, "Job Completed", remarkText);
-    }
-
-    dashboardVm.markJobCompleted(widget.jobIndex);
-
-    Navigator.pop(context);
-
-    Future.delayed(const Duration(milliseconds: 200), () {
-      if (NavigationService.context != null &&
-          NavigationService.context!.mounted) {
-        SnackbarHelper.showTopNotification(NavigationService.context!);
-      }
+    setState(() {
+      _isCompletingJob = true;
+      _errorMessage = null;
     });
+
+    try {
+      if (remarkText.isNotEmpty) {
+        await dashboardVm.addJobRemark(widget.jobIndex, "Job Completed", remarkText);
+        inspectorVm.addRemarkFromDetailer(vehicle, "Job Completed", remarkText);
+      }
+
+      final success = await dashboardVm.markJobCompleted(widget.jobIndex);
+      if (!success) {
+        setState(() {
+          _errorMessage = dashboardVm.errorMessage ?? "Failed to complete job.";
+          _isCompletingJob = false;
+        });
+        return;
+      }
+
+      if (!mounted) return;
+
+      Navigator.pop(context);
+
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (NavigationService.context != null &&
+            NavigationService.context!.mounted) {
+          SnackbarHelper.showTopNotification(NavigationService.context!);
+        }
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = "Failed to complete job: $e";
+        _isCompletingJob = false;
+      });
+    }
   }
 
   @override
@@ -277,7 +301,7 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
           ],
 
           /// buttons
-          if (_isUploading)
+          if (_isUploading || _isCompletingJob)
             const Center(child: CircularProgressIndicator())
           else if (imageFile == null)
             Row(
