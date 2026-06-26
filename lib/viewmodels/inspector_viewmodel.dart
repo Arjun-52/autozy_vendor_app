@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:geolocator/geolocator.dart';
 import '../core/base/base_viewmodel.dart';
 import '../core/interfaces/inspector_repository_interface.dart';
 import '../data/models/inspection_model.dart';
@@ -868,7 +869,7 @@ class InspectorViewModel extends BaseViewModel {
     if (kDebugMode) {
       print('Controller action start: completeInspection');
       print('Inspection ID being sent: $inspectionId');
-      print('Photos payload: $photos');
+      print('Original photos payload: $photos');
     }
     final idx = _inspections.indexWhere((element) => element.id == inspectionId);
     final notes = idx != -1 ? _inspections[idx].notes : null;
@@ -876,19 +877,66 @@ class InspectorViewModel extends BaseViewModel {
     bool success = false;
     await executeOperation(
       () async {
-        final completedInspection = await _repository.completeInspection(inspectionId, photos, notes: notes);
-        clearLocalPhotos(inspectionId);
-        final idx = _inspections.indexWhere((element) => element.id == inspectionId);
-        if (idx != -1) {
-          _inspections[idx] = completedInspection;
-          notifyListeners();
+        // 1. Request GPS permission and capture coordinates
+        bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+        if (!serviceEnabled) {
+          throw Exception("Location services are disabled.");
         }
+
+        LocationPermission permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied) {
+          permission = await Geolocator.requestPermission();
+          if (permission == LocationPermission.denied) {
+            throw Exception("Location permissions are denied.");
+          }
+        }
+
+        if (permission == LocationPermission.deniedForever) {
+          throw Exception("Location permissions are permanently denied.");
+        }
+
+        Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        );
+
+        final double latitude = position.latitude;
+        final double longitude = position.longitude;
+
+        // 2. Format photos payload to include lat and lng as numeric values
+        final photosWithCoordinates = photos.map((photo) {
+          return {
+            ...photo,
+            "lat": latitude,
+            "lng": longitude,
+          };
+        }).toList();
+
+        // 3. Print final JSON payload
+        if (kDebugMode) {
+          print('Final Complete Inspection Payload: ${jsonEncode({
+            "photos": photosWithCoordinates,
+            if (notes != null) "notes": notes,
+          })}');
+        }
+
+        // 4. Call repository
+        final completedInspection = await _repository.completeInspection(inspectionId, photosWithCoordinates, notes: notes);
+        clearLocalPhotos(inspectionId);
+        final currentIdx = _inspections.indexWhere((element) => element.id == inspectionId);
+        if (currentIdx != -1) {
+          _inspections[currentIdx] = completedInspection;
+        }
+        final assignedIdx = _assignedInspections.indexWhere((element) => element.id == inspectionId);
+        if (assignedIdx != -1) {
+          _assignedInspections[assignedIdx] = completedInspection;
+        }
+        notifyListeners();
         success = true;
         if (kDebugMode) {
           print('Controller action success: completeInspection');
         }
       },
-      onError: "Failed to complete inspection",
+      onError: null, // Let the specific error details propagate
     );
     if (errorMessage != null) {
       if (kDebugMode) {

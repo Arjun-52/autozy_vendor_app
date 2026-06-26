@@ -363,8 +363,10 @@ class InspectorRepository implements IInspectorRepository {
     if (kDebugMode) {
       print('Complete Inspection request start');
       print('Inspection ID being sent: $inspectionId');
-      print('Photos payload being sent: $photos');
-      print('Notes being sent: $notes');
+      print('Final payload being sent: ${jsonEncode({
+        'photos': photos,
+        if (notes != null) 'notes': notes,
+      })}');
     }
     try {
       final response = await _apiService.completeInspection(inspectionId, {

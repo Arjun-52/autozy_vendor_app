@@ -96,7 +96,7 @@ class InspectorCard extends StatelessWidget {
 
             const SizedBox(height: AppSpacing.sm),
 
-            InspectorLocationRow(location: inspection.location),
+            InspectorLocationRow(location: isApproved ? inspection.vehicle : inspection.location),
 
             const SizedBox(height: AppSpacing.md),
 
@@ -104,7 +104,7 @@ class InspectorCard extends StatelessWidget {
               isFlagged: isFlagged,
               isApproved: isApproved,
               isInProgress: isInProgress,
-              isRejected: false,
+              isRejected: inspection.status == InspectionStatus.rejected,
               isPendingVerification: inspection.status == InspectionStatus.pendingVerification,
               isVerified: inspection.status == InspectionStatus.verified,
             ),
@@ -219,8 +219,9 @@ class InspectorCard extends StatelessWidget {
                       const SnackBar(content: Text('Inspection completed successfully')),
                     );
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Failed to complete inspection')),
+                    TopBanner(
+                      context,
+                      vm.errorMessage ?? 'Failed to complete inspection',
                     );
                   }
                 },
