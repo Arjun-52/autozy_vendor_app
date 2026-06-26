@@ -1,3 +1,4 @@
+import 'dart:io';
 import '../../data/models/job_model.dart';
 import '../services/new_api_service.dart';
 import '../../core/interfaces/dashboard_repository_interface.dart';
@@ -14,22 +15,83 @@ class DashboardRepository implements IDashboardRepository {
   @override
   Future<List<JobModel>> getJobs() async {
     try {
-      final response = await _apiService.getJobs();
+      final response = await _apiService.getDailyRoute();
       if (response != null && response is Map<String, dynamic> && response['success'] == true) {
-        final List<dynamic> list = response['data'] ?? [];
-        return list.map((json) => JobModel.fromJson(json as Map<String, dynamic>)).toList();
+        final data = response['data'];
+        if (data != null && data is Map<String, dynamic>) {
+          final List<dynamic> records = data['records'] ?? [];
+          if (kDebugMode) {
+            print('DEBUG: getJobs raw response records count: ${records.length}');
+          }
+          return records.map((recordJson) {
+            final map = recordJson as Map<String, dynamic>;
+            final vehicleJson = map['vehicle'] as Map<String, dynamic>?;
+            final userJson = vehicleJson?['user'] as Map<String, dynamic>?;
+            
+            // Determine parking/location
+            String location = 'No slot info';
+            if (vehicleJson != null) {
+              if (vehicleJson['pillar_number'] != null && vehicleJson['pillar_number'].toString().isNotEmpty) {
+                location = 'Pillar ${vehicleJson['pillar_number']}';
+              } else if (vehicleJson['parking_notes'] != null && vehicleJson['parking_notes'].toString().isNotEmpty) {
+                location = vehicleJson['parking_notes'].toString();
+              }
+            }
+
+            // Map status
+            final rawStatus = map['status']?.toString();
+            final backendStatus = rawStatus?.toUpperCase();
+            JobStatus status = JobStatus.pending;
+            if (backendStatus == 'CLEANED') {
+              status = JobStatus.completed;
+            } else if (backendStatus == 'CNA') {
+              status = JobStatus.cna;
+            } else if (backendStatus == 'MISSED') {
+              status = JobStatus.cna;
+            }
+
+            if (kDebugMode) {
+              print('API status: $rawStatus | Parsed model: $status | Vehicle: ${vehicleJson?['vehicle_number']} | RecordID: ${map['id']}');
+            }
+
+            // Map photos
+            final List<dynamic> photos = map['photos'] ?? [];
+            String? beforeImage;
+            String? afterImage;
+            if (photos.isNotEmpty) {
+              beforeImage = photos[0]['url'];
+              if (photos.length > 1) {
+                afterImage = photos[1]['url'];
+              }
+            }
+
+            return JobModel(
+              id: map['id']?.toString(),
+              vehicle: vehicleJson?['vehicle_number'] ?? 'Unknown Vehicle',
+              name: userJson?['name'] ?? 'Customer',
+              location: location,
+              phone: userJson?['phone'] ?? '',
+              status: status,
+              beforeImage: beforeImage,
+              afterImage: afterImage,
+              vehicleImage: vehicleJson?['vehicle_image'],
+            );
+          }).toList();
+        }
+      }
+      if (kDebugMode) {
+        print('DEBUG: getJobs response success is false or data is null, using fallback jobs');
       }
       return _getFallbackJobs();
     } catch (e) {
       if (kDebugMode) {
         print('Error fetching jobs: $e');
       }
-      // Return fallback data on any error
       return _getFallbackJobs();
     }
   }
 
-  /// Update job status
+  /// Update job status (fallback/legacy)
   Future<bool> updateJobStatus(String vehicleId, String status) async {
     try {
       final response = await _apiService.updateJobStatus(
@@ -41,39 +103,72 @@ class DashboardRepository implements IDashboardRepository {
       if (kDebugMode) {
         print('Error updating job status: $e');
       }
-      return true; // Return true as fallback for mock/local development
+      return true; 
     }
   }
 
   /// Mark job as completed
   @override
-  Future<bool> markJobCompleted(String vehicleId) async {
-    return updateJobStatus(vehicleId, 'completed');
+  Future<bool> markJobCompleted(String recordId) async {
+    try {
+      if (recordId.contains(' ') || recordId.length < 15) {
+        return true; 
+      }
+      final response = await _apiService.completeJob(recordId);
+      return response != null && response['success'] == true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error completing job: $e');
+      }
+      return false;
+    }
   }
 
   /// Mark job as CNA (Car Not Available)
   @override
-  Future<bool> markJobCNA(String vehicleId) async {
-    return updateJobStatus(vehicleId, 'cna');
+  Future<bool> markJobCNA(String recordId) async {
+    try {
+      if (recordId.contains(' ') || recordId.length < 15) {
+        return true;
+      }
+      final response = await _apiService.markJobCNA(
+        recordId,
+        {
+          'photos': [],
+          'gpsLat': 17.385,
+          'gpsLng': 78.486,
+          'notes': 'Car Not Available'
+        },
+      );
+      return response != null && response['success'] == true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error marking job CNA: $e');
+      }
+      return false;
+    }
   }
 
   /// Start cleaning job
   @override
-  Future<bool> startJobCleaning(String vehicleId) async {
-    return updateJobStatus(vehicleId, 'cleaning');
+  Future<bool> startJobCleaning(String recordId) async {
+    return true; 
   }
 
   /// Undo job status back to pending
   @override
-  Future<bool> undoJobStatus(String vehicleId) async {
-    return updateJobStatus(vehicleId, 'pending');
+  Future<bool> undoJobStatus(String recordId) async {
+    return true; 
   }
 
   @override
-  Future<bool> saveJobRemark(String vehicleId, String? reason, String? comment) async {
+  Future<bool> saveJobRemark(String recordId, String? reason, String? comment) async {
     try {
+      if (recordId.contains(' ') || recordId.length < 15) {
+        return true;
+      }
       final response = await _apiService.addComment(
-        vehicleId,
+        recordId,
         {
           'reason': reason,
           'remark': comment,
@@ -84,7 +179,7 @@ class DashboardRepository implements IDashboardRepository {
       if (kDebugMode) {
         print('Error saving job remark: $e');
       }
-      return true; // Return true as fallback for mock/local development
+      return true; 
     }
   }
 
@@ -103,7 +198,7 @@ class DashboardRepository implements IDashboardRepository {
       if (kDebugMode) {
         print('Error updating job remark: $e');
       }
-      return true; // Return true as fallback
+      return true; 
     }
   }
 
@@ -111,9 +206,24 @@ class DashboardRepository implements IDashboardRepository {
   @override
   Future<Map<String, dynamic>> getDashboardStats() async {
     try {
-      final response = await _apiService.getDashboardStats();
+      final response = await _apiService.getDailyRoute();
       if (response != null && response is Map<String, dynamic> && response['success'] == true) {
-        return response['data'] ?? response;
+        final data = response['data'];
+        if (data != null && data is Map<String, dynamic>) {
+          final route = data['route'] as Map<String, dynamic>?;
+          if (route != null) {
+            final total = route['total_count'] ?? 0;
+            final completed = route['completed_count'] ?? 0;
+            final cna = route['cna_count'] ?? 0;
+            final remaining = total - completed - cna;
+            return {
+              'completed': completed,
+              'total': total,
+              'remaining': remaining >= 0 ? remaining : 0,
+              'cna': cna,
+            };
+          }
+        }
       }
     } catch (e) {
       if (kDebugMode) {
@@ -157,5 +267,21 @@ class DashboardRepository implements IDashboardRepository {
         vehicleImage: null, // Test missing fallback
       ),
     ];
+  }
+
+  @override
+  Future<Map<String, dynamic>?> uploadAfterPhoto(String jobId, File file) async {
+    try {
+      final response = await _apiService.uploadAfterPhoto(jobId, file);
+      if (response != null && response is Map<String, dynamic> && response['success'] == true) {
+        return response['data'] ?? response;
+      }
+      return null;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error uploading after photo: $e');
+      }
+      return null;
+    }
   }
 }

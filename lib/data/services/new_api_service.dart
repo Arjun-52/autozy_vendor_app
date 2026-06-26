@@ -31,6 +31,34 @@ abstract class NewApiService {
   @GET('/jobs')
   Future<dynamic> getJobs();
 
+  @POST('/api/v1/jobs/{job_id}/after-photo')
+  @MultiPart()
+  Future<dynamic> uploadAfterPhoto(
+    @Path('job_id') String jobId,
+    @Part(name: 'file') File file,
+  );
+
+  @POST('/api/v1/jobs/{job_id}/complete')
+  Future<dynamic> completeJob(@Path('job_id') String jobId);
+
+  @GET('/api/v1/daily-service/route')
+  Future<dynamic> getDailyRoute({@Query('date') String? date});
+
+  @GET('/api/v1/daily-service/{id}')
+  Future<dynamic> getJobDetails(@Path('id') String id);
+
+  @POST('/api/v1/daily-service/{id}/cleaned')
+  Future<dynamic> markJobCleaned(
+    @Path('id') String id,
+    @Body() Map<String, dynamic> body,
+  );
+
+  @POST('/api/v1/daily-service/{id}/cna')
+  Future<dynamic> markJobCNA(
+    @Path('id') String id,
+    @Body() Map<String, dynamic> body,
+  );
+
   @GET('/inspections')
   Future<dynamic> getInspections();
 

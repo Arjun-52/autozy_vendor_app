@@ -66,7 +66,7 @@ class DependencyInjection {
 
     // Initialize refactored repositories
     _roleRepository = RoleRepository();
-    _jobDetailsRepository = JobDetailsRepository();
+    _jobDetailsRepository = JobDetailsRepository(newApiService);
     _specialistTasksRepository = SpecialistTasksRepository(newApiService);
   }
 

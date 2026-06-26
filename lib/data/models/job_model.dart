@@ -38,6 +38,7 @@ class JobRemarkModel {
 
 @JsonSerializable()
 class JobModel {
+  final String? id;
   @JsonKey(name: 'vehicle_number')
   final String vehicle;
   @JsonKey(name: 'customer_name')
@@ -63,6 +64,7 @@ class JobModel {
 
   // Existing constructor - KEEP UNCHANGED for backward compatibility
   JobModel({
+    this.id,
     required this.vehicle,
     required this.name,
     required this.location,

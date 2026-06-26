@@ -99,13 +99,8 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
     });
 
     try {
-      final response = await di.inspectorRepository.uploadImage(imageFile!);
-      if (response.success) {
-        final imageUrl = response.data.url;
-        final timestamp = DateTime.now().toLocal().toString().split('.')[0];
-        
-        dashboardVm.updateAfterPhoto(widget.jobIndex, imageUrl, timestamp);
-        
+      final success = await dashboardVm.uploadAfterPhoto(widget.jobIndex, imageFile!);
+      if (success) {
         setState(() {
           _isUploadSuccess = true;
           _isUploading = false;
@@ -118,7 +113,7 @@ class _CapturePhotoBottomSheetState extends State<CapturePhotoBottomSheet> {
         }
       } else {
         setState(() {
-          _errorMessage = "Upload failed: API error";
+          _errorMessage = dashboardVm.errorMessage ?? "Upload failed: API error";
           _isUploading = false;
         });
       }

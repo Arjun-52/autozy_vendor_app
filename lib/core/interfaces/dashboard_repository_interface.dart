@@ -1,3 +1,4 @@
+import 'dart:io';
 import '../../data/models/job_model.dart';
 
 abstract class IDashboardRepository {
@@ -9,4 +10,5 @@ abstract class IDashboardRepository {
   Future<bool> saveJobRemark(String vehicleId, String? reason, String? comment);
   Future<bool> updateJobRemark(String remarkId, String? reason, String? comment);
   Future<Map<String, dynamic>> getDashboardStats();
+  Future<Map<String, dynamic>?> uploadAfterPhoto(String jobId, File file);
 }

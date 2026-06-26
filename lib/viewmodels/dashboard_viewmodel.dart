@@ -1,3 +1,4 @@
+import 'dart:io';
 import '../../data/models/job_model.dart';
 import '../../core/base/base_viewmodel.dart';
 import '../../core/interfaces/dashboard_repository_interface.dart';
@@ -48,14 +49,16 @@ class DashboardViewModel extends BaseViewModel {
   Future<bool> markJobCompleted(int index) async {
     if (!_isValidIndex(index)) return false;
 
-    final vehicleId = _jobs[index].vehicle;
-    final success = await _repository.markJobCompleted(vehicleId);
-
-    if (success) {
-      _updateJobStatus(index, JobStatus.completed);
-    }
-
-    return success;
+    final jobId = _jobs[index].id ?? _jobs[index].vehicle;
+    
+    return await executeOperationWithResult<bool>(() async {
+      final success = await _repository.markJobCompleted(jobId);
+      if (success) {
+        _updateJobStatus(index, JobStatus.completed);
+        await loadStats();
+      }
+      return success;
+    }, onError: 'Failed to complete job') ?? false;
   }
 
   Future<bool> markCNA(int index) async {
@@ -121,6 +124,7 @@ class DashboardViewModel extends BaseViewModel {
   void updateAfterPhoto(int index, String url, String timestamp) {
     if (!_isValidIndex(index)) return;
     _jobs[index] = JobModel(
+      id: _jobs[index].id,
       vehicle: _jobs[index].vehicle,
       name: _jobs[index].name,
       location: _jobs[index].location,
@@ -131,8 +135,43 @@ class DashboardViewModel extends BaseViewModel {
       afterImage: url,
       afterImageCapturedAt: timestamp,
       remarks: _jobs[index].remarks,
+      vehicleImage: _jobs[index].vehicleImage,
     );
     notifyListeners();
+  }
+
+  Future<bool> uploadAfterPhoto(int index, File file) async {
+    if (!_isValidIndex(index)) return false;
+    final jobId = _jobs[index].id;
+    if (jobId == null || jobId.isEmpty) {
+      return true;
+    }
+
+    return await executeOperationWithResult<bool>(() async {
+      final result = await _repository.uploadAfterPhoto(jobId, file);
+      if (result != null) {
+        final photoUrl = result['after_photo_url'] ?? '';
+        final uploadedAt = result['after_photo_uploaded_at'] ?? '';
+        
+        _jobs[index] = JobModel(
+          id: _jobs[index].id,
+          vehicle: _jobs[index].vehicle,
+          name: _jobs[index].name,
+          location: _jobs[index].location,
+          phone: _jobs[index].phone,
+          status: _jobs[index].status,
+          beforeImage: _jobs[index].beforeImage,
+          capturedAt: _jobs[index].capturedAt,
+          afterImage: photoUrl,
+          afterImageCapturedAt: uploadedAt,
+          remarks: _jobs[index].remarks,
+          vehicleImage: _jobs[index].vehicleImage,
+        );
+        notifyListeners();
+        return true;
+      }
+      return false;
+    }, onError: 'Upload failed') ?? false;
   }
 
   Future<JobRemarkModel?> addJobRemark(int index, String? reason, String? additionalComment) async {

@@ -31,6 +31,7 @@ Map<String, dynamic> _$JobRemarkModelToJson(JobRemarkModel instance) =>
     };
 
 JobModel _$JobModelFromJson(Map<String, dynamic> json) => JobModel(
+      id: json['id'] as String?,
       vehicle: json['vehicle_number'] as String,
       name: json['customer_name'] as String,
       location: json['location'] as String,
@@ -48,6 +49,7 @@ JobModel _$JobModelFromJson(Map<String, dynamic> json) => JobModel(
     );
 
 Map<String, dynamic> _$JobModelToJson(JobModel instance) => <String, dynamic>{
+      'id': instance.id,
       'vehicle_number': instance.vehicle,
       'customer_name': instance.name,
       'location': instance.location,

@@ -11,6 +11,7 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_styles.dart';
 import '../../../viewmodels/inspector_viewmodel.dart';
 import '../../../viewmodels/dashboard_viewmodel.dart';
+import '../../../viewmodels/job_details_viewmodel.dart';
 import '../../../data/models/inspection_model.dart';
 import '../../../core/di/dependency_injection.dart';
 import 'capture_photo_bottom_sheet.dart';
@@ -56,6 +57,8 @@ class _JobDetailsBottomSheetState extends State<JobDetailsBottomSheet> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final jobId = widget.job.id ?? widget.vehicle;
+      context.read<JobDetailsViewModel>().loadJobDetails(jobId);
       context.read<InspectorViewModel>().fetchInspectionBySubscription(widget.vehicle);
     });
   }
@@ -221,27 +224,81 @@ class _JobDetailsBottomSheetState extends State<JobDetailsBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final dashboardVm = context.watch<DashboardViewModel>();
+    final detailsVm = context.watch<JobDetailsViewModel>();
     final job = widget.index != null ? dashboardVm.getJob(widget.index!) ?? widget.job : widget.job;
+
+    // Loading State
+    if (detailsVm.isLoading) {
+      return Container(
+        height: 350,
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppSpacing.radiusLg),
+          ),
+        ),
+        child: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    // Error State
+    if (detailsVm.errorMessage != null && detailsVm.vehicleNumber.isEmpty) {
+      return Container(
+        height: 350,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppSpacing.radiusLg),
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, color: Colors.red, size: 48),
+            const SizedBox(height: 16),
+            Text(
+              detailsVm.errorMessage!,
+              style: const TextStyle(color: Colors.red),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                final jobId = widget.job.id ?? widget.vehicle;
+                detailsVm.loadJobDetails(jobId, forceRefresh: true);
+              },
+              child: const Text("Retry"),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final vehicleNumber = detailsVm.vehicleNumber.isNotEmpty ? detailsVm.vehicleNumber : widget.vehicle;
+    final customerName = detailsVm.customerName.isNotEmpty ? detailsVm.customerName : widget.name;
+    final location = detailsVm.location.isNotEmpty ? detailsVm.location : widget.location;
+    final phone = detailsVm.phone.isNotEmpty ? detailsVm.phone : widget.phone;
+    final statusStr = detailsVm.status.isNotEmpty ? detailsVm.status : job.status.name;
 
     String statusText;
     Color statusColor;
 
-    switch (job.status) {
-      case JobStatus.completed:
-        statusText = "Completed";
-        statusColor = AppColors.success;
-        break;
-      case JobStatus.cna:
-        statusText = "Car Not Available";
-        statusColor = AppColors.error;
-        break;
-      case JobStatus.cleaning:
-        statusText = "Cleaning in Progress";
-        statusColor = AppColors.primary;
-        break;
-      default:
-        statusText = "Pending";
-        statusColor = AppColors.warning;
+    final lowerStatus = statusStr.toLowerCase();
+    if (lowerStatus.contains('completed') || lowerStatus.contains('cleaned')) {
+      statusText = "Completed";
+      statusColor = AppColors.success;
+    } else if (lowerStatus.contains('cna') || lowerStatus.contains('available')) {
+      statusText = "Car Not Available";
+      statusColor = AppColors.error;
+    } else if (lowerStatus.contains('cleaning')) {
+      statusText = "Cleaning in Progress";
+      statusColor = AppColors.primary;
+    } else {
+      statusText = "Pending";
+      statusColor = AppColors.warning;
     }
 
     return Container(
@@ -336,8 +393,8 @@ class _JobDetailsBottomSheetState extends State<JobDetailsBottomSheet> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(widget.vehicle, style: AppStyles.bodyMedium),
-                          Text(widget.name, style: AppStyles.caption),
+                          Text(vehicleNumber, style: AppStyles.bodyMedium),
+                          Text(customerName, style: AppStyles.caption),
                         ],
                       ),
                     ],
@@ -354,13 +411,13 @@ class _JobDetailsBottomSheetState extends State<JobDetailsBottomSheet> {
                     ),
                     child: Column(
                       children: [
-                        _row(Icons.location_on, widget.location),
+                        _row(Icons.location_on, location),
                         const SizedBox(height: AppSpacing.sm),
                         _row(Icons.location_pin, "GPS Tracked • Live"),
                         const SizedBox(height: AppSpacing.sm),
                         _row(
                           Icons.call,
-                          widget.phone.isEmpty ? "No phone available" : widget.phone,
+                          phone.isEmpty ? "No phone available" : phone,
                         ),
                       ],
                     ),
@@ -606,7 +663,7 @@ class _JobDetailsBottomSheetState extends State<JobDetailsBottomSheet> {
                   
                   GestureDetector(
                     onTap: () {
-                      _makePhoneCall(widget.phone.isEmpty ? "9876543210" : widget.phone);
+                      detailsVm.callOwner();
                     },
                     child: Container(
                       width: double.infinity,
