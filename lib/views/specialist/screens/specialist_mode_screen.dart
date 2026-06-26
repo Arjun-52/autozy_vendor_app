@@ -1,4 +1,5 @@
 import 'package:autozy_vendor_app/core/utils/top_status_banner.dart';
+import 'package:autozy_vendor_app/viewmodels/attendance_viewmodel.dart';
 import 'package:autozy_vendor_app/views/specialist/widegts/task_status_tile.dart';
 import 'package:autozy_vendor_app/views/specialist/widegts/task_card.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,6 @@ class SpecialistModeScreen extends StatefulWidget {
 }
 
 class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
-  bool isOnline = false;
 
   void _simulatePaymentAndBooking(BuildContext context, SpecialistTasksViewModel vm, String pricingId, {String? customName, String? customPrice}) {
     showModalBottomSheet(
@@ -295,6 +295,9 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final attendanceVm = context.watch<AttendanceViewModel>();
+    final isOnline = attendanceVm.attendance != null;
+
     return ChangeNotifierProvider(
       create: (_) => SpecialistTasksViewModel(di.specialistTasksRepository)
         ..loadTasks()
@@ -322,11 +325,16 @@ class _SpecialistModeScreenState extends State<SpecialistModeScreen> {
           actions: [
               GestureDetector(
                 onTap: () {
-                  setState(() {
-                    isOnline = !isOnline;
-                  });
-
-                  handleOnlineToggle(context, isOnline);
+                  if (!isOnline) {
+                    context.push('/profile');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Please Clock In to go Online')),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Please Clock Out from Profile to go Offline')),
+                    );
+                  }
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 250),

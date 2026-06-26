@@ -616,7 +616,7 @@ class _ProofVerificationScreenState extends State<ProofVerificationScreen> with 
                       ),
                       const Divider(height: 20),
                       // Key info fields
-                      _buildInfoRow(Icons.person_outline, 'Customer', currentInspection.customerName ?? 'Rohit A.'),
+                      _buildInfoRow(Icons.person_outline, 'Customer', currentInspection.customerName ?? currentInspection.name),
                       const SizedBox(height: 8),
                       _buildInfoRow(Icons.build_circle_outlined, 'Service', currentInspection.serviceType ?? 'Premium Polish & Shine'),
                       const SizedBox(height: 8),

@@ -124,45 +124,44 @@ class AuthViewModel extends BaseViewModel {
       print('API request start');
     }
 
-    setError(null);
-    notifyListeners();
-
-    try {
-      final success = await repo.verifyOtp(
-        phone: phoneNumber,
-        otp: otp,
-        deviceId: "autozy-vendor-app",
-      );
-      if (success) {
-        isOtpVerified = true;
-        if (kDebugMode) {
-          print('Token storage success');
-          print('Authentication success');
+    await executeOperation(() async {
+      try {
+        final success = await repo.verifyOtp(
+          phone: phoneNumber,
+          otp: otp,
+          deviceId: "autozy-vendor-app",
+        );
+        if (success) {
+          isOtpVerified = true;
+          if (kDebugMode) {
+            print('Token storage success');
+            print('Authentication success');
+          }
+          final role = ApiClient().staffRole ?? "";
+          NavigationService.goToDashboardByRole(role);
+        } else {
+          setError("Invalid OTP. Please try again.");
+          if (kDebugMode) {
+            print('Authentication failure: success=false');
+          }
         }
-        final role = ApiClient().staffRole ?? "";
-        NavigationService.goToDashboardByRole(role);
-      } else {
-        setError("Invalid OTP. Please try again.");
+      } on DioError catch (e) {
         if (kDebugMode) {
-          print('Authentication failure: success=false');
+          print('verifyOtp DioError status: ${e.response?.statusCode}');
+          print('verifyOtp DioError body: ${e.response?.data}');
         }
+        final friendlyError = _parseDioError(e);
+        setError(friendlyError);
+        if (kDebugMode) {
+          print('Authentication failure: $friendlyError');
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('verifyOtp unexpected error: $e');
+        }
+        setError("Something went wrong. Please try again.");
       }
-    } on DioError catch (e) {
-      if (kDebugMode) {
-        print('verifyOtp DioError status: ${e.response?.statusCode}');
-        print('verifyOtp DioError body: ${e.response?.data}');
-      }
-      final friendlyError = _parseDioError(e);
-      setError(friendlyError);
-      if (kDebugMode) {
-        print('Authentication failure: $friendlyError');
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('verifyOtp unexpected error: $e');
-      }
-      setError("Something went wrong. Please try again.");
-    }
+    });
   }
 
   /// Validate phone number

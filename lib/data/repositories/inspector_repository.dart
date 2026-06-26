@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
@@ -404,20 +405,18 @@ class InspectorRepository implements IInspectorRepository {
   }
 
   @override
-  Future<InspectionModel> failInspection(String inspectionId, String reason, List<String> photos, {String? notes}) async {
+  Future<InspectionModel> failInspection(String inspectionId, String reason, List<String> photos) async {
+    final Map<String, dynamic> payload = {
+      'reason': reason,
+      'photos': photos,
+    };
     if (kDebugMode) {
       print('Fail Inspection request start');
       print('Inspection ID being sent: $inspectionId');
-      print('Reason being sent: $reason');
-      print('Photos payload being sent: $photos');
-      print('Notes being sent: $notes');
+      print('Final JSON Payload: ${jsonEncode(payload)}');
     }
     try {
-      final response = await _apiService.failInspection(inspectionId, {
-        'reason': reason,
-        'photos': photos,
-        if (notes != null) 'notes': notes,
-      });
+      final response = await _apiService.failInspection(inspectionId, payload);
       if (kDebugMode) {
         print('API response received: $response');
       }

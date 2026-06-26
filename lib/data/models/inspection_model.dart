@@ -122,6 +122,7 @@ class InspectionModel {
   String? vehicleName;
   @JsonKey(name: 'customer_name')
   String? customerName;
+  String? phone;
   @JsonKey(name: 'service_type')
   String? serviceType;
   @JsonKey(name: 'service_date')
@@ -188,6 +189,7 @@ class InspectionModel {
     this.verifiedAt,
     this.vehicleName,
     this.customerName,
+    this.phone,
     this.serviceType,
     this.serviceDate,
     this.assignedSpecialist,
@@ -215,21 +217,22 @@ class InspectionModel {
     final Map<String, dynamic> processedJson = Map<String, dynamic>.from(json);
     final vehicleMap = processedJson['vehicle'] as Map<String, dynamic>?;
     
-    if (processedJson['name'] == null || processedJson['name'].toString().trim().isEmpty) {
-      String custName;
-      if (processedJson['customer_name'] != null && processedJson['customer_name'].toString().trim().isNotEmpty) {
-        custName = processedJson['customer_name'].toString().trim();
-      } else if (processedJson['user'] is Map && processedJson['user']['name'] != null && processedJson['user']['name'].toString().trim().isNotEmpty) {
-        custName = processedJson['user']['name'].toString().trim();
-      } else if (processedJson['customer'] is Map && processedJson['customer']['name'] != null && processedJson['customer']['name'].toString().trim().isNotEmpty) {
-        custName = processedJson['customer']['name'].toString().trim();
-      } else if (vehicleMap != null && vehicleMap['user'] is Map && vehicleMap['user']['name'] != null && vehicleMap['user']['name'].toString().trim().isNotEmpty) {
-        custName = vehicleMap['user']['name'].toString().trim();
-      } else {
-        custName = 'Rohit A.';
-      }
-      processedJson['name'] = custName;
+    // Extract customer name prioritizing nested user/customer details
+    String custName;
+    if (processedJson['user'] is Map && processedJson['user']['name'] != null && processedJson['user']['name'].toString().trim().isNotEmpty) {
+      custName = processedJson['user']['name'].toString().trim();
+    } else if (processedJson['customer'] is Map && processedJson['customer']['name'] != null && processedJson['customer']['name'].toString().trim().isNotEmpty) {
+      custName = processedJson['customer']['name'].toString().trim();
+    } else if (vehicleMap != null && vehicleMap['user'] is Map && vehicleMap['user']['name'] != null && vehicleMap['user']['name'].toString().trim().isNotEmpty) {
+      custName = vehicleMap['user']['name'].toString().trim();
+    } else if (processedJson['customer_name'] != null && processedJson['customer_name'].toString().trim().isNotEmpty) {
+      custName = processedJson['customer_name'].toString().trim();
+    } else if (processedJson['name'] != null && processedJson['name'].toString().trim().isNotEmpty && processedJson['name'] != 'Rohit A.' && processedJson['name'] != 'Rohit A') {
+      custName = processedJson['name'].toString().trim();
+    } else {
+      custName = 'Rohit A.';
     }
+    processedJson['name'] = custName;
 
     if (processedJson['location'] == null || processedJson['location'].toString().trim().isEmpty) {
       String addr = '';
@@ -264,6 +267,17 @@ class InspectionModel {
     }
 
     final model = _$InspectionModelFromJson(processedJson);
+    String? phoneVal;
+    if (processedJson['phone'] != null && processedJson['phone'].toString().trim().isNotEmpty) {
+      phoneVal = processedJson['phone'].toString().trim();
+    } else if (processedJson['user'] is Map && processedJson['user']['phone'] != null && processedJson['user']['phone'].toString().trim().isNotEmpty) {
+      phoneVal = processedJson['user']['phone'].toString().trim();
+    } else if (processedJson['customer'] is Map && processedJson['customer']['phone'] != null && processedJson['customer']['phone'].toString().trim().isNotEmpty) {
+      phoneVal = processedJson['customer']['phone'].toString().trim();
+    } else if (vehicleMap != null && vehicleMap['user'] is Map && vehicleMap['user']['phone'] != null && vehicleMap['user']['phone'].toString().trim().isNotEmpty) {
+      phoneVal = vehicleMap['user']['phone'].toString().trim();
+    }
+    model.phone = phoneVal;
     final extraPhotos = _parsePhotos(processedJson);
     if (extraPhotos != null && extraPhotos.isNotEmpty) {
       model.photos ??= [];
@@ -403,16 +417,16 @@ class InspectionModel {
     }
 
     String custName;
-    if (json['customer_name'] != null && json['customer_name'].toString().trim().isNotEmpty) {
-      custName = json['customer_name'].toString().trim();
-    } else if (json['name'] != null && json['name'].toString().trim().isNotEmpty) {
-      custName = json['name'].toString().trim();
-    } else if (json['user'] is Map && json['user']['name'] != null && json['user']['name'].toString().trim().isNotEmpty) {
+    if (json['user'] is Map && json['user']['name'] != null && json['user']['name'].toString().trim().isNotEmpty) {
       custName = json['user']['name'].toString().trim();
     } else if (json['customer'] is Map && json['customer']['name'] != null && json['customer']['name'].toString().trim().isNotEmpty) {
       custName = json['customer']['name'].toString().trim();
     } else if (vehicleMap != null && vehicleMap['user'] is Map && vehicleMap['user']['name'] != null && vehicleMap['user']['name'].toString().trim().isNotEmpty) {
       custName = vehicleMap['user']['name'].toString().trim();
+    } else if (json['customer_name'] != null && json['customer_name'].toString().trim().isNotEmpty) {
+      custName = json['customer_name'].toString().trim();
+    } else if (json['name'] != null && json['name'].toString().trim().isNotEmpty && json['name'] != 'Rohit A.' && json['name'] != 'Rohit A') {
+      custName = json['name'].toString().trim();
     } else {
       custName = 'Rohit A.';
     }
@@ -482,6 +496,17 @@ class InspectionModel {
       }
     }
 
+    String? phoneVal;
+    if (json['phone'] != null && json['phone'].toString().trim().isNotEmpty) {
+      phoneVal = json['phone'].toString().trim();
+    } else if (json['user'] is Map && json['user']['phone'] != null && json['user']['phone'].toString().trim().isNotEmpty) {
+      phoneVal = json['user']['phone'].toString().trim();
+    } else if (json['customer'] is Map && json['customer']['phone'] != null && json['customer']['phone'].toString().trim().isNotEmpty) {
+      phoneVal = json['customer']['phone'].toString().trim();
+    } else if (vehicleMap != null && vehicleMap['user'] is Map && vehicleMap['user']['phone'] != null && vehicleMap['user']['phone'].toString().trim().isNotEmpty) {
+      phoneVal = vehicleMap['user']['phone'].toString().trim();
+    }
+
     return InspectionModel(
       id: inspectionId,
       bookingId: bookingIdVal,
@@ -498,6 +523,7 @@ class InspectionModel {
       verifiedAt: json['completed_at']?.toString(),
       vehicleName: vehicleNameValue.isNotEmpty ? vehicleNameValue : 'Mercedes C-Class',
       customerName: custName,
+      phone: phoneVal,
       serviceType: json['service_type']?.toString() ?? 'Premium Detailing & Polish',
       serviceDate: json['service_date']?.toString() ?? json['completed_at']?.toString() ?? '2026-06-11',
       assignedSpecialist: json['assigned_specialist']?.toString() ?? 'John Specialist',

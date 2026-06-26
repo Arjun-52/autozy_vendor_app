@@ -1,6 +1,7 @@
 import 'package:autozy_vendor_app/core/services/navigation_service.dart';
 import 'package:autozy_vendor_app/core/utils/top_status_banner.dart';
 import 'package:autozy_vendor_app/viewmodels/inspector_viewmodel.dart';
+import 'package:autozy_vendor_app/viewmodels/attendance_viewmodel.dart';
 import 'package:autozy_vendor_app/views/inspector/widgets/inspector_card.dart';
 import 'package:autozy_vendor_app/views/inspector/screens/area_management_screen.dart';
 import 'package:autozy_vendor_app/views/detailer/widgets/status_card.dart';
@@ -24,8 +25,6 @@ class InspectorDashboard extends StatefulWidget {
 
 class _InspectorDashboardState extends State<InspectorDashboard>
     with WidgetsBindingObserver {
-  bool isOnline = false;
-
   @override
   void initState() {
     super.initState();
@@ -51,6 +50,8 @@ class _InspectorDashboardState extends State<InspectorDashboard>
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<InspectorViewModel>();
+    final attendanceVm = context.watch<AttendanceViewModel>();
+    final isOnline = attendanceVm.attendance != null;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -71,8 +72,16 @@ class _InspectorDashboardState extends State<InspectorDashboard>
         actions: [
           GestureDetector(
             onTap: () {
-              setState(() => isOnline = !isOnline);
-              handleOnlineToggle(context, isOnline);
+              if (!isOnline) {
+                context.push('/profile');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please Clock In to go Online')),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please Clock Out from Profile to go Offline')),
+                );
+              }
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 250),

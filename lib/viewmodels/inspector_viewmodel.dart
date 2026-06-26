@@ -707,9 +707,22 @@ class InspectorViewModel extends BaseViewModel {
         final assigned = await _repository.getAssignedInspections();
         final unassigned = await _repository.getUnassignedInspections();
 
+        // Preserve previously flagged or rejected inspections in the current session
+        final flaggedOrRejected = _assignedInspections.where((e) =>
+            e.status == InspectionStatus.flagged || e.status == InspectionStatus.rejected
+        ).toList();
+
         _assignedInspections = assigned;
+        
+        // Add back any flagged/rejected inspections that aren't returned by the backend anymore
+        for (final item in flaggedOrRejected) {
+          if (!_assignedInspections.any((e) => e.id == item.id)) {
+            _assignedInspections.add(item);
+          }
+        }
+
         _unassignedInspections = unassigned;
-        _inspections = [...assigned, ...unassigned];
+        _inspections = [..._assignedInspections, ..._unassignedInspections];
         _syncLocalPhotos();
 
         print('--- Queue API Response: GET /api/v1/inspections/queue ---');
@@ -819,7 +832,7 @@ class InspectorViewModel extends BaseViewModel {
       _inspections.where((e) => e.status == InspectionStatus.pendingVerification).length;
 
   int get flaggedCount =>
-      _inspections.where((e) => e.status == InspectionStatus.flagged).length;
+      _inspections.where((e) => e.status == InspectionStatus.flagged || e.status == InspectionStatus.rejected).length;
 
   Future<bool> startInspection(String inspectionId) async {
     if (kDebugMode) {
@@ -895,13 +908,16 @@ class InspectorViewModel extends BaseViewModel {
     bool success = false;
     await executeOperation(
       () async {
-        final failedInspection = await _repository.failInspection(inspectionId, reason, photos, notes: reason);
+        await _repository.failInspection(inspectionId, reason, photos);
         clearLocalPhotos(inspectionId);
-        final idx = _inspections.indexWhere((element) => element.id == inspectionId);
+        
+        // Mark it as rejected locally in _assignedInspections before calling loadInspections so that it is preserved
+        final idx = _assignedInspections.indexWhere((e) => e.id == inspectionId);
         if (idx != -1) {
-          _inspections[idx] = failedInspection;
-          notifyListeners();
+          _assignedInspections[idx].status = InspectionStatus.rejected;
         }
+
+        await loadInspections();
         success = true;
         if (kDebugMode) {
           print('Controller action success: failInspection');

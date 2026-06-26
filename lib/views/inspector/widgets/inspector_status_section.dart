@@ -56,7 +56,7 @@ class InspectorStatusSection extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           const Text(
-            "Fraud Flagged",
+            "Flagged",
             style: TextStyle(
               color: AppColors.error,
               fontWeight: FontWeight.w600,

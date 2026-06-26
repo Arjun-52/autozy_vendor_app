@@ -1,3 +1,4 @@
+import 'package:autozy_vendor_app/viewmodels/attendance_viewmodel.dart';
 import 'package:autozy_vendor_app/core/utils/top_status_banner.dart';
 import 'package:autozy_vendor_app/views/detailer/widgets/dashboard_status_row.dart';
 import 'package:autozy_vendor_app/views/detailer/widgets/jobs_list_view.dart';
@@ -21,8 +22,6 @@ class DetailerDashboard extends StatefulWidget {
 }
 
 class _DetailerDashboardState extends State<DetailerDashboard> {
-  bool isOnline = false;
-
   @override
   void initState() {
     super.initState();
@@ -55,6 +54,9 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final attendanceVm = context.watch<AttendanceViewModel>();
+    final isOnline = attendanceVm.attendance != null;
+
     return Scaffold(
       backgroundColor: Colors.white,
 
@@ -90,11 +92,16 @@ class _DetailerDashboardState extends State<DetailerDashboard> {
           ),
           GestureDetector(
             onTap: () {
-              setState(() {
-                isOnline = !isOnline;
-              });
-
-              handleOnlineToggle(context, isOnline);
+              if (!isOnline) {
+                context.push('/profile');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please Clock In to go Online')),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please Clock Out from Profile to go Offline')),
+                );
+              }
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 250),

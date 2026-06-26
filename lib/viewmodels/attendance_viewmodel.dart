@@ -8,7 +8,19 @@ import '../core/network/api_client.dart';
 class AttendanceViewModel extends ChangeNotifier {
   final IAttendanceRepository _repository;
 
-  AttendanceViewModel(this._repository);
+  AttendanceViewModel(this._repository) {
+    checkTodayAttendance();
+  }
+
+  void checkTodayAttendance() {
+    final today = DateTime.now().toLocal().toString().split(' ')[0];
+    if (ApiClient().clockInDate == today && ApiClient().attendanceData != null) {
+      _attendance = AttendanceModel.fromJson(ApiClient().attendanceData!);
+    } else {
+      _attendance = null;
+      ApiClient().setAttendance(null, null);
+    }
+  }
 
   bool _isLoading = false;
   AttendanceModel? _attendance;
@@ -70,6 +82,8 @@ class AttendanceViewModel extends ChangeNotifier {
       );
 
       _attendance = result;
+      final today = DateTime.now().toLocal().toString().split(' ')[0];
+      ApiClient().setAttendance(result.toJson(), today);
       _successMessage = "Attendance marked successfully.";
     } on DioError catch (e) {
       if (e.type == DioErrorType.connectTimeout ||

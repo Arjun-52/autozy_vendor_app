@@ -91,6 +91,7 @@ class InspectorCard extends StatelessWidget {
               vehicle: inspection.vehicle,
               name: inspection.name,
               vehicleName: inspection.vehicleName,
+              phone: inspection.phone,
             ),
 
             const SizedBox(height: AppSpacing.sm),
@@ -100,10 +101,10 @@ class InspectorCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
 
             InspectorStatusSection(
-              isFlagged: isFlagged && inspection.status != InspectionStatus.rejected,
+              isFlagged: isFlagged,
               isApproved: isApproved,
               isInProgress: isInProgress,
-              isRejected: inspection.status == InspectionStatus.rejected,
+              isRejected: false,
               isPendingVerification: inspection.status == InspectionStatus.pendingVerification,
               isVerified: inspection.status == InspectionStatus.verified,
             ),

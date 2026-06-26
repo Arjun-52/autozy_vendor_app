@@ -8,6 +8,7 @@ class InspectorCardHeader extends StatelessWidget {
   final String vehicle;
   final String name;
   final String? vehicleName;
+  final String? phone;
 
   const InspectorCardHeader({
     super.key,
@@ -16,10 +17,15 @@ class InspectorCardHeader extends StatelessWidget {
     required this.vehicle,
     required this.name,
     this.vehicleName,
+    this.phone,
   });
 
   @override
   Widget build(BuildContext context) {
+    final displayUserText = (name.isNotEmpty && name != 'Rohit A.' && name != 'Rohit A')
+        ? name
+        : (phone != null && phone!.isNotEmpty ? phone! : '');
+
     return Row(
       children: [
         Container(
@@ -31,21 +37,18 @@ class InspectorCardHeader extends StatelessWidget {
                 : AppColors.primary,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: isFlagged
-              ? const Icon(
-                  Icons.remove_red_eye_outlined,
-                  color: AppColors.textSecondary,
-                )
-              : Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: SvgPicture.asset(
-                    "assets/images/car2.svg",
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.textPrimary,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                ),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: SvgPicture.asset(
+              "assets/images/car2.svg",
+              colorFilter: ColorFilter.mode(
+                isFlagged || isApproved
+                    ? AppColors.textSecondary
+                    : AppColors.textPrimary,
+                BlendMode.srcIn,
+              ),
+            ),
+          ),
         ),
 
         const SizedBox(width: 10),
@@ -67,18 +70,22 @@ class InspectorCardHeader extends StatelessWidget {
               const SizedBox(height: 4),
               Row(
                 children: [
-                  Flexible(
-                    child: Text(
-                      name,
-                      style: const TextStyle(color: AppColors.textSecondary),
-                      overflow: TextOverflow.ellipsis,
+                  if (displayUserText.isNotEmpty) ...[
+                    Flexible(
+                      child: Text(
+                        displayUserText,
+                        style: const TextStyle(color: AppColors.textSecondary),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                  if (vehicleName != null && vehicleName!.isNotEmpty) ...[
-                    const SizedBox(width: 6),
-                    const Text("•",
-                        style: TextStyle(color: AppColors.textSecondary)),
-                    const SizedBox(width: 6),
+                    if (vehicleName != null && vehicleName!.isNotEmpty) ...[
+                      const SizedBox(width: 6),
+                      const Text("•",
+                          style: TextStyle(color: AppColors.textSecondary)),
+                      const SizedBox(width: 6),
+                    ],
+                  ],
+                  if (vehicleName != null && vehicleName!.isNotEmpty)
                     Flexible(
                       child: Text(
                         vehicleName!,
@@ -90,7 +97,6 @@ class InspectorCardHeader extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                  ],
                 ],
               ),
             ],

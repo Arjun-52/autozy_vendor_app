@@ -18,6 +18,8 @@ class ApiClient {
   String? _refreshToken = kDebugMode ? "mock_development_refresh_token_jwt" : null;
   String? _staffRole;
   String? _profilePictureUrl;
+  String? _clockInDate;
+  Map<String, dynamic>? _attendanceData;
 
   File get _sessionFile => File('${Directory.systemTemp.path}/autozy_session.json');
 
@@ -28,6 +30,8 @@ class ApiClient {
         'refreshToken': _refreshToken,
         'staffRole': _staffRole,
         'profilePictureUrl': _profilePictureUrl,
+        'clockInDate': _clockInDate,
+        'attendanceData': _attendanceData,
       }));
     } catch (e) {
       if (kDebugMode) {
@@ -45,8 +49,10 @@ class ApiClient {
         _refreshToken = data['refreshToken'];
         _staffRole = data['staffRole'];
         _profilePictureUrl = data['profilePictureUrl'];
+        _clockInDate = data['clockInDate'];
+        _attendanceData = data['attendanceData'];
         if (kDebugMode) {
-          print('Loaded session: token=$_token, role=$_staffRole, profilePictureUrl=$_profilePictureUrl');
+          print('Loaded session: token=$_token, role=$_staffRole, profilePictureUrl=$_profilePictureUrl, clockInDate=$_clockInDate');
         }
       }
     } catch (e) {
@@ -68,11 +74,22 @@ class ApiClient {
   /// Clear stored token
   void clearToken() {
     _token = null;
+    _clockInDate = null;
+    _attendanceData = null;
     _saveSession();
     if (kDebugMode) {
       print('Token cleared from ApiClient');
     }
   }
+
+  void setAttendance(Map<String, dynamic>? attendance, String? date) {
+    _attendanceData = attendance;
+    _clockInDate = date;
+    _saveSession();
+  }
+
+  Map<String, dynamic>? get attendanceData => _attendanceData;
+  String? get clockInDate => _clockInDate;
 
   /// Get current token
   String? get token => _token;

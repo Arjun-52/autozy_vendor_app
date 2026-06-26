@@ -1,5 +1,6 @@
 import 'package:autozy_vendor_app/core/utils/top_status_banner.dart';
 import 'package:autozy_vendor_app/viewmodels/supervisor_viewmodel.dart';
+import 'package:autozy_vendor_app/viewmodels/attendance_viewmodel.dart';
 import 'package:autozy_vendor_app/views/supervisor/widgets/alert_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -25,8 +26,6 @@ class SupervisorScreen extends StatefulWidget {
 }
 
 class _SupervisorScreenState extends State<SupervisorScreen> {
-  bool isOnline = true;
-
   @override
   void initState() {
     super.initState();
@@ -40,6 +39,8 @@ class _SupervisorScreenState extends State<SupervisorScreen> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<SupervisorViewModel>();
+    final attendanceVm = context.watch<AttendanceViewModel>();
+    final isOnline = attendanceVm.attendance != null;
 
     return PopScope(
       canPop: true,
@@ -68,11 +69,16 @@ class _SupervisorScreenState extends State<SupervisorScreen> {
           actions: [
             GestureDetector(
               onTap: () {
-                setState(() {
-                  isOnline = !isOnline;
-                });
-
-                handleOnlineToggle(context, isOnline);
+                if (!isOnline) {
+                  context.push('/profile');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please Clock In to go Online')),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please Clock Out from Profile to go Offline')),
+                  );
+                }
               },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 250),
