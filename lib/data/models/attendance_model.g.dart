@@ -10,7 +10,7 @@ AttendanceModel _$AttendanceModelFromJson(Map<String, dynamic> json) =>
     AttendanceModel(
       id: json['id'] as String,
       staffId: json['staff_id'] as String,
-      date: json['date'] as String,
+      date: json['date'] as String?,
       checkIn: json['check_in'] as String?,
       checkOut: json['check_out'] as String?,
       gpsLat: AttendanceModel._parseDouble(json['gps_lat']),

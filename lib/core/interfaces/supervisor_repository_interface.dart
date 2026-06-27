@@ -4,6 +4,8 @@ import '../../data/models/admin_service_records_response.dart';
 import '../../data/models/admin_inspections_response.dart';
 import '../../data/models/attendance_model.dart';
 import '../../data/models/attendance_response.dart';
+import '../../data/models/notification_response.dart';
+
 /// Repository interface for Supervisor operations
 /// Enables loose coupling and easy API integration
 abstract class ISupervisorRepository {
@@ -21,11 +23,19 @@ abstract class ISupervisorRepository {
 
   /// Remove team member
   Future<bool> removeTeamMember(String memberId);
-/// Get supervisor attendance
-Future<AttendanceResponse> getAdminAttendance();
+
+  /// Get supervisor attendance
+  Future<AttendanceResponse> getAdminAttendance();
+
   /// Get admin service records
   Future<AdminServiceRecordsResponse> getAdminServiceRecords();
 
   /// Get admin inspections
   Future<AdminInspectionsResponse> getAdminInspections();
+
+  /// Get paginated notifications
+  Future<NotificationResponse> getNotifications({required int page, required int limit});
+
+  /// Mark a notification as read
+  Future<bool> markNotificationAsRead(String id);
 }

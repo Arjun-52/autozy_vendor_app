@@ -2,6 +2,7 @@ import 'package:autozy_vendor_app/core/utils/top_status_banner.dart';
 import 'package:autozy_vendor_app/viewmodels/supervisor_viewmodel.dart';
 import 'package:autozy_vendor_app/viewmodels/attendance_viewmodel.dart';
 import 'package:autozy_vendor_app/views/supervisor/widgets/alert_card.dart';
+import 'package:autozy_vendor_app/views/supervisor/widgets/notification_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -26,14 +27,61 @@ class SupervisorScreen extends StatefulWidget {
 }
 
 class _SupervisorScreenState extends State<SupervisorScreen> {
+  String? _lastAttendanceError;
+  final ScrollController _notificationsScrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
 
     // Load data from repository
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<SupervisorViewModel>().loadData();
+      final vm = context.read<SupervisorViewModel>();
+      vm.loadData();
+      vm.addListener(_onViewModelChanged);
+      _notificationsScrollController.addListener(_onScroll);
     });
+  }
+
+  @override
+  void dispose() {
+    _notificationsScrollController.removeListener(_onScroll);
+    _notificationsScrollController.dispose();
+    context.read<SupervisorViewModel>().removeListener(_onViewModelChanged);
+    super.dispose();
+  }
+
+  void _onScroll() {
+    final vm = context.read<SupervisorViewModel>();
+    if (_notificationsScrollController.position.pixels >=
+        _notificationsScrollController.position.maxScrollExtent - 200) {
+      if (!vm.isLoadingNotifications && vm.notificationsError == null) {
+        vm.fetchNotifications();
+      }
+    }
+  }
+
+  void _onViewModelChanged() {
+    if (!mounted) return;
+    final vm = context.read<SupervisorViewModel>();
+    if (vm.attendanceError != _lastAttendanceError) {
+      _lastAttendanceError = vm.attendanceError;
+      if (_lastAttendanceError != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Attendance Error: $_lastAttendanceError"),
+            backgroundColor: Colors.red,
+            action: SnackBarAction(
+              label: "Retry",
+              textColor: Colors.white,
+              onPressed: () {
+                vm.fetchAttendance();
+              },
+            ),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -187,7 +235,7 @@ class _SupervisorScreenState extends State<SupervisorScreen> {
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     TabButton(
-                      text: "Alerts (3)",
+                      text: "Alerts (${vm.unreadNotificationsCount})",
                       icon: Icons.notifications_none,
                       selected: vm.currentTab == SupervisorTab.alerts,
                       onTap: () => vm.switchTab(SupervisorTab.alerts),
@@ -221,10 +269,7 @@ class _SupervisorScreenState extends State<SupervisorScreen> {
                           ),
                         )
                       : vm.currentTab == SupervisorTab.alerts
-                          ? ListView.builder(
-                              itemCount: vm.alerts.length,
-                              itemBuilder: (_, i) => AlertCard(alert: vm.alerts[i]),
-                            )
+                          ? _buildNotificationsSection(vm)
                           : _buildServiceRecordsSection(vm),
                 ),
               ],
@@ -297,6 +342,101 @@ class _SupervisorScreenState extends State<SupervisorScreen> {
         final record = vm.serviceRecords[index];
         return ServiceRecordCard(record: Map<String, dynamic>.from(record));
       },
+    );
+  }
+
+  Widget _buildNotificationsSection(SupervisorViewModel vm) {
+    if (vm.isLoadingNotifications && vm.notifications.isEmpty) {
+      return const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+        ),
+      );
+    }
+
+    if (vm.notificationsError != null && vm.notifications.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
+            const SizedBox(height: 16),
+            Text(
+              "Failed to load alerts",
+              style: AppStyles.subHeading.copyWith(color: AppColors.error),
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () => vm.fetchNotifications(refresh: true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text("Retry"),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (vm.notifications.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: () => vm.fetchNotifications(refresh: true),
+        color: AppColors.primary,
+        child: Stack(
+          children: [
+            ListView(),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.notifications_off_outlined, size: 64, color: AppColors.textPrimary.withOpacity(0.4)),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "No Alerts Available",
+                    style: AppStyles.subHeading,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Any new system alerts will appear here.",
+                    style: AppStyles.caption.copyWith(color: AppColors.textPrimary.withOpacity(0.6)),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => vm.fetchNotifications(refresh: true),
+      color: AppColors.primary,
+      child: ListView.builder(
+        controller: _notificationsScrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: vm.notifications.length + (vm.isLoadingNotifications ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == vm.notifications.length) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: SizedBox(
+                  height: 24,
+                  width: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary)),
+                ),
+              ),
+            );
+          }
+          final notification = vm.notifications[index];
+          return NotificationCard(
+            notification: notification,
+            onAcknowledge: () => vm.markAsRead(notification.id),
+          );
+        },
+      ),
     );
   }
 }

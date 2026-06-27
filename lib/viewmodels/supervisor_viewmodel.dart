@@ -2,6 +2,8 @@ import 'package:autozy_vendor_app/data/models/alert_model.dart';
 import 'package:autozy_vendor_app/data/models/team_member.dart';
 import 'package:autozy_vendor_app/data/models/admin_service_records_response.dart';
 import 'package:autozy_vendor_app/data/models/admin_inspections_response.dart';
+import 'package:autozy_vendor_app/data/models/notification_model.dart';
+import 'package:autozy_vendor_app/data/models/pagination_meta.dart';
 import 'package:flutter/foundation.dart';
 import '../core/interfaces/supervisor_repository_interface.dart';
 import '../data/models/attendance_model.dart';
@@ -16,6 +18,11 @@ class SupervisorViewModel extends ChangeNotifier {
   SupervisorTab currentTab = SupervisorTab.team;
   List<TeamMember> members = [];
   List<AlertModel> alerts = [];
+
+  bool isLoadingNotifications = false;
+  String? notificationsError;
+  List<NotificationModel> notifications = [];
+  PaginationMeta? notificationsMeta;
 
   bool isLoadingServiceRecords = false;
   String? serviceRecordsError;
@@ -197,7 +204,39 @@ Future<void> fetchAttendance() async {
     final response = await _repository.getAdminAttendance();
 
     attendanceResponse = response;
-    attendanceRecords = response.data;
+    attendanceRecords = response.items;
+
+    // Map attendance records to team members
+    for (int i = 0; i < members.length; i++) {
+      final member = members[i];
+      final attendance = attendanceRecords.firstWhere(
+        (a) => a.staffId == member.id,
+        orElse: () => AttendanceModel(id: '', staffId: '', date: ''),
+      );
+
+      String memberStatus = 'Offline';
+      if (attendance.id.isNotEmpty) {
+        if (attendance.checkIn != null && attendance.checkOut == null) {
+          memberStatus = attendance.status?.toUpperCase() == 'BREAK' ? 'On Break' : 'Active';
+        } else if (attendance.checkOut != null) {
+          memberStatus = 'Offline';
+        } else if (attendance.status?.toUpperCase() == 'PRESENT' || attendance.status?.toUpperCase() == 'ACTIVE') {
+          memberStatus = 'Active';
+        }
+      }
+
+      members[i] = TeamMember(
+        id: member.id,
+        name: member.name,
+        phone: member.phone,
+        role: member.role,
+        areaId: member.areaId,
+        tower: member.tower,
+        completed: member.completed,
+        total: member.total,
+        status: memberStatus,
+      );
+    }
 
     if (kDebugMode) {
       print('Attendance fetch success');
@@ -247,9 +286,10 @@ Future<void> loadData() async {
   try {
     members = await _repository.getTeamMembers();
     alerts = await _repository.getAlerts();
-await fetchAttendance();
+    await fetchAttendance();
     await fetchServiceRecords();
     await fetchInspections();
+    await fetchNotifications(refresh: true);
 
     notifyListeners();
   } catch (e) {
@@ -259,11 +299,66 @@ await fetchAttendance();
     notifyListeners();
   }
 }
-  int get activeCount => 0;
+  int get activeCount => members.where((m) => m.status == 'Active').length;
 
-int get breakCount => 0;
+  int get breakCount => members.where((m) => m.status == 'On Break').length;
 
-int get offlineCount => 0;
+  int get offlineCount => members.where((m) => m.status == 'Offline').length;
+
+  int get unreadNotificationsCount => notifications.where((n) => !n.isRead).length;
+
+  Future<void> fetchNotifications({bool refresh = false}) async {
+    if (refresh) {
+      notifications.clear();
+      notificationsMeta = null;
+    }
+
+    final nextPage = (notificationsMeta?.page ?? 0) + 1;
+    final totalPages = notificationsMeta?.totalPages ?? 1;
+
+    if (!refresh && nextPage > totalPages) return;
+
+    isLoadingNotifications = true;
+    notificationsError = null;
+    notifyListeners();
+
+    try {
+      final response = await _repository.getNotifications(page: nextPage, limit: 20);
+      if (refresh) {
+        notifications = response.data;
+      } else {
+        notifications.addAll(response.data);
+      }
+      notificationsMeta = response.meta;
+    } catch (e) {
+      notificationsError = e.toString();
+    } finally {
+      isLoadingNotifications = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> markAsRead(String id) async {
+    final success = await _repository.markNotificationAsRead(id);
+    if (success) {
+      final index = notifications.indexWhere((n) => n.id == id);
+      if (index != -1) {
+        final current = notifications[index];
+        notifications[index] = NotificationModel(
+          id: current.id,
+          userId: current.userId,
+          staffId: current.staffId,
+          type: current.type,
+          title: current.title,
+          body: current.body,
+          data: current.data,
+          isRead: true,
+          createdAt: current.createdAt,
+        );
+        notifyListeners();
+      }
+    }
+  }
 
   Future<void> updateMemberStatus(String memberName, String newStatus) async {
     final index = members.indexWhere((m) => m.name == memberName);

@@ -9,7 +9,7 @@ class AttendanceModel {
   @JsonKey(name: 'staff_id')
   final String staffId;
 
-  final String date;
+  final String? date;
 
   @JsonKey(name: 'check_in')
   final String? checkIn;
@@ -36,7 +36,7 @@ class AttendanceModel {
   AttendanceModel({
     required this.id,
     required this.staffId,
-    required this.date,
+    this.date,
     this.checkIn,
     this.checkOut,
     this.gpsLat,

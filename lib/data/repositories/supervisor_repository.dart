@@ -7,6 +7,7 @@ import '../services/new_api_service.dart';
 import 'package:flutter/foundation.dart';
 import '../models/attendance_model.dart';
 import '../models/attendance_response.dart';
+import '../models/notification_response.dart';
 /// Implementation of SupervisorRepository connecting to NewApiService
 class SupervisorRepository implements ISupervisorRepository {
   final NewApiService _apiService;
@@ -167,7 +168,7 @@ Future<AttendanceResponse> getAdminAttendance() async {
 
     if (kDebugMode) {
       print(
-          'Attendance Parsing Success. Records: ${parsedResponse.data.length}');
+          'Attendance Parsing Success. Records: ${parsedResponse.items.length}');
     }
 
     return parsedResponse;
@@ -214,6 +215,47 @@ Future<AttendanceResponse> getAdminAttendance() async {
         print('API request error: $e');
       }
       rethrow;
+    }
+  }
+
+  @override
+  Future<NotificationResponse> getNotifications({required int page, required int limit}) async {
+    if (kDebugMode) {
+      print('SupervisorRepository: getNotifications request start (page: $page, limit: $limit)');
+    }
+    try {
+      final response = await _apiService.getNotifications(page, limit);
+      if (kDebugMode) {
+        print('SupervisorRepository: getNotifications response received: $response');
+      }
+      if (response == null) {
+        throw Exception("Null response received");
+      }
+      return NotificationResponse.fromJson(response as Map<String, dynamic>);
+    } catch (e) {
+      if (kDebugMode) {
+        print('SupervisorRepository: getNotifications error: $e');
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<bool> markNotificationAsRead(String id) async {
+    if (kDebugMode) {
+      print('SupervisorRepository: markNotificationAsRead request start (id: $id)');
+    }
+    try {
+      await _apiService.markNotificationAsRead(id);
+      if (kDebugMode) {
+        print('SupervisorRepository: markNotificationAsRead success');
+      }
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('SupervisorRepository: markNotificationAsRead error: $e');
+      }
+      return false;
     }
   }
 }

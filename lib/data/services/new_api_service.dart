@@ -184,6 +184,17 @@ Future<dynamic> getTeamMembers(
   @GET('/alerts')
   Future<dynamic> getAlerts();
 
+  @GET('/api/v1/notifications')
+  Future<dynamic> getNotifications(
+    @Query('page') int page,
+    @Query('limit') int limit,
+  );
+
+  @PATCH('/api/v1/notifications/{id}/read')
+  Future<dynamic> markNotificationAsRead(
+    @Path('id') String id,
+  );
+
   /// Dashboard endpoints
   @GET('/dashboard/stats')
   Future<dynamic> getDashboardStats();
