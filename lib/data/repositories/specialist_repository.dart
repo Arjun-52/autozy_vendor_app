@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import '../../core/interfaces/specialist_repository_interface.dart';
 import '../models/assigned_job_model.dart';
 import '../services/specialist_api_service.dart';
+import '../models/specialist_kpi_response.dart';
 
 class SpecialistRepositoryException implements Exception {
   final String message;
@@ -92,6 +93,42 @@ class SpecialistRepository implements ISpecialistRepository {
         return 'Server error. Please try again in a moment.';
       default:
         return 'Unable to fetch assigned jobs right now.';
+    }
+  }
+
+  @override
+  Future<SpecialistKpiData> fetchKpis() async {
+    try {
+      final response = await _apiService.fetchKpis();
+      final data = response.data;
+
+      if (data is! Map<String, dynamic>) {
+        throw const SpecialistRepositoryException(
+          'Unexpected response received from the server.',
+        );
+      }
+
+      final success = data['success'] == true;
+      if (!success) {
+        throw const SpecialistRepositoryException(
+          'Failed to fetch specialist KPIs.',
+        );
+      }
+
+      final kpiResponse = SpecialistKpiResponse.fromJson(data);
+      return kpiResponse.data;
+    } on DioError catch (error) {
+      throw SpecialistRepositoryException(_mapDioError(error));
+    } on SocketException {
+      throw const SpecialistRepositoryException(
+        'No internet connection. Please check your network and try again.',
+      );
+    } on SpecialistRepositoryException {
+      rethrow;
+    } catch (_) {
+      throw const SpecialistRepositoryException(
+        'Something went wrong while fetching specialist KPIs.',
+      );
     }
   }
 }

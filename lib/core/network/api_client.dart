@@ -154,7 +154,7 @@ class ApiClient {
 
     _dio = Dio(
       BaseOptions(
-        baseUrl: 'https://autozybackend.gyaanplant.co.in', // TODO: Move to config
+        baseUrl: 'https://autozybackend.gyaanplant.co.in', 
         connectTimeout: 30000,
         receiveTimeout: 30000,
         sendTimeout: 30000,

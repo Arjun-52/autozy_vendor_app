@@ -38,4 +38,34 @@ class SpecialistApiService {
 
     return response;
   }
+
+  Future<Response<dynamic>> fetchKpis() async {
+    final token = ApiClient().token;
+    final headers = <String, dynamic>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': token != null ? 'Bearer $token' : 'Missing token',
+    };
+
+    if (kDebugMode) {
+      print('========== FETCH SPECIALIST KPIS ==========');
+      print(
+        'Request URL: ${_dio.options.baseUrl}/api/v1/specialist/kpis',
+      );
+      print('Headers: $headers');
+    }
+
+    final response = await _dio.get(
+      '/api/v1/specialist/kpis',
+      options: Options(headers: headers),
+    );
+
+    if (kDebugMode) {
+      print('========== RESPONSE ==========');
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.data}');
+    }
+
+    return response;
+  }
 }

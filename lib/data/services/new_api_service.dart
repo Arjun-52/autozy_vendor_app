@@ -95,6 +95,12 @@ abstract class NewApiService {
     @Body() Map<String, dynamic> body,
   );
 
+  @POST('/api/v1/specialist/jobs/{id}/cancel')
+  Future<dynamic> cancelSpecialistJob(
+    @Path('id') String id,
+    @Body() Map<String, dynamic> body,
+  );
+
   @GET(ApiEndpoints.addonServices)
   Future<dynamic> getAddonServices();
 
@@ -198,4 +204,9 @@ Future<dynamic> getTeamMembers(
   /// Dashboard endpoints
   @GET('/dashboard/stats')
   Future<dynamic> getDashboardStats();
+
+  @POST('/api/v1/notifications/staff/issues')
+  Future<dynamic> reportStaffIssue(
+    @Body() Map<String, dynamic> body,
+  );
 }

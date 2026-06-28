@@ -114,6 +114,114 @@ class _AssignedJobCardState extends State<AssignedJobCard> {
     }
   }
 
+  Future<void> _handleCancelJob() async {
+    final reasonController = TextEditingController();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Cancel Job'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Are you sure you want to cancel this job? A valid reason is required.',
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: reasonController,
+                  decoration: const InputDecoration(
+                    labelText: 'Cancellation Reason',
+                    hintText: 'Enter reason for cancellation...',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 3,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Go Back'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                if (reasonController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please enter a cancellation reason.')),
+                  );
+                  return;
+                }
+                Navigator.pop(dialogContext, true);
+              },
+              child: const Text('Cancel Job'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) {
+      reasonController.dispose();
+      return;
+    }
+
+    final reason = reasonController.text.trim();
+    reasonController.dispose();
+
+    setState(() {
+      _isProcessing = true;
+    });
+
+    try {
+      final success = await context
+          .read<SpecialistTasksViewModel>()
+          .cancelSpecialistJob(widget.job.id, reason);
+      if (success) {
+        await _refreshAssignedJobs();
+        await _showMessage('Job cancelled successfully.');
+      } else {
+        await _showMessage('Unable to cancel the job.');
+      }
+    } catch (error) {
+      await _showMessage('Cancel job failed: $error');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
+      }
+    }
+  }
+
+  Widget _buildCancelButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: _handleCancelJob,
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.red,
+          side: const BorderSide(color: Colors.red),
+          padding: const EdgeInsets.symmetric(vertical: 13),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: const Text(
+          'Cancel Job',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+      ),
+    );
+  }
+
   Future<void> _handlePhotoUpload(bool isBeforePhoto) async {
     setState(() {
       _isProcessing = true;
@@ -285,43 +393,37 @@ class _AssignedJobCardState extends State<AssignedJobCard> {
       return const Center(child: CircularProgressIndicator());
     }
 
+    Widget? primaryAction;
+
     if (job.isAssigned) {
-      return _PrimaryButton(
+      primaryAction = _PrimaryButton(
         text: 'Accept Job',
         onPressed: _handleAcceptJob,
       );
-    }
-
-    if (job.isAccepted) {
-      return _PrimaryButton(
+    } else if (job.isAccepted) {
+      primaryAction = _PrimaryButton(
         text: 'Start Job',
         onPressed: _handleStartJob,
       );
-    }
-
-    if (job.isInProgress) {
+    } else if (job.isInProgress) {
       if (!hasBeforePhotos) {
-        return _PrimaryButton(
+        primaryAction = _PrimaryButton(
           text: 'Upload Before Photo',
           onPressed: () => _handlePhotoUpload(true),
         );
-      }
-
-      if (!hasAfterPhotos) {
-        return _PrimaryButton(
+      } else if (!hasAfterPhotos) {
+        primaryAction = _PrimaryButton(
           text: 'Upload After Photo',
           onPressed: () => _handlePhotoUpload(false),
         );
+      } else {
+        primaryAction = _PrimaryButton(
+          text: 'Complete Job',
+          isSuccess: true,
+          onPressed: _handleCompleteJob,
+        );
       }
-
-      return _PrimaryButton(
-        text: 'Complete Job',
-        isSuccess: true,
-        onPressed: _handleCompleteJob,
-      );
-    }
-
-    if (job.isCompleted) {
+    } else if (job.isCompleted) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
@@ -337,6 +439,34 @@ class _AssignedJobCardState extends State<AssignedJobCard> {
             fontWeight: FontWeight.w700,
           ),
         ),
+      );
+    } else if (job.status == 'CANCELLED') {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+        decoration: BoxDecoration(
+          color: Colors.red.withOpacity(0.12),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Text(
+          'Cancelled',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.red,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      );
+    }
+
+    if (primaryAction != null) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          primaryAction,
+          const SizedBox(height: 8),
+          _buildCancelButton(),
+        ],
       );
     }
 
@@ -645,6 +775,10 @@ class _StatusChip extends StatelessWidget {
       case 'ACCEPTED':
         textColor = AppColors.primary;
         backgroundColor = AppColors.primary.withOpacity(0.12);
+        break;
+      case 'CANCELLED':
+        textColor = Colors.red;
+        backgroundColor = Colors.red.withOpacity(0.12);
         break;
       default:
         textColor = AppColors.textPrimary;

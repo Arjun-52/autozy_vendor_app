@@ -6,6 +6,7 @@ import '../../data/models/addon_service.dart';
 import '../../data/models/pagination_meta.dart';
 
 import '../../data/models/specialist_job_model.dart';
+import '../../data/models/staff_issue_model.dart';
 
 class SpecialistTasksViewModel extends ChangeNotifier {
   final ISpecialistTasksRepository _repository;
@@ -525,6 +526,53 @@ class SpecialistTasksViewModel extends ChangeNotifier {
     return false;
   }
 
+  Future<bool> cancelSpecialistJob(String id, String reason) async {
+    _isLoadingJobs = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final success = await _repository.cancelSpecialistJob(id, reason);
+      if (success) {
+        final index = _specialistJobs.indexWhere((job) => job.id == id);
+        if (index != -1) {
+          final old = _specialistJobs[index];
+          _specialistJobs[index] = SpecialistJobModel(
+            id: old.id,
+            userId: old.userId,
+            vehicleId: old.vehicleId,
+            addonServiceId: old.addonServiceId,
+            specialistId: old.specialistId,
+            status: "CANCELLED",
+            scheduledDate: old.scheduledDate,
+            scheduledSlotStart: old.scheduledSlotStart,
+            scheduledSlotEnd: old.scheduledSlotEnd,
+            addonService: old.addonService,
+            vehicle: old.vehicle,
+            user: old.user,
+            supervisorAuditStatus: old.supervisorAuditStatus,
+            disputeWindowEnd: old.disputeWindowEnd,
+            beforePhotos: old.beforePhotos,
+            afterPhotos: old.afterPhotos,
+            specialistNotes: old.specialistNotes != null
+                ? "${old.specialistNotes}\nCancellation Reason: $reason"
+                : "Cancellation Reason: $reason",
+          );
+        }
+        await fetchSpecialistJobs();
+        return true;
+      }
+    } catch (e) {
+      _errorMessage = e.toString();
+      _showError = true;
+    } finally {
+      _isLoadingJobs = false;
+      notifyListeners();
+    }
+    return false;
+  }
+
+
   Future<void> toggleStep(int taskIndex, int stepIndex) async {
     if (taskIndex < tasks.length && stepIndex < tasks[taskIndex].steps.length) {
       try {
@@ -571,5 +619,35 @@ class SpecialistTasksViewModel extends ChangeNotifier {
 
   void clearError() {
     _clearError();
+  }
+
+  bool _isReportingIssue = false;
+  bool get isReportingIssue => _isReportingIssue;
+
+  Future<StaffIssueResponse?> reportStaffIssue({
+    required String issueType,
+    required String description,
+    required bool urgent,
+  }) async {
+    _isReportingIssue = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final request = StaffIssueRequest(
+        issueType: issueType,
+        description: description,
+        urgent: urgent,
+      );
+      final response = await _repository.reportStaffIssue(request);
+      return response;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _showError = true;
+      return null;
+    } finally {
+      _isReportingIssue = false;
+      notifyListeners();
+    }
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../core/interfaces/specialist_repository_interface.dart';
 import '../data/models/assigned_job_model.dart';
+import '../data/models/specialist_kpi_response.dart';
 
 class SpecialistViewModel extends ChangeNotifier {
   final ISpecialistRepository _repository;
@@ -11,6 +12,17 @@ class SpecialistViewModel extends ChangeNotifier {
   List<AssignedJobModel> assignedJobs = [];
   bool isLoading = false;
   String? errorMessage;
+
+  SpecialistKpiData? kpis;
+  bool isLoadingKpis = false;
+  String? kpisErrorMessage;
+
+  Future<void> loadDashboardData() async {
+    await Future.wait([
+      loadAssignedJobs(),
+      loadKpis(),
+    ]);
+  }
 
   Future<void> loadAssignedJobs() async {
     isLoading = true;
@@ -24,6 +36,22 @@ class SpecialistViewModel extends ChangeNotifier {
       errorMessage = error.toString();
     } finally {
       isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadKpis() async {
+    isLoadingKpis = true;
+    kpisErrorMessage = null;
+    notifyListeners();
+
+    try {
+      kpis = await _repository.fetchKpis();
+      kpisErrorMessage = null;
+    } catch (error) {
+      kpisErrorMessage = error.toString();
+    } finally {
+      isLoadingKpis = false;
       notifyListeners();
     }
   }

@@ -6,6 +6,7 @@ import '../../data/models/addon_service.dart';
 import '../../data/models/addon_services_response.dart';
 import '../../data/models/specialist_job_model.dart';
 import '../../data/models/specialist_jobs_response.dart';
+import '../../data/models/staff_issue_model.dart';
 import '../services/new_api_service.dart';
 import '../../data/models/pagination_meta.dart';
 
@@ -226,7 +227,7 @@ class SpecialistTasksRepository implements ISpecialistTasksRepository {
   @override
   Future<bool> startSpecialistJob(String id, List<Map<String, dynamic>> beforePhotos) async {
     try {
-      final response = await _apiService.startSpecialistJob(id, {'before_photos': beforePhotos});
+      final response = await _apiService.startSpecialistJob(id, {'beforePhotos': beforePhotos});
       return response != null && response['success'] == true;
     } catch (e) {
       if (kDebugMode) {
@@ -266,8 +267,8 @@ class SpecialistTasksRepository implements ISpecialistTasksRepository {
   Future<bool> completeSpecialistJob(String id, List<Map<String, dynamic>> afterPhotos, String notes) async {
     try {
       final response = await _apiService.completeSpecialistJob(id, {
-        'after_photos': afterPhotos,
-        'specialist_notes': notes,
+        'afterPhotos': afterPhotos,
+        'notes': notes,
       });
       return response != null && response['success'] == true;
     } catch (e) {
@@ -276,5 +277,35 @@ class SpecialistTasksRepository implements ISpecialistTasksRepository {
       }
       return false;
     }
+  }
+
+  @override
+  Future<bool> cancelSpecialistJob(String id, String reason) async {
+    try {
+      final response = await _apiService.cancelSpecialistJob(id, {
+        'reason': reason,
+      });
+      return response != null && response['success'] == true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('cancelSpecialistJob error: $e');
+      }
+      return false;
+    }
+  }
+
+  @override
+  Future<StaffIssueResponse?> reportStaffIssue(StaffIssueRequest request) async {
+    try {
+      final response = await _apiService.reportStaffIssue(request.toJson());
+      if (response != null) {
+        return StaffIssueResponse.fromJson(response);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('reportStaffIssue error: $e');
+      }
+    }
+    return null;
   }
 }
