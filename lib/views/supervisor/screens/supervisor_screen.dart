@@ -255,17 +255,23 @@ class _SupervisorScreenState extends State<SupervisorScreen> {
                 /// LIST
                 Expanded(
                   child: vm.currentTab == SupervisorTab.team
-                      ? ListView.builder(
-                          itemCount: vm.members.length,
-                          itemBuilder: (_, i) => MemberCard(
-                            name: vm.members[i].name,
-                            role: vm.members[i].role,
-                            tower: vm.members[i].tower,
-                            status: vm.members[i].status,
-                            completed: vm.members[i].completed,
-                            total: vm.members[i].total,
-                            phone: vm.members[i].phone,
-                            hideProgress: vm.members[i].role.trim().toLowerCase() == 'inspector',
+                      ? RefreshIndicator(
+                          onRefresh: () => vm.loadData(),
+                          color: AppColors.primary,
+                          child: ListView.builder(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            itemCount: vm.members.length,
+                            itemBuilder: (_, i) => MemberCard(
+                              id: vm.members[i].id,
+                              name: vm.members[i].name,
+                              role: vm.members[i].role,
+                              tower: vm.members[i].tower,
+                              status: vm.members[i].status,
+                              completed: vm.members[i].completed,
+                              total: vm.members[i].total,
+                              phone: vm.members[i].phone,
+                              hideProgress: vm.members[i].role.trim().toLowerCase() == 'inspector',
+                            ),
                           ),
                         )
                       : vm.currentTab == SupervisorTab.alerts
@@ -315,33 +321,47 @@ class _SupervisorScreenState extends State<SupervisorScreen> {
     }
 
     if (vm.serviceRecords.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.assignment_turned_in_outlined, size: 64, color: AppColors.textPrimary.withOpacity(0.4)),
-            const SizedBox(height: 16),
-            const Text(
-              "No Service Records Available",
-              style: AppStyles.subHeading,
+      return RefreshIndicator(
+        onRefresh: () => vm.loadData(),
+        color: AppColors.primary,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.6,
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.assignment_turned_in_outlined, size: 64, color: AppColors.textPrimary.withOpacity(0.4)),
+                const SizedBox(height: 16),
+                const Text(
+                  "No Service Records Available",
+                  style: AppStyles.subHeading,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "Daily wash/service jobs will appear here.",
+                  style: AppStyles.caption.copyWith(color: AppColors.textPrimary.withOpacity(0.6)),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              "Daily wash/service jobs will appear here.",
-              style: AppStyles.caption.copyWith(color: AppColors.textPrimary.withOpacity(0.6)),
-              textAlign: TextAlign.center,
-            ),
-          ],
+          ),
         ),
       );
     }
 
-    return ListView.builder(
-      itemCount: vm.serviceRecords.length,
-      itemBuilder: (context, index) {
-        final record = vm.serviceRecords[index];
-        return ServiceRecordCard(record: Map<String, dynamic>.from(record));
-      },
+    return RefreshIndicator(
+      onRefresh: () => vm.loadData(),
+      color: AppColors.primary,
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: vm.serviceRecords.length,
+        itemBuilder: (context, index) {
+          final record = vm.serviceRecords[index];
+          return ServiceRecordCard(record: Map<String, dynamic>.from(record));
+        },
+      ),
     );
   }
 

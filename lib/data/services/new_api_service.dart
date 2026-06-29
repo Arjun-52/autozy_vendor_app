@@ -114,6 +114,12 @@ abstract class NewApiService {
 Future<dynamic> getAdminServiceRecords(
   @Query('date') String date,
 );
+
+  @PATCH('/api/v1/admin/services/records/{serviceRecordUuid}')
+  Future<dynamic> reassignDetailer(
+    @Path('serviceRecordUuid') String serviceRecordUuid,
+    @Body() Map<String, dynamic> body,
+  );
 @GET('/api/v1/admin/attendance')
 Future<dynamic> getAdminAttendance(
   @Query('date') String date,

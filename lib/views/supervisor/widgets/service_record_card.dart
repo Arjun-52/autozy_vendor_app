@@ -3,6 +3,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_styles.dart';
+import 'reassign_bottom_sheet.dart';
+import '../../../data/models/team_member.dart';
 
 class ServiceRecordCard extends StatelessWidget {
   final Map<String, dynamic> record;
@@ -209,36 +211,89 @@ class ServiceRecordCard extends StatelessWidget {
               ),
             ],
           ),
-          // Call Detailer Button if phone number exists
-          if (detailerPhone.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            InkWell(
-              onTap: () => _makePhoneCall(detailerPhone),
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFFE9E9E9)),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.phone_outlined, size: 16, color: Colors.black),
-                    const SizedBox(width: 8),
-                    Text(
-                      "Call Detailer ($detailerName)",
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
+          // Buttons
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              if (detailerPhone.isNotEmpty)
+                Expanded(
+                  child: InkWell(
+                    onTap: () => _makePhoneCall(detailerPhone),
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: const Color(0xFFE9E9E9)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.phone_outlined, size: 16, color: Colors.black),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              "Call ($detailerName)",
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
+                ),
+              if (detailerPhone.isNotEmpty) const SizedBox(width: 8),
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => ReassignBottomSheet(
+                        parentContext: context,
+                        serviceRecordUuid: record['id']?.toString(),
+                        member: TeamMember(
+                          id: detailer?['id']?.toString() ?? '',
+                          name: detailerName,
+                          role: 'Detailer',
+                          phone: detailerPhone,
+                        ),
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFFE9E9E9)),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.swap_horiz, size: 16, color: Colors.black),
+                        SizedBox(width: 6),
+                        Text(
+                          "Reassign",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ],
       ),
     );

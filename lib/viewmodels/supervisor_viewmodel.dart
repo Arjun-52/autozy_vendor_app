@@ -29,6 +29,9 @@ class SupervisorViewModel extends ChangeNotifier {
   AdminServiceRecordsResponse? serviceRecordsResponse;
   List<dynamic> serviceRecords = [];
 
+  bool isReassigning = false;
+  String? reassignError;
+
   Future<void> fetchServiceRecords() async {
     if (kDebugMode) {
       print('Controller fetch start');
@@ -404,6 +407,31 @@ Future<void> loadData() async {
         members.removeWhere((m) => m.name == memberName);
         notifyListeners();
       }
+    }
+  }
+
+  Future<bool> reassignRecord(String serviceRecordUuid, String detailerId) async {
+    isReassigning = true;
+    reassignError = null;
+    notifyListeners();
+
+    try {
+      final success = await _repository.reassignServiceRecord(serviceRecordUuid, detailerId);
+      if (success) {
+        if (kDebugMode) {
+          print('Reassignment success. Reloading data.');
+        }
+        await loadData(); // Reloads all lists including service records and team counts
+        return true;
+      }
+      reassignError = "Failed to reassign record";
+      return false;
+    } catch (e) {
+      reassignError = e.toString();
+      return false;
+    } finally {
+      isReassigning = false;
+      notifyListeners();
     }
   }
 }

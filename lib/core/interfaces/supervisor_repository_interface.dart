@@ -38,4 +38,7 @@ abstract class ISupervisorRepository {
 
   /// Mark a notification as read
   Future<bool> markNotificationAsRead(String id);
+
+  /// Reassign a service record to a new detailer
+  Future<bool> reassignServiceRecord(String serviceRecordUuid, String detailerId);
 }

@@ -258,5 +258,27 @@ Future<AttendanceResponse> getAdminAttendance() async {
       return false;
     }
   }
+
+  @override
+  Future<bool> reassignServiceRecord(String serviceRecordUuid, String detailerId) async {
+    if (kDebugMode) {
+      print('SupervisorRepository: reassignServiceRecord start (uuid: $serviceRecordUuid, detailerId: $detailerId)');
+    }
+    try {
+      final response = await _apiService.reassignDetailer(
+        serviceRecordUuid,
+        {'detailer_id': detailerId},
+      );
+      if (kDebugMode) {
+        print('SupervisorRepository: reassignServiceRecord response: $response');
+      }
+      return response != null && response['success'] == true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('SupervisorRepository: reassignServiceRecord error: $e');
+      }
+      return false;
+    }
+  }
 }
 

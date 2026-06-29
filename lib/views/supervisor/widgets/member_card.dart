@@ -5,6 +5,7 @@ import 'reassign_bottom_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MemberCard extends StatelessWidget {
+  final String id;
   final String name;
   final String role;
   final String tower;
@@ -16,6 +17,7 @@ class MemberCard extends StatelessWidget {
 
   const MemberCard({
     super.key,
+    required this.id,
     required this.phone,
     required this.name,
     required this.role,
@@ -219,14 +221,14 @@ class MemberCard extends StatelessWidget {
                       backgroundColor: Colors.transparent,
                       builder: (context) => ReassignBottomSheet(
                         member: TeamMember(
-                          id: 'temp_id', // TODO: Pass actual member ID
+                          id: id,
                           name: name,
                           role: role,
                           tower: tower, 
                           status: status,
                           completed: completed,
                           total: total,
-                          phone: "9347830977",
+                          phone: phone,
                         ),
                         parentContext: context,
                       ),
