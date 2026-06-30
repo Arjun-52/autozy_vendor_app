@@ -234,6 +234,23 @@ class InspectionModel {
     }
     processedJson['name'] = custName;
 
+    String vehicleNo = '';
+    if (vehicleMap != null && vehicleMap['vehicle_number'] != null && vehicleMap['vehicle_number'].toString().trim().isNotEmpty) {
+      vehicleNo = vehicleMap['vehicle_number'].toString().trim();
+    } else {
+      vehicleNo = processedJson['vehicle_number']?.toString().trim() ?? '';
+    }
+    processedJson['vehicle_number'] = vehicleNo;
+
+    String vehicleNm = '';
+    if (vehicleMap != null) {
+      vehicleNm = vehicleMap['vehicle_name']?.toString().trim() ?? vehicleMap['model']?.toString().trim() ?? '';
+    }
+    if (vehicleNm.isEmpty) {
+      vehicleNm = processedJson['vehicle_name']?.toString().trim() ?? '';
+    }
+    processedJson['vehicle_name'] = vehicleNm;
+
     if (processedJson['location'] == null || processedJson['location'].toString().trim().isEmpty) {
       String addr = '';
       final targetMap = vehicleMap ?? processedJson;
@@ -260,9 +277,6 @@ class InspectionModel {
         addr = processedJson['address']?.toString() ?? processedJson['location']?.toString() ?? '';
       }
 
-      if (addr.isEmpty) {
-        addr = 'Tower A, Slot 6';
-      }
       processedJson['location'] = addr;
     }
 
@@ -455,10 +469,6 @@ class InspectionModel {
       addr = components.join(', ');
     } else {
       addr = json['address']?.toString() ?? json['location']?.toString() ?? '';
-    }
-
-    if (addr.isEmpty) {
-      addr = 'Tower A, Slot 6';
     }
 
     final cityVal = json['city']?.toString() ?? '';

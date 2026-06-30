@@ -96,7 +96,7 @@ class InspectorCard extends StatelessWidget {
 
             const SizedBox(height: AppSpacing.sm),
 
-            InspectorLocationRow(location: isApproved ? inspection.vehicle : inspection.location),
+            InspectorLocationRow(location: inspection.location),
 
             const SizedBox(height: AppSpacing.md),
 

@@ -8,6 +8,9 @@ class InspectorLocationRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (location.trim().isEmpty) {
+      return const SizedBox.shrink();
+    }
     return Row(
       children: [
         const Icon(Icons.location_on, size: 16, color: AppColors.textSecondary),

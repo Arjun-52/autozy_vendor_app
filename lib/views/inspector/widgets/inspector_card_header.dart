@@ -55,7 +55,16 @@ class InspectorCardHeader extends StatelessWidget {
 
         Expanded(
           child: isApproved
-              ? const SizedBox.shrink()
+              ? Text(
+                  "$vehicle Has successfully approved",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: isFlagged
+                        ? AppColors.textSecondary
+                        : AppColors.textPrimary,
+                  ),
+                )
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
